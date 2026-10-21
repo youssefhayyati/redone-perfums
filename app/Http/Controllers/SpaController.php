@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Collection;
+use App\Models\Pack;
 use App\Models\Page;
 use App\Models\Product;
-use App\Services\Settings\StoreSettings;
 use App\Services\Settings\StorefrontConfig;
+use App\Services\Settings\StoreSettings;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -34,7 +35,7 @@ class SpaController extends Controller
         $status = $this->isKnownRoute($path) ? 200 : 404;
         $private = preg_match('#^(panier|commande|compte)(/|$)#', $path) === 1;
 
-        if (preg_match('#^(parfums|collections|pages)/([a-z0-9\-]+)$#', $path, $m) && ! $this->exists($m[1], $m[2])) {
+        if (preg_match('#^(parfums|collections|coffrets|pages)/([a-z0-9\-]+)$#', $path, $m) && ! $this->exists($m[1], $m[2])) {
             $status = 404;
         }
 
@@ -44,7 +45,7 @@ class SpaController extends Controller
             $meta = [
                 'title' => ($product->meta_title ?: $product->name).' — '.$store,
                 'description' => $product->meta_description ?: ($product->tagline ?: Str::limit(strip_tags((string) $product->description), 155)),
-                'image' => $image?->url() ?? $meta['image'],
+                'image' => $this->shareableImage($image?->url(), $meta['image']),
                 'type' => 'product',
                 'jsonld' => $prices->isEmpty() ? null : [
                     '@context' => 'https://schema.org',
@@ -70,7 +71,12 @@ class SpaController extends Controller
             && ($collection = Collection::where('slug', $m[1])->where('is_visible', true)->first())) {
             $meta['title'] = $collection->name.' — '.$store;
             $meta['description'] = $collection->tagline ?: Str::limit((string) $collection->description, 155) ?: $meta['description'];
-            $meta['image'] = $collection->imageUrl() ?? $meta['image'];
+            $meta['image'] = $this->shareableImage($collection->imageUrl(), $meta['image']);
+        } elseif (preg_match('#^coffrets/([a-z0-9\-]+)$#', $path, $m)
+            && ($pack = Pack::where('slug', $m[1])->where('is_active', true)->first())) {
+            $meta['title'] = $pack->name.' — '.$store;
+            $meta['description'] = $pack->tagline ?: Str::limit((string) $pack->description, 155) ?: $meta['description'];
+            $meta['image'] = $this->shareableImage($pack->imageUrl(), $meta['image']);
         } elseif (preg_match('#^pages/([a-z0-9\-]+)$#', $path, $m)
             && ($page = Page::where('slug', $m[1])->where('is_published', true)->first())) {
             $meta['title'] = $page->title.' — '.$store;
@@ -88,12 +94,24 @@ class SpaController extends Controller
         return view('admin', ['storeName' => $settings->get('store.name')]);
     }
 
+    /**
+     * Social networks do not render SVG previews: those fall back to the default image.
+     */
+    private function shareableImage(?string $url, string $fallback): string
+    {
+        if ($url === null || Str::endsWith(Str::lower((string) parse_url($url, PHP_URL_PATH)), '.svg')) {
+            return $fallback;
+        }
+
+        return $url;
+    }
+
     private function product(string $slug): ?Product
     {
         return Product::query()->published()->where('slug', $slug)->with(['images', 'activeVariants'])->first();
     }
 
-    /** Mirrors the storefront router (resources/js/storefront/router.ts). */
+    /** Mirrors the storefront router (resources/js/storefront/routes.tsx). */
     private function isKnownRoute(string $path): bool
     {
         $patterns = [
@@ -117,6 +135,7 @@ class SpaController extends Controller
         return match ($type) {
             'parfums' => Product::query()->published()->where('slug', $slug)->exists(),
             'collections' => Collection::query()->where('is_visible', true)->where('slug', $slug)->exists(),
+            'coffrets' => Pack::query()->where('is_active', true)->where('slug', $slug)->exists(),
             'pages' => Page::query()->where('is_published', true)->where('slug', $slug)->exists(),
         };
     }

@@ -33,8 +33,10 @@ class SettingsController extends Controller
     public function update(Request $request): JsonResponse
     {
         $rules = [];
+        $attributes = [];
         foreach (StoreSettings::schema() as $key => $definition) {
             $field = 'values.'.str_replace('.', '\.', $key);
+            $attributes['values.'.$key] = $definition['label'];
             $rules[$field] = match ($definition['type']) {
                 'boolean' => ['sometimes', 'boolean'],
                 'integer' => ['sometimes', 'nullable', 'integer', 'min:0'],
@@ -49,8 +51,8 @@ class SettingsController extends Controller
         $rules['values.contact\.email'] = ['sometimes', 'nullable', 'email', 'max:190'];
 
         $request->validate($rules, [
-            'values.announcement\.link.regex' => 'Le lien doit être un chemin interne commençant par « / ».',
-        ]);
+            'values.announcement.link.regex' => 'Le lien doit être un chemin interne commençant par « / ».',
+        ], $attributes);
 
         $this->settings->put($request->input('values'));
 

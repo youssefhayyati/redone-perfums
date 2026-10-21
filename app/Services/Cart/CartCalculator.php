@@ -94,6 +94,9 @@ final class CartCalculator
             $variant = $variants->get($item->product_variant_id);
 
             if ($variant === null || ! $variant->isSellable()) {
+                // Keep the already-loaded variant for display instead of lazy loading it later.
+                $item->setRelation('variant', $variant);
+
                 return CartLine::unavailable($item, 'Un article de votre panier n’est plus disponible.');
             }
 

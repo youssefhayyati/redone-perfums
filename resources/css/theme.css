@@ -1,0 +1,177 @@
+/*
+ * Design tokens shared by the storefront and the admin.
+ *
+ * Colours are semantic CSS variables switched by [data-theme] on <html> (written
+ * before first paint by partials/theme-init). `@theme inline` exposes them to
+ * Tailwind, so `bg-canvas`, `text-muted`, `border-line`… follow the active theme
+ * without `dark:` variants. Night is the house default.
+ */
+
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
+@theme {
+    --font-sans: var(--font-instrument-sans, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif;
+    --font-display: var(--font-cormorant-garamond, 'Cormorant Garamond'), Georgia, 'Times New Roman', serif;
+
+    --text-2xs: 0.6875rem;
+    --text-2xs--line-height: 1rem;
+    --text-display-xl: clamp(3.1rem, 1.6rem + 6.2vw, 7.25rem);
+    --text-display-xl--line-height: 0.94;
+    --text-display-lg: clamp(2.5rem, 1.5rem + 3.8vw, 4.75rem);
+    --text-display-lg--line-height: 1;
+    --text-display-md: clamp(2rem, 1.45rem + 2.1vw, 3.25rem);
+    --text-display-md--line-height: 1.05;
+    --text-display-sm: clamp(1.5rem, 1.25rem + 0.9vw, 2rem);
+    --text-display-sm--line-height: 1.15;
+
+    --tracking-label: 0.22em;
+    --tracking-wordmark: 0.34em;
+
+    --ease-luxe: cubic-bezier(0.22, 1, 0.36, 1);
+
+    --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+    @keyframes shimmer {
+        0% {
+            background-position: 120% 0;
+        }
+        100% {
+            background-position: -120% 0;
+        }
+    }
+}
+
+@theme inline {
+    --color-canvas: var(--rp-canvas);
+    --color-raised: var(--rp-raised);
+    --color-sunken: var(--rp-sunken);
+    --color-field: var(--rp-field);
+    --color-line: var(--rp-line);
+    --color-line-strong: var(--rp-line-strong);
+    --color-ink: var(--rp-ink);
+    --color-muted: var(--rp-muted);
+    --color-faint: var(--rp-faint);
+    --color-accent: var(--rp-accent);
+    --color-accent-strong: var(--rp-accent-strong);
+    --color-on-accent: var(--rp-on-accent);
+    --color-danger: var(--rp-danger);
+    --color-success: var(--rp-success);
+    --color-warning: var(--rp-warning);
+}
+
+@layer base {
+    :root,
+    [data-theme='light'] {
+        color-scheme: light;
+        --rp-canvas: #f4efe7;
+        --rp-raised: #fbf8f3;
+        --rp-sunken: #ebe4d9;
+        --rp-field: #fffdf9;
+        --rp-line: rgb(26 22 18 / 0.12);
+        --rp-line-strong: rgb(26 22 18 / 0.26);
+        --rp-ink: #1a1612;
+        --rp-muted: #5c534a;
+        --rp-faint: #8a8075;
+        --rp-accent: #7d5d31;
+        --rp-accent-strong: #634822;
+        --rp-on-accent: #fbf8f3;
+        --rp-danger: #a8402f;
+        --rp-success: #3f6e44;
+        --rp-warning: #95621a;
+        --rp-shadow: 26 22 18;
+    }
+
+    [data-theme='dark'] {
+        color-scheme: dark;
+        --rp-canvas: #0b0a09;
+        --rp-raised: #141210;
+        --rp-sunken: #070606;
+        --rp-field: #181512;
+        --rp-line: rgb(237 230 218 / 0.12);
+        --rp-line-strong: rgb(237 230 218 / 0.26);
+        --rp-ink: #ede6da;
+        --rp-muted: #a69e91;
+        --rp-faint: #756d62;
+        --rp-accent: #c9a46c;
+        --rp-accent-strong: #ddbc88;
+        --rp-on-accent: #15100a;
+        --rp-danger: #e58a78;
+        --rp-success: #93bc90;
+        --rp-warning: #e0ae62;
+        --rp-shadow: 0 0 0;
+    }
+
+    html {
+        background-color: var(--color-canvas);
+        color: var(--color-ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        background-color: var(--color-canvas);
+        min-height: 100dvh;
+    }
+
+    ::selection {
+        background-color: color-mix(in oklab, var(--color-accent) 32%, transparent);
+        color: var(--color-ink);
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 3px;
+    }
+
+    button:not(:disabled),
+    [role='button']:not([aria-disabled='true']),
+    summary,
+    label[for] {
+        cursor: pointer;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+        color: var(--color-faint);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        html {
+            scroll-behavior: auto;
+        }
+
+        *,
+        ::before,
+        ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+@layer components {
+    /* Loading placeholder; reduced-motion users get a static block. */
+    .skeleton {
+        background-color: var(--color-raised);
+        background-image: linear-gradient(
+            100deg,
+            transparent 30%,
+            color-mix(in oklab, var(--color-ink) 6%, transparent) 50%,
+            transparent 70%
+        );
+        background-size: 220% 100%;
+        animation: var(--animate-shimmer);
+    }
+}
+
+@utility no-scrollbar {
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}

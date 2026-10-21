@@ -50,6 +50,7 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => 'Utilisez l’espace d’administration pour ce compte.']);
         }
 
+        self::recordLogin($user);
         $this->claimCart($request, $user);
 
         return response()->json(['user' => self::present($user)]);
@@ -91,9 +92,16 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
-        $user->forceFill(['last_login_at' => now()])->save();
 
         return $user;
+    }
+
+    /**
+     * Called once a login is accepted by the area (storefront or admin) it was made on.
+     */
+    public static function recordLogin(User $user): void
+    {
+        $user->forceFill(['last_login_at' => now()])->save();
     }
 
     /**

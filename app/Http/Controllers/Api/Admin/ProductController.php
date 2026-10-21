@@ -83,7 +83,7 @@ class ProductController extends Controller
             return $product;
         });
 
-        return (new AdminProductResource($product->load(['variants', 'images', 'family', 'notes', 'collections'])))
+        return (new AdminProductResource($product->fresh(['variants', 'images', 'family', 'notes', 'collections'])))
             ->response()->setStatusCode(201);
     }
 

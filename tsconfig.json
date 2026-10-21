@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "lib": ["ES2023", "DOM", "DOM.Iterable"],
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "jsx": "react-jsx",
+        "strict": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noFallthroughCasesInSwitch": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true,
+        "noEmit": true,
+        "types": ["vite/client", "vitest/globals"],
+        "paths": {
+            "@shared/*": ["./resources/js/shared/*"],
+            "@storefront/*": ["./resources/js/storefront/*"],
+            "@admin/*": ["./resources/js/admin/*"]
+        }
+    },
+    "include": ["resources/js/**/*.ts", "resources/js/**/*.tsx"]
+}

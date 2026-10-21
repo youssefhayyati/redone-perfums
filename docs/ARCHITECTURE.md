@@ -6,16 +6,23 @@ One Laravel 13 application serves three things from the same origin:
 
 | Surface      | URL          | Entry point                         | Notes                                    |
 | ------------ | ------------ | ----------------------------------- | ---------------------------------------- |
-| Storefront   | `/*`         | `resources/js/storefront/main.ts`   | Vue 3 SPA, GSAP motion, night/light      |
-| Admin        | `/admin/*`   | `resources/js/admin/main.ts`        | Separate Vue SPA, no storefront code     |
+| Storefront   | `/*`         | `resources/js/storefront/main.tsx`  | React SPA, Framer Motion, night/light    |
+| Admin        | `/admin/*`   | `resources/js/admin/main.tsx`       | Separate React SPA, no storefront code   |
 | JSON API     | `/api/*`     | `routes/api.php`                    | Sanctum stateful (cookie) authentication |
 
 Serving the SPAs from Laravel keeps Sanctum's cookie + CSRF flow simple (no tokens in
 `localStorage`), lets the Blade shell set the theme before first paint, and lets the server
 inject the page title / description / Open Graph tags for product pages.
 
+Both SPAs use React 19, React Router (data router, one lazily loaded chunk per page),
+Tailwind CSS v4 and TypeScript. State shared across a SPA (cart, session, overlays) lives
+in small `useSyncExternalStore` stores; pages load their data with a cached
+`useQuery`-style hook. The storefront router (`resources/js/storefront/routes.tsx`)
+mirrors `SpaController::isKnownRoute()`.
+
 `resources/js/shared` holds what both SPAs use: the HTTP client, money and phone helpers,
-the theme controller, i18n, and TypeScript API types.
+French date/plural formatting, the theme controller, the store helper and TypeScript API
+types. `resources/css/theme.css` holds the design tokens both stylesheets import.
 
 ## Source of truth
 
@@ -64,11 +71,13 @@ every admin route; the admin SPA hides what the API would refuse anyway.
 
 ## Motion principles
 
-GSAP + ScrollTrigger only for sequences (hero entrance, editorial reveals, parallax,
-light sweep, pack composition). CSS transitions for hovers. Every GSAP context is
-created through `useMotion()`, which reverts timelines and ScrollTriggers on unmount
-and turns effects off under `prefers-reduced-motion` or on low-power devices.
-No scroll hijacking, no custom cursor.
+Framer Motion only for sequences (hero entrance, editorial reveals, parallax, light
+sweep, pack composition, drawers). CSS transitions for hovers. A single `MotionProvider`
+(`resources/js/storefront/motion`) sets `MotionConfig`: transform and layout animations
+follow `prefers-reduced-motion` and are always off on low-power devices (Save-Data, two
+cores or less, little memory), leaving only opacity fades.
+Reveals go through `Reveal` / `RevealGroup`, and transformed wrappers are kept away from
+sticky and fixed elements. No scroll hijacking, no custom cursor.
 
 ## Build order
 

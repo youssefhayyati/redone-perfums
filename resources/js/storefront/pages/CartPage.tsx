@@ -1,0 +1,93 @@
+import { TriangleAlert } from 'lucide-react';
+import { plural } from '@shared/format';
+import { CartLineItem } from '../components/cart/CartLineItem';
+import { CitySelect } from '../components/cart/CitySelect';
+import { CouponForm } from '../components/cart/CouponForm';
+import { FreeShippingHint, Totals } from '../components/cart/Totals';
+import { ButtonLink } from '../components/ui/Button';
+import { Spinner } from '../components/ui/Spinner';
+import { EmptyState } from '../components/ui/States';
+import { useConfig } from '../config';
+import { useHead } from '../hooks/useHead';
+import { cartActions, useCart } from '../stores/cart';
+
+export default function CartPage() {
+    const config = useConfig();
+    const cart = useCart((state) => state.cart);
+    const loading = useCart((state) => state.loading);
+    const cityId = useCart((state) => state.cityId);
+    useHead({ title: 'Panier', noindex: true });
+
+    if (loading && !cart) {
+        return (
+            <div className="flex justify-center py-40 text-muted" role="status" aria-label="Chargement du panier">
+                <Spinner className="size-6" />
+            </div>
+        );
+    }
+
+    if (!cart || cart.lines.length === 0) {
+        return (
+            <div className="container-page pt-12">
+                <EmptyState title="Votre panier est vide" action={<ButtonLink to="/boutique">Découvrir la boutique</ButtonLink>}>
+                    <p>Explorez nos signatures, ou composez un coffret à votre image.</p>
+                </EmptyState>
+            </div>
+        );
+    }
+
+    const hasIssues = cart.lines.some((line) => line.issues.length > 0);
+
+    return (
+        <div className="container-page pt-12 sm:pt-16">
+            <header className="flex flex-col gap-3 border-b border-line pb-8">
+                <h1 className="font-display text-display-lg">Votre panier</h1>
+                <p className="text-sm text-muted">{plural(cart.items_count, 'article')}</p>
+            </header>
+
+            <div className="grid grid-cols-1 gap-12 pt-4 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-16">
+                <section aria-label="Articles">
+                    {hasIssues && (
+                        <p role="alert" className="mt-6 flex items-start gap-3 border-l-2 border-warning bg-warning/8 px-4 py-3 text-sm">
+                            <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" strokeWidth={1.5} />
+                            Certains articles demandent votre attention avant de commander.
+                        </p>
+                    )}
+                    <ul className="divide-y divide-line">
+                        {cart.lines.map((line) => (
+                            <CartLineItem key={line.id} line={line} maxQuantity={cart.max_quantity} />
+                        ))}
+                    </ul>
+                </section>
+
+                <aside aria-label="Récapitulatif" className="lg:pt-6">
+                    <div className="flex flex-col gap-7 border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
+                        <h2 className="font-display text-2xl">Récapitulatif</h2>
+
+                        <div className="flex flex-col gap-2">
+                            <label htmlFor="cart-city" className="eyebrow">
+                                Ville de livraison
+                            </label>
+                            <CitySelect id="cart-city" value={cityId} onChange={(id) => void cartActions.setCity(id)} />
+                            {cart.delivery?.estimate && !cart.delivery.error && <p className="text-xs text-muted">Délai indicatif : {cart.delivery.estimate}</p>}
+                            {cart.delivery?.error && (
+                                <p role="alert" className="text-xs text-warning">
+                                    {cart.delivery.error}
+                                </p>
+                            )}
+                        </div>
+
+                        <FreeShippingHint cart={cart} />
+                        <CouponForm cart={cart} />
+                        <Totals cart={cart} />
+
+                        <ButtonLink to="/commande" size="lg" aria-disabled={!cart.is_checkout_ready || undefined}>
+                            Passer commande
+                        </ButtonLink>
+                        {config.payment_methods.length > 0 && <p className="text-center text-xs text-muted">{config.payment_methods.map((method) => method.description).join(' ')}</p>}
+                    </div>
+                </aside>
+            </div>
+        </div>
+    );
+}

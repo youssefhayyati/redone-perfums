@@ -36,7 +36,7 @@ class CollectionController extends Controller
             return $collection;
         });
 
-        return response()->json(['data' => $this->present($collection->loadCount('products'))], 201);
+        return response()->json(['data' => $this->present($collection->refresh()->loadCount('products'))], 201);
     }
 
     public function update(CollectionRequest $request, Collection $collection): JsonResponse

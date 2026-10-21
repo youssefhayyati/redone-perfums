@@ -34,7 +34,7 @@ final class StoreSettings
 
             'announcement.enabled' => $s('announcement', 'boolean', true, 'Afficher la barre d’annonce'),
             'announcement.text' => $s('announcement', 'string', 'Catalogue de démonstration — les produits affichés sont fictifs.', 'Texte de l’annonce'),
-            'announcement.link' => $s('announcement', 'string', null, 'Lien (optionnel, chemin interne ex. /packs)'),
+            'announcement.link' => $s('announcement', 'string', null, 'Lien (optionnel, chemin interne ex. /coffrets)'),
 
             'contact.email' => $s('contact', 'string', null, 'E-mail de contact'),
             'contact.phone' => $s('contact', 'string', null, 'Téléphone'),

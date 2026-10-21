@@ -2,24 +2,21 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+/**
+ * Seeds what a fresh store needs to be explored: a delivery grid, content pages and
+ * a fictional demo catalogue. No account is created here — staff accounts are made
+ * with `php artisan app:create-admin`.
+ */
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            DeliverySeeder::class,
+            PageSeeder::class,
+            DemoCatalogSeeder::class,
         ]);
     }
 }

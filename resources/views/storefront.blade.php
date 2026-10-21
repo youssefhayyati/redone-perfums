@@ -21,12 +21,13 @@
     <meta property="og:locale" content="fr_MA">
     <meta name="twitter:card" content="summary_large_image">
 
-    <meta name="theme-color" content="#080808">
+    <meta name="theme-color" content="#0b0a09">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
 
     @fonts
-    @vite(['resources/js/storefront/main.ts'])
+    @viteReactRefresh
+    @vite(['resources/js/storefront/main.tsx'])
 
     @if ($meta['jsonld'])
         <script type="application/ld+json">{!! json_encode($meta['jsonld'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP) !!}</script>

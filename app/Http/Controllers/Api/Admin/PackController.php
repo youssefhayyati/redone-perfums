@@ -51,7 +51,7 @@ class PackController extends Controller
             return $pack;
         });
 
-        return response()->json(['data' => $this->present($pack->load('items'))], 201);
+        return response()->json(['data' => $this->present($pack->fresh('items'))], 201);
     }
 
     public function update(PackRequest $request, Pack $pack): JsonResponse

@@ -28,5 +28,9 @@ class PageRequest extends FormRequest
         if (! $this->filled('slug') && $this->filled('title')) {
             $this->merge(['slug' => Str::slug((string) $this->input('title'))]);
         }
+
+        if ($this->has('sort_order') && $this->input('sort_order') === null) {
+            $this->merge(['sort_order' => 0]);
+        }
     }
 }

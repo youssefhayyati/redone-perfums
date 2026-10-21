@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'fee', 'free_shipping_threshold', 'delivery_estimate', 'is_active', 'sort_order'])]
 class DeliveryZone extends Model
 {
+    use HasFactory;
+
     protected function casts(): array
     {
         return [

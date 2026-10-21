@@ -82,9 +82,11 @@ final class OrderWorkflow
     public function updateDelivery(Order $order, array $data, User $actor): Order
     {
         $addressFields = ['customer_name', 'phone', 'address', 'delivery_notes'];
-        $touchesAddress = array_intersect_key($data, array_flip($addressFields)) !== [];
+        $changesAddress = collect($data)
+            ->only($addressFields)
+            ->contains(fn (mixed $value, string $field) => (string) $value !== (string) $order->{$field});
 
-        if ($touchesAddress && in_array($order->status, [OrderStatus::Shipped, OrderStatus::Delivered, OrderStatus::Cancelled], true)) {
+        if ($changesAddress && in_array($order->status, [OrderStatus::Shipped, OrderStatus::Delivered, OrderStatus::Cancelled], true)) {
             throw ValidationException::withMessages(['address' => 'L’adresse ne peut plus être modifiée une fois la commande expédiée.']);
         }
 
@@ -141,7 +143,10 @@ final class OrderWorkflow
         }
 
         foreach ($byProduct as $productId => $quantity) {
-            Product::withTrashed()->whereKey($productId)->where('sales_count', '>=', $quantity)->decrement('sales_count', $quantity);
+            $units = (int) $quantity;
+            Product::withTrashed()->whereKey($productId)->update([
+                'sales_count' => DB::raw("CASE WHEN sales_count > {$units} THEN sales_count - {$units} ELSE 0 END"),
+            ]);
         }
     }
 
