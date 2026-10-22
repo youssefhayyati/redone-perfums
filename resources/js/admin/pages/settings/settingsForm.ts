@@ -1,3 +1,4 @@
+import { parseGeoPoint } from '@shared/maps';
 import type { FieldErrors } from '../../lib/errors';
 import type { SettingField, SettingValue } from '../../types';
 
@@ -12,8 +13,18 @@ export const SETTING_GROUPS: Array<{ key: string; label: string; description?: s
     { key: 'general', label: 'Boutique', description: 'Nom, logotype et description par défaut pour les moteurs de recherche.' },
     { key: 'announcement', label: 'Barre d’annonce', description: 'Bandeau affiché en haut de toutes les pages.' },
     { key: 'contact', label: 'Contact', description: 'Coordonnées affichées sur la boutique et dans les e-mails.' },
+    {
+        key: 'location',
+        label: 'Boutique physique',
+        description: 'Carte « Nous trouver » sur la page d’accueil, affichée dès que les coordonnées sont renseignées. L’adresse affichée est celle de la rubrique Contact.',
+    },
     { key: 'notifications', label: 'Notifications', description: 'Adresse qui reçoit une alerte à chaque nouvelle commande.' },
     { key: 'social', label: 'Réseaux sociaux', description: 'Adresses complètes commençant par https://.' },
+    {
+        key: 'analytics',
+        label: 'Mesure d’audience',
+        description: 'Google Analytics et Meta Pixel (publicités Instagram et Facebook). Chargés sur la boutique uniquement après l’accord du visiteur, demandé par un bandeau cookies.',
+    },
     { key: 'payment', label: 'Paiement et commande' },
     { key: 'benefits', label: 'Avantages' },
     { key: 'homepage', label: 'Page d’accueil', description: 'Textes du hero et du récit mis en avant.' },
@@ -54,7 +65,7 @@ export function settingsChanges(fields: SettingField[], draft: SettingsDraft): R
     return changes;
 }
 
-/** Client-side checks: integers and https URLs. */
+/** Client-side checks: integers, https URLs, internal links and the map position. */
 export function validateSettings(fields: SettingField[], draft: SettingsDraft): FieldErrors {
     const errors: FieldErrors = {};
     for (const field of fields) {
@@ -70,6 +81,20 @@ export function validateSettings(fields: SettingField[], draft: SettingsDraft): 
         }
         if (field.key === 'announcement.link' && !/^\/[A-Za-z0-9/_\-?=&]*$/.test(value)) {
             errors[field.key] = 'Le lien doit être un chemin interne commençant par « / ».';
+        }
+        if (field.key === 'location.coordinates' && parseGeoPoint(value) === null) {
+            errors[field.key] = /^https?:\/\//i.test(value)
+                ? 'Ce lien ne contient pas de coordonnées : dans Google Maps, faites un clic droit sur la boutique et copiez les chiffres affichés.'
+                : 'Saisissez « latitude, longitude », par exemple 33.5899, -7.6039.';
+        }
+        if (field.key === 'location.zoom' && /^\d+$/.test(value) && (Number(value) < 3 || Number(value) > 21)) {
+            errors[field.key] = 'Zoom de 3 (pays) à 21 (rue).';
+        }
+        if (field.key === 'analytics.ga4_id' && !/^G-[A-Z0-9]{4,16}$/.test(value)) {
+            errors[field.key] = 'Identifiant de mesure au format G-XXXXXXXXXX (Google Analytics → Admin → Flux de données).';
+        }
+        if (field.key === 'analytics.meta_pixel_id' && !/^\d{6,20}$/.test(value)) {
+            errors[field.key] = 'Identifiant du pixel : uniquement des chiffres (Gestionnaire d’événements Meta).';
         }
     }
 

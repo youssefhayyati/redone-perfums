@@ -1,6 +1,9 @@
+import { useEffect } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { motion } from 'framer-motion';
 import { formatMoney } from '@shared/money';
+import type { Order } from '@shared/types';
+import { orderItems, track } from '../analytics';
 import { api } from '../api';
 import { orderToken } from '../checkout';
 import { OrderDelivery, OrderItems, OrderStatusBadge, OrderTotals } from '../components/order/OrderSummary';
@@ -23,6 +26,20 @@ function Seal() {
     );
 }
 
+/** A reload or a return to this page must not count the sale twice. */
+function trackPurchaseOnce(order: Order): void {
+    const key = `rp-purchase:${order.reference}`;
+    try {
+        if (sessionStorage.getItem(key)) {
+            return;
+        }
+        sessionStorage.setItem(key, '1');
+    } catch {
+        // No session storage: tracked at most once per page load.
+    }
+    track({ type: 'purchase', reference: order.reference, value: order.total, shipping: order.delivery_fee, items: orderItems(order) });
+}
+
 export default function ConfirmationPage() {
     const { reference = '' } = useParams();
     const [params] = useSearchParams();
@@ -31,6 +48,12 @@ export default function ConfirmationPage() {
     const { data, error, refetch } = useQuery(`order:${reference}:${token ?? ''}`, (signal) => api.order(reference, token, { signal }), { staleTime: 0 });
     const order = data?.data;
     useHead({ title: t('Commande confirmée'), noindex: true });
+
+    useEffect(() => {
+        if (order) {
+            trackPurchaseOnce(order);
+        }
+    }, [order]);
 
     if (error?.isNotFound) {
         return (

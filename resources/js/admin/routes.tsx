@@ -28,6 +28,11 @@ export const routes: RouteObject[] = [
                     { index: true, lazy: screen(() => import('./pages/dashboard/DashboardPage')), handle: { permission: 'view-dashboard' } satisfies RouteHandle },
 
                     guarded('manage-orders', 'commandes', () => import('./pages/orders/OrdersPage')),
+                    {
+                        path: 'commandes/bons',
+                        lazy: screen(() => import('./pages/orders/DeliverySlipsPage')),
+                        handle: { permission: 'manage-orders', bare: true } satisfies RouteHandle,
+                    },
                     guarded('manage-orders', 'commandes/:reference', () => import('./pages/orders/OrderDetailPage')),
 
                     guarded('manage-catalog', 'produits', () => import('./pages/products/ProductsPage')),

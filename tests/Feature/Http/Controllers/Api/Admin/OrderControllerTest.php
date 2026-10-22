@@ -13,12 +13,16 @@ use App\Models\Pack;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Notifications\OrderStatusUpdate;
 use App\Services\Checkout\CheckoutData;
 use App\Services\Checkout\OrderPlacer;
+use App\Services\Settings\StoreSettings;
 use App\Support\Locale;
 use Closure;
 use Database\Factories\OrderFactory;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
@@ -101,6 +105,65 @@ class OrderControllerTest extends TestCase
             ->assertJsonPath('data.*.reference', [$target->reference]);
     }
 
+    public function test_export_downloads_the_filtered_orders_as_a_spreadsheet_for_excel(): void
+    {
+        $confirmed = $this->placeOrder([[$this->variant('Ambre Nuit'), 2]]);
+        $confirmed->forceFill(['status' => OrderStatus::Confirmed])->save();
+        $pending = $this->placeOrder([[$this->variant('Oud Minuit'), 1]]);
+
+        $response = $this->actingAs($this->support())->get('/api/admin/orders/export?status=confirmed');
+
+        $response->assertOk()
+            ->assertHeader('Content-Type', 'text/csv; charset=UTF-8')
+            ->assertDownload('commandes-'.now()->format('Y-m-d').'.csv');
+        $csv = $response->streamedContent();
+        $this->assertStringStartsWith("\u{FEFF}Référence;Date;Statut;", $csv);
+        $this->assertStringContainsString($confirmed->reference.';', $csv);
+        $this->assertStringContainsString('"2 × Ambre Nuit 50 ml"', $csv);
+        $this->assertStringContainsString(';900,00;', $csv);
+        $this->assertStringNotContainsString($pending->reference, $csv);
+    }
+
+    public function test_customers_cannot_export_the_orders_with_403(): void
+    {
+        $this->actingAs(User::factory()->customer()->create())->get('/api/admin/orders/export')->assertForbidden();
+    }
+
+    public function test_slips_return_the_requested_orders_with_their_lines_and_the_store_phone(): void
+    {
+        app(StoreSettings::class)->put(['store.name' => 'Myperfum', 'contact.phone' => '0656068253']);
+        $first = $this->placeOrder([[$this->variant('Ambre Nuit'), 1]]);
+        $second = $this->placeOrder([[$this->variant('Oud Minuit'), 1]]);
+        $this->placeOrder([[$this->variant('Rose Sahara'), 1]]);
+
+        $response = $this->actingAs($this->support())->getJson("/api/admin/orders/slips?references={$first->reference},{$second->reference}");
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.items.0.name', 'Oud Minuit')
+            ->assertJsonPath('store', ['name' => 'Myperfum', 'phone' => '06 56 06 82 53']);
+    }
+
+    public function test_slips_follow_the_list_filters_when_no_reference_is_given(): void
+    {
+        Order::factory()->confirmed()->create();
+        Order::factory()->create();
+
+        $this->actingAs($this->support())->getJson('/api/admin/orders/slips?status=confirmed')
+            ->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.status', 'confirmed');
+    }
+
+    public function test_slips_refuse_more_than_100_orders_at_once_with_422(): void
+    {
+        $references = implode(',', array_map(fn (int $index) => "RP-{$index}", range(1, 101)));
+
+        $this->actingAs($this->support())->getJson("/api/admin/orders/slips?references={$references}")
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['references' => 'Imprimez 100 bons au plus à la fois.']);
+    }
+
     public function test_show_returns_the_lines_events_and_customer_account(): void
     {
         $customer = User::factory()->customer()->create(['name' => 'Salma Benali']);
@@ -146,6 +209,49 @@ class OrderControllerTest extends TestCase
             'order_id' => $order->id, 'type' => 'status', 'from' => 'pending', 'to' => 'confirmed',
             'note' => 'Confirmée par téléphone.', 'user_id' => $support->id,
         ]);
+    }
+
+    public function test_confirming_an_order_tells_the_customer_by_email_in_their_language(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $order = Order::factory()->create(['email' => 'salma@example.com', 'customer_name' => 'Salma Benali', 'locale' => Locale::ARABIC]);
+        Notification::fake();
+
+        $this->actingAs($this->support())
+            ->postJson("/api/admin/orders/{$order->reference}/status", ['status' => 'confirmed'])
+            ->assertOk();
+
+        Notification::assertSentOnDemand(
+            OrderStatusUpdate::class,
+            fn (OrderStatusUpdate $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === ['salma@example.com' => 'Salma Benali']
+                && $notification->status === OrderStatus::Confirmed
+                && $notification->locale === 'ar'
+                && $notification->replyToAddress === 'contact@myperfum.ma',
+        );
+    }
+
+    public function test_putting_an_order_in_preparation_sends_the_customer_nothing(): void
+    {
+        $order = Order::factory()->confirmed()->create(['email' => 'salma@example.com']);
+        Notification::fake();
+
+        $this->actingAs($this->support())
+            ->postJson("/api/admin/orders/{$order->reference}/status", ['status' => 'processing'])
+            ->assertOk();
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_a_customer_without_an_email_address_is_sent_no_status_update(): void
+    {
+        $order = Order::factory()->create(['email' => null]);
+        Notification::fake();
+
+        $this->actingAs($this->support())
+            ->postJson("/api/admin/orders/{$order->reference}/status", ['status' => 'cancelled'])
+            ->assertOk();
+
+        Notification::assertNothingSent();
     }
 
     public function test_status_change_outside_the_workflow_returns_422_and_changes_nothing(): void

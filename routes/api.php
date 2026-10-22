@@ -120,6 +120,8 @@ Route::prefix('admin')->group(function () {
 
         Route::middleware('can:manage-orders')->group(function () {
             Route::get('orders', [Admin\OrderController::class, 'index']);
+            Route::get('orders/export', [Admin\OrderController::class, 'export']);
+            Route::get('orders/slips', [Admin\OrderController::class, 'slips']);
             Route::get('orders/{order}', [Admin\OrderController::class, 'show']);
             Route::post('orders/{order}/status', [Admin\OrderController::class, 'updateStatus']);
             Route::post('orders/{order}/payment', [Admin\OrderController::class, 'updatePayment']);

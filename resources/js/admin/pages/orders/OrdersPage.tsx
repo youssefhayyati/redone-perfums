@@ -1,21 +1,25 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { Inbox, RotateCcw, SearchX } from 'lucide-react';
+import { Download, Inbox, Printer, RotateCcw, SearchX } from 'lucide-react';
 import { cn, formatDateTime, formatShortDate, plural } from '@shared/format';
+import { buildQuery } from '@shared/http';
 import { formatMoney } from '@shared/money';
 import * as api from '../../api';
 import { OrderStatusBadge, PaymentStatusBadge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
+import { Button, buttonClasses } from '../../components/ui/Button';
 import { EmptyState, ErrorState, TableSkeleton } from '../../components/ui/feedback';
 import { FilterTabs } from '../../components/ui/FilterTabs';
 import { SelectInput, TextInput } from '../../components/ui/form';
 import { Pagination } from '../../components/ui/Pagination';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { SearchInput } from '../../components/ui/SearchInput';
+import { toast } from '../../components/ui/toast';
 import { DataTable, LinkRow, Td, Th } from '../../components/ui/Table';
 import { useApiQuery } from '../../hooks/useApiQuery';
 import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { useListParams } from '../../hooks/useListParams';
 import { storeToday } from '../../lib/datetime';
+import { errorText } from '../../lib/errors';
 import { toApiQuery } from '../../lib/query';
 import { ORDER_STATUSES, ORDER_STATUS_PLURALS, PAYMENT_STATUSES, PAYMENT_STATUS_LABELS } from '../../lib/status';
 
@@ -31,6 +35,20 @@ export default function OrdersPage() {
     const total = ORDER_STATUSES.reduce((sum, status) => sum + (counts[status] ?? 0), 0);
     const filtered = params.payment_status !== '' || params.from !== '' || params.to !== '' || params.search !== '';
     const today = storeToday();
+    // The export and the delivery slips take the list's filters, every page of it.
+    const filters = toApiQuery({ ...params, page: '' });
+    const [exporting, setExporting] = useState(false);
+
+    async function exportCsv() {
+        setExporting(true);
+        try {
+            await api.orders.exportCsv(filters);
+        } catch (error) {
+            toast.error(errorText(error));
+        } finally {
+            setExporting(false);
+        }
+    }
 
     const tabs = [
         { value: '', label: 'Toutes', count: query.data ? total : undefined },
@@ -42,6 +60,18 @@ export default function OrdersPage() {
             <PageHeader
                 title="Commandes"
                 description="Confirmez les commandes par téléphone, préparez-les puis suivez leur livraison."
+                actions={
+                    <>
+                        <Button icon={Download} loading={exporting} onClick={() => void exportCsv()} title="Les commandes filtrées, en tableur (Excel)">
+                            Exporter
+                        </Button>
+                        <a href={`/admin/commandes/bons${buildQuery(filters)}`} target="_blank" rel="noopener" className={buttonClasses()} title="Un bon par commande filtrée, 100 au plus">
+                            <Printer className="size-4" aria-hidden />
+                            Bons de livraison
+                            <span className="sr-only">(nouvel onglet)</span>
+                        </a>
+                    </>
+                }
             />
 
             <Panel padded={false}>

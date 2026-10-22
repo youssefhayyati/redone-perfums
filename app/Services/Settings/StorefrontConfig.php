@@ -6,6 +6,7 @@ use App\Models\City;
 use App\Models\Collection;
 use App\Models\Pack;
 use App\Models\Page;
+use App\Support\GeoPoint;
 
 /**
  * Store configuration the storefront needs on every page. Inlined in the HTML shell
@@ -41,6 +42,11 @@ final class StorefrontConfig
                 'address' => $s->localized('contact.address'),
                 'hours' => $s->localized('contact.hours'),
             ],
+            'location' => $this->location(),
+            'analytics' => array_filter([
+                'ga4' => $s->get('analytics.ga4_id'),
+                'meta_pixel' => $s->get('analytics.meta_pixel_id'),
+            ]),
             'social' => array_filter($s->nested()['social']),
             'payment_methods' => $s->bool('payment.cod_enabled')
                 ? [['code' => 'cod', 'label' => __('Paiement à la livraison'), 'description' => __('Réglez en espèces à la réception de votre commande.')]]
@@ -52,6 +58,27 @@ final class StorefrontConfig
             'collections' => Collection::query()->where('is_visible', true)->orderBy('sort_order')->get(Collection::withTranslations(['name', 'slug']))
                 ->map(fn (Collection $collection) => ['name' => $collection->translated('name'), 'slug' => $collection->slug]),
             'has_packs' => Pack::query()->where('is_active', true)->exists(),
+        ];
+    }
+
+    /**
+     * The shop on a map, or null while its coordinates are not filled.
+     *
+     * @return array{lat: float, lng: float, zoom: int, title: string|null, hours: string|null}|null
+     */
+    private function location(): ?array
+    {
+        $point = GeoPoint::parse($this->settings->get('location.coordinates'));
+
+        if ($point === null) {
+            return null;
+        }
+
+        return [
+            ...$point,
+            'zoom' => max(3, min(21, (int) $this->settings->get('location.zoom', 16))),
+            'title' => $this->settings->localized('location.title'),
+            'hours' => $this->settings->localized('location.hours'),
         ];
     }
 

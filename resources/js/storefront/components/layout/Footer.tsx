@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { directionsUrl } from '@shared/maps';
+import { askConsent } from '../../analytics';
 import { formatMoroccanPhone } from '@shared/phone';
 import { useConfig } from '../../config';
 import { NewsletterForm } from './NewsletterForm';
@@ -20,7 +22,7 @@ const linkClass = 'text-muted transition-colors hover:text-ink';
 
 export function Footer() {
     const config = useConfig();
-    const { contact, social } = config;
+    const { contact, location, social } = config;
     const whatsappDigits = contact.whatsapp?.replace(/\D/g, '');
     const hasContact = contact.email || contact.phone || whatsappDigits || contact.address;
     const networks = (['instagram', 'tiktok', 'facebook'] as const).filter((network) => social[network]);
@@ -63,14 +65,23 @@ export function Footer() {
                             <li><a href={`mailto:${contact.email}`} className={`${linkClass} inline-flex items-center gap-2`}><Mail className="size-3.5" strokeWidth={1.5} />{contact.email}</a></li>
                         )}
                         {contact.phone && (
-                            <li><a href={`tel:${contact.phone.replace(/\s/g, '')}`} className={`${linkClass} inline-flex items-center gap-2`}><Phone className="size-3.5" strokeWidth={1.5} />{formatMoroccanPhone(contact.phone)}</a></li>
+                            <li><a href={`tel:${contact.phone.replace(/\s/g, '')}`} className={`${linkClass} inline-flex items-center gap-2`}><Phone className="size-3.5" strokeWidth={1.5} /><span dir="ltr">{formatMoroccanPhone(contact.phone)}</span></a></li>
                         )}
                         {whatsappDigits && (
                             <li><a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-2`}><MessageCircle className="size-3.5" strokeWidth={1.5} />WhatsApp</a></li>
                         )}
-                        {contact.address && (
-                            <li className="inline-flex gap-2 text-muted"><MapPin className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.5} /><span className="whitespace-pre-line">{contact.address}</span></li>
-                        )}
+                        {contact.address &&
+                            (location ? (
+                                <li>
+                                    <a href={directionsUrl(location)} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex gap-2`}>
+                                        <MapPin className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.5} />
+                                        <span className="whitespace-pre-line">{contact.address}</span>
+                                        <span className="sr-only">{t('(itinéraire dans Google Maps, nouvel onglet)')}</span>
+                                    </a>
+                                </li>
+                            ) : (
+                                <li className="inline-flex gap-2 text-muted"><MapPin className="mt-0.5 size-3.5 shrink-0" strokeWidth={1.5} /><span className="whitespace-pre-line">{contact.address}</span></li>
+                            ))}
                         {contact.hours && <li className="text-faint">{contact.hours}</li>}
                     </FooterColumn>
                 )}
@@ -91,7 +102,14 @@ export function Footer() {
 
             <div className="container-page flex flex-col gap-3 border-t border-line py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
                 <p>© {new Date().getFullYear()} {config.store.name}. {t('Tous droits réservés.')}</p>
-                {config.payment_methods.length > 0 && <p>{config.payment_methods.map((method) => method.label).join(' · ')}</p>}
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                    {(config.analytics.ga4 || config.analytics.meta_pixel) && (
+                        <button type="button" onClick={askConsent} className="transition-colors hover:text-ink">
+                            {t('Cookies')}
+                        </button>
+                    )}
+                    {config.payment_methods.length > 0 && <p>{config.payment_methods.map((method) => method.label).join(' · ')}</p>}
+                </div>
             </div>
         </footer>
     );

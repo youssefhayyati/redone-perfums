@@ -15,6 +15,7 @@ import { Spinner } from '../components/ui/Spinner';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
+import { track } from '../analytics';
 import { EASE_LUXE } from '../motion/easing';
 import { RevealWords } from '../motion/Reveal';
 import { cartActions, useCart } from '../stores/cart';
@@ -192,6 +193,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                 navigate('/panier');
             } else {
                 await cartActions.addPack(pack.id, ids);
+                track({ type: 'add_to_cart', items: [{ id: `pack-${pack.id}`, name: pack.name, price: quote?.price ?? 0, quantity: 1 }] });
                 setItems([]);
                 ui.open('cart');
             }
@@ -317,6 +319,7 @@ function FixedPack({ pack }: { pack: Pack }) {
         setAdding(true);
         try {
             await cartActions.addPack(pack.id, []);
+            track({ type: 'add_to_cart', items: [{ id: `pack-${pack.id}`, name: pack.name, price: pack.starting_price ?? 0, quantity: 1 }] });
             ui.open('cart');
         } catch (error) {
             toast.error(error instanceof ApiError ? error.message : t('Le coffret n’a pas pu être ajouté.'));

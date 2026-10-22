@@ -129,6 +129,12 @@ export interface AdminOrderEvent {
     created_at: string;
 }
 
+/** Orders to print delivery slips for, with what the slip's header needs. */
+export interface OrderSlips {
+    data: AdminOrder[];
+    store: { name: string; phone: string | null };
+}
+
 export interface AdminOrder {
     id: number;
     reference: string;

@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Mail\Markdown;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -26,6 +27,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        // Behind a proxy or CDN that terminates TLS, links and assets must still be https.
+        URL::forceHttps(str_starts_with((string) config('app.url'), 'https://'));
 
         foreach (Permission::cases() as $permission) {
             Gate::define($permission->value, fn (User $user) => $user->hasPermission($permission));

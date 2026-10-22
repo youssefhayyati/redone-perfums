@@ -153,6 +153,15 @@
             var(--color-raised);
     }
 
+    /* Google's map (homepage "Nous trouver"), toned to the palette; inverted for the dark theme. */
+    .map-frame {
+        filter: grayscale(0.55) sepia(0.12) contrast(0.96);
+    }
+
+    [data-theme='dark'] .map-frame {
+        filter: invert(0.9) hue-rotate(180deg) grayscale(0.45) brightness(0.92) contrast(0.92);
+    }
+
     .skeleton {
         border-radius: min(var(--radius-card), 16%);
     }

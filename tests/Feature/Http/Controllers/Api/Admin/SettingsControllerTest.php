@@ -7,6 +7,7 @@ use App\Models\StoreSetting;
 use App\Models\User;
 use App\Services\Settings\StoreSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
 
 class SettingsControllerTest extends TestCase
@@ -115,6 +116,71 @@ class SettingsControllerTest extends TestCase
             ->assertJsonValidationErrors([
                 'values.notifications.orders_email' => 'Le champ E-mail qui reçoit les nouvelles commandes (par défaut : e-mail de contact) doit être une adresse e-mail valide.',
             ]);
+        $this->assertDatabaseCount('store_settings', 0);
+    }
+
+    public function test_update_saves_the_store_location_and_publishes_it_on_the_storefront(): void
+    {
+        $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'location.coordinates' => '33.5899, -7.6039',
+            'location.zoom' => 17,
+        ]])->assertOk();
+
+        $this->getJson('/api/storefront')
+            ->assertOk()
+            ->assertJsonPath('location.lat', 33.5899)
+            ->assertJsonPath('location.lng', -7.6039)
+            ->assertJsonPath('location.zoom', 17)
+            ->assertJsonPath('location.title', 'Venez sentir nos parfums');
+    }
+
+    #[TestWith(['Casablanca'])]
+    #[TestWith(['95.2, -7.6039'])]
+    #[TestWith(['33.5899, -190'])]
+    #[TestWith(['https://maps.app.goo.gl/x1Y2z3'])]
+    public function test_update_rejects_store_coordinates_that_are_not_a_latitude_and_longitude_with_422(string $coordinates): void
+    {
+        $response = $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'location.coordinates' => $coordinates,
+        ]]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['values.location.coordinates' => 'Saisissez « latitude, longitude », par exemple 33.5899, -7.6039.']);
+        $this->assertDatabaseCount('store_settings', 0);
+    }
+
+    #[TestWith([2])]
+    #[TestWith([22])]
+    public function test_update_rejects_a_map_zoom_outside_3_to_21_with_422(int $zoom): void
+    {
+        $response = $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'location.zoom' => $zoom,
+        ]]);
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['values.location.zoom']);
+        $this->assertDatabaseCount('store_settings', 0);
+    }
+
+    public function test_update_publishes_the_tracking_ids_to_the_storefront(): void
+    {
+        $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'analytics.ga4_id' => 'G-AB12CD34EF',
+            'analytics.meta_pixel_id' => '123456789012345',
+        ]])->assertOk();
+
+        $this->getJson('/api/storefront')
+            ->assertOk()
+            ->assertJsonPath('analytics', ['ga4' => 'G-AB12CD34EF', 'meta_pixel' => '123456789012345']);
+    }
+
+    public function test_update_rejects_tracking_ids_in_the_wrong_format_with_422(): void
+    {
+        $response = $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'analytics.ga4_id' => 'UA-12345-1',
+            'analytics.meta_pixel_id' => 'fbq-123',
+        ]]);
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['values.analytics.ga4_id', 'values.analytics.meta_pixel_id']);
         $this->assertDatabaseCount('store_settings', 0);
     }
 

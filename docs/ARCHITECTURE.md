@@ -63,9 +63,21 @@ Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / lega
   (setting `notifications.orders_email`, else `contact.email`) and `OrderConfirmation`
   to the customer when they gave an e-mail. Production needs a queue worker.
 - `Orders\OrderWorkflow`: allowed status transitions, restocking on cancel, event log.
+  Each transition dispatches `Events\OrderStatusChanged`; `SendOrderStatusUpdate` e-mails
+  the customer (confirmed, shipped, delivered, cancelled) in the order's language.
+  `SendLowStockAlert` warns the orders inbox when an order takes a format down to its
+  threshold. `Orders\OrderExport` writes the filtered list as CSV for Excel; the admin
+  prints A5 delivery slips from the same filters (`/admin/commandes/bons`).
+- Console: `app:remove-demo-content` clears the `is_demo` catalogue before launch;
+  `app:launch-check` lists what production still needs (mail, queue worker, cron —
+  proven by a scheduler heartbeat —, https, content). `.env.production.example` holds the
+  production values.
 - `Inventory\InventoryManager`: every stock change writes an `InventoryMovement`.
 - `Settings\StoreSettings`: typed defaults, cached, admin-editable.
 - `Media\ImageProcessor`: validates uploads and writes 480/960/1600 px WebP variants.
+- Storefront measurement (`resources/js/storefront/analytics.ts`): GA4 and Meta Pixel,
+  configured in the settings, load only after the visitor accepts the cookie banner;
+  page views, product views, add to cart, checkout and purchase are sent in MAD.
 
 ## Languages
 

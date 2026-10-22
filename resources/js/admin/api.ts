@@ -1,4 +1,4 @@
-import { ApiError, createHttp, type Query } from '@shared/http';
+import { ApiError, buildQuery, createHttp, errorMessage, type Query } from '@shared/http';
 import type {
     AdjustMode,
     AdminCity,
@@ -29,6 +29,7 @@ import type {
     NewMemberPayload,
     NoteTranslation,
     OrderList,
+    OrderSlips,
     OrderStatus,
     PackPayload,
     PagePayload,
@@ -116,8 +117,41 @@ export const dashboard = {
     get: (days: DashboardDays, signal?: AbortSignal) => get<DashboardPayload>('/dashboard', { days }, signal),
 };
 
+/**
+ * Downloads a file the API generates (e.g. a CSV export) under its own name, with the
+ * session cookie like every other request; errors come back as an ApiError.
+ */
+async function download(path: string, query: Query): Promise<void> {
+    const response = await fetch('/api/admin' + path + buildQuery(query), {
+        headers: { Accept: 'text/csv, application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+    }).catch(() => {
+        throw new ApiError(0, errorMessage(0, null));
+    });
+
+    if (!response.ok) {
+        const data: unknown = await response.json().catch(() => null);
+        if (response.status === 401) {
+            onUnauthenticated?.();
+        }
+        throw new ApiError(response.status, errorMessage(response.status, (data as { message?: unknown } | null)?.message));
+    }
+
+    const name = /filename="?([^";]+)"?/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? 'export.csv';
+    const url = URL.createObjectURL(await response.blob());
+    const link = Object.assign(document.createElement('a'), { href: url, download: name });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
 export const orders = {
     list: (query: Query, signal?: AbortSignal) => get<OrderList>('/orders', query, signal),
+    /** Orders matching the list's filters, as a spreadsheet. */
+    exportCsv: (query: Query) => download('/orders/export', query),
+    /** Orders to print delivery slips for: `references` or else the list's filters. */
+    slips: (query: Query, signal?: AbortSignal) => get<OrderSlips>('/orders/slips', query, signal),
     show: (reference: string, signal?: AbortSignal) =>
         get<Data<AdminOrder>>(`/orders/${encodeURIComponent(reference)}`, undefined, signal).then(unwrap),
     updateStatus: (reference: string, status: OrderStatus, note: string | null) =>

@@ -59,3 +59,16 @@
         transform: translateX(300%);
     }
 }
+
+/* Delivery slips (pages/orders/DeliverySlipsPage): one A5 sheet per order, edge to edge. */
+@media print {
+    @page {
+        size: A5;
+        margin: 0;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+}

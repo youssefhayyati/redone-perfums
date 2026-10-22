@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { Banknote, Truck } from 'lucide-react';
 import type { Product, Variant } from '@shared/types';
 import { ApiError } from '@shared/http';
 import { formatMoney } from '@shared/money';
+import { track } from '../analytics';
 import { api } from '../api';
 import { Gallery } from '../components/product/Gallery';
 import { NotesPyramid, hasNotes } from '../components/product/NotesPyramid';
@@ -16,6 +17,8 @@ import { Button } from '../components/ui/Button';
 import { Price } from '../components/ui/Price';
 import { QuantityStepper } from '../components/ui/QuantityStepper';
 import { ErrorState, SectionHeading } from '../components/ui/States';
+import { SocialIcon } from '../components/layout/SocialIcon';
+import { whatsappHref } from '../components/layout/WhatsAppButton';
 import { useConfig } from '../config';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -68,6 +71,11 @@ function ProductView({ product }: { product: Product }) {
     const maxQuantity = Math.min(10, variant?.stock_left ?? 10);
     const reassurance = config.benefits.filter((benefit) => benefit.icon === 'truck' || benefit.icon === 'banknote');
 
+    useEffect(() => {
+        const shown = defaultVariant(product.variants);
+        track({ type: 'view_item', item: { id: shown?.sku ?? product.slug, name: product.name, variant: shown?.label, price: shown?.price ?? 0, quantity: 1 } });
+    }, [product]);
+
     async function addToCart() {
         if (!variant) {
             return;
@@ -76,6 +84,7 @@ function ProductView({ product }: { product: Product }) {
         setAdding(true);
         try {
             await cartActions.addVariant(variant.id, quantity);
+            track({ type: 'add_to_cart', items: [{ id: variant.sku, name: product.name, variant: variant.label, price: variant.price, quantity }] });
             ui.open('cart');
         } catch (error) {
             toast.error(error instanceof ApiError ? error.message : t('Ce parfum n’a pas pu être ajouté au panier.'));
@@ -149,6 +158,19 @@ function ProductView({ product }: { product: Product }) {
                                 )}
                             </Button>
                         </div>
+
+                        {config.contact.whatsapp && (
+                            <a
+                                href={whatsappHref(config.contact.whatsapp, t('Bonjour, j’aimerais en savoir plus sur {name} : {url}', { name: product.name, url: window.location.href }))}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="group inline-flex items-center gap-2.5 self-start text-sm text-muted transition-colors hover:text-ink"
+                            >
+                                <SocialIcon network="whatsapp" className="size-4 text-[#25D366]" />
+                                <span className="link-draw">{t('Une question sur ce parfum ? Écrivez-nous sur WhatsApp')}</span>
+                                <span className="sr-only">{t('(nouvel onglet)')}</span>
+                            </a>
+                        )}
 
                         {reassurance.length > 0 && (
                             <ul className="flex flex-col gap-3 text-sm text-muted">

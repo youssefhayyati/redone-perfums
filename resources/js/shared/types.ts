@@ -27,6 +27,7 @@ export interface ImageAsset {
 export interface Variant {
     id: number;
     size_ml: number;
+    sku: string;
     label: string;
     price: number;
     compare_at_price: number | null;
@@ -167,7 +168,7 @@ interface CartLineBase {
 export interface ProductCartLine extends CartLineBase {
     type: 'product';
     product: { name: string; slug: string; family: string | null; image: ImageAsset | null } | null;
-    variant: { id: number; size_ml: number; label: string } | null;
+    variant: { id: number; size_ml: number; sku: string; label: string } | null;
 }
 
 export interface PackSelection {
@@ -223,6 +224,8 @@ export interface OrderItem {
     id: number;
     type: 'product' | 'pack';
     name: string;
+    sku: string | null;
+    pack_id: number | null;
     variant_label: string | null;
     unit_price: number;
     compare_at_price: number | null;
@@ -277,10 +280,22 @@ export interface Benefit {
     text: string;
 }
 
+/** The shop on a map; the storefront shows it once the admin has filled its coordinates. */
+export interface StoreLocation {
+    lat: number;
+    lng: number;
+    zoom: number;
+    title: string | null;
+    hours: string | null;
+}
+
 export interface StorefrontConfig {
     store: { name: string; wordmark: string; descriptor: string; meta_description: string };
+    /** Audience measurement identifiers (Settings → Mesure d'audience), loaded after cookie consent. */
+    analytics: { ga4?: string; meta_pixel?: string };
     announcement: { enabled: boolean; text: string | null; link: string | null };
     contact: { email: string | null; phone: string | null; whatsapp: string | null; address: string | null; hours: string | null };
+    location: StoreLocation | null;
     social: { instagram?: string; tiktok?: string; facebook?: string };
     payment_methods: Array<{ code: string; label: string; description: string }>;
     checkout: { email_required: boolean };

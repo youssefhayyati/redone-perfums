@@ -15,6 +15,8 @@ import { Splash } from './Splash';
 /** Route `handle` used by the shell to guard screens. */
 export interface RouteHandle {
     permission?: Permission;
+    /** A screen without the sidebar and top bar (printable pages), still signed in and guarded. */
+    bare?: boolean;
 }
 
 function requiredPermission(matches: ReturnType<typeof useMatches>): Permission | undefined {
@@ -107,6 +109,14 @@ export function AdminShell() {
         if (fallback && fallback !== '/') {
             return <Navigate to={fallback} replace />;
         }
+    }
+
+    if (matches.some((match) => (match.handle as RouteHandle | undefined)?.bare)) {
+        return (
+            <main id="main" tabIndex={-1} className="outline-none">
+                {allowed ? <Outlet /> : <AccessDenied />}
+            </main>
+        );
     }
 
     const badges = { '/commandes': pendingOrders ?? undefined };

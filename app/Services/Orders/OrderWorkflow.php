@@ -5,6 +5,7 @@ namespace App\Services\Orders;
 use App\Enums\InventoryReason;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentStatus;
+use App\Events\OrderStatusChanged;
 use App\Models\Order;
 use App\Models\OrderEvent;
 use App\Models\Product;
@@ -48,6 +49,8 @@ final class OrderWorkflow
             $locked->forceFill($changes)->save();
 
             $this->log($locked, 'status', $from->value, $to->value, $note, $actor);
+
+            OrderStatusChanged::dispatch($locked, $from, $to);
 
             return $locked->fresh(['items.selections', 'events.user']);
         });

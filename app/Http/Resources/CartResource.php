@@ -76,7 +76,7 @@ class CartResource extends JsonResource
                     'family' => $product->family?->translated('name'),
                     'image' => $product->images->first()?->toPublicArray(),
                 ] : null,
-                'variant' => $variant ? ['id' => $variant->id, 'size_ml' => $variant->size_ml, 'label' => $variant->label()] : null,
+                'variant' => $variant ? ['id' => $variant->id, 'size_ml' => $variant->size_ml, 'sku' => $variant->sku, 'label' => $variant->label()] : null,
             ];
         }
 

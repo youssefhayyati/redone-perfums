@@ -1,11 +1,11 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router';
-import { Ban, Copy, CreditCard, Gift, Mail, MessageCircle, Pencil, Phone, Save, Send, Truck, UserRound } from 'lucide-react';
+import { Ban, Copy, CreditCard, Gift, Mail, MessageCircle, Pencil, Phone, Printer, Save, Send, Truck, UserRound } from 'lucide-react';
 import { cn, formatDateTime } from '@shared/format';
 import { formatMoney } from '@shared/money';
 import * as api from '../../api';
 import { Badge, OrderStatusBadge, PaymentStatusBadge } from '../../components/ui/Badge';
-import { Button } from '../../components/ui/Button';
+import { Button, buttonClasses } from '../../components/ui/Button';
 import { ErrorState, Skeleton } from '../../components/ui/feedback';
 import { Field, TextArea } from '../../components/ui/form';
 import { DetailList, PageHeader, Panel } from '../../components/ui/Panel';
@@ -15,6 +15,7 @@ import { useDocumentTitle } from '../../hooks/useDocumentTitle';
 import { notifyOrdersChanged } from '../../hooks/usePendingOrders';
 import { errorText, toFieldErrors } from '../../lib/errors';
 import { telLink, whatsappLink } from '../../lib/format';
+import { whatsappMessage } from '../../lib/whatsappMessage';
 import { ORDER_STATUS_TONES, ORDER_TRANSITION_VERBS, PAYMENT_TRANSITION_VERBS, isOrderStatus, type Tone } from '../../lib/status';
 import { useCan } from '../../session';
 import type { AdminOrder, AdminOrderEvent, AdminOrderItem } from '../../types';
@@ -261,9 +262,7 @@ export default function OrderDetailPage() {
 
     const forward = order.allowed_transitions.filter((option) => option.value !== 'cancelled');
     const canCancel = order.allowed_transitions.some((option) => option.value === 'cancelled');
-    const firstName = order.customer_name.split(' ')[0];
-    const whatsappMessage =
-        order.locale === 'ar' ? `مرحبًا ${firstName}، معك Myperfum بخصوص طلبك ${order.reference}.` : `Bonjour ${firstName}, ici Myperfum au sujet de votre commande ${order.reference}.`;
+    const message = whatsappMessage(order);
 
     const copyReference = async () => {
         try {
@@ -301,6 +300,11 @@ export default function OrderDetailPage() {
                 }
                 actions={
                     <>
+                        <a href={`/admin/commandes/bons?references=${encodeURIComponent(order.reference)}`} target="_blank" rel="noopener" className={buttonClasses({ variant: 'ghost' })}>
+                            <Printer className="size-4" aria-hidden />
+                            Bon de livraison
+                            <span className="sr-only">(nouvel onglet)</span>
+                        </a>
                         {canCancel && (
                             <Button variant="danger-outline" icon={Ban} onClick={() => setTransition({ kind: 'status', value: 'cancelled' })}>
                                 Annuler
@@ -398,7 +402,8 @@ export default function OrderDetailPage() {
                                     Appeler
                                 </a>
                                 <a
-                                    href={whatsappLink(order.phone_e164, whatsappMessage)}
+                                    href={whatsappLink(order.phone_e164, message)}
+                                    title={`Message prêt : ${message}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-line-strong text-sm font-medium text-ink transition-colors hover:bg-ink/[0.06]"

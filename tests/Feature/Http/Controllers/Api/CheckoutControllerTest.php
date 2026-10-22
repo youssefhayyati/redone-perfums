@@ -15,6 +15,7 @@ use App\Models\Pack;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Notifications\LowStockAlert;
 use App\Notifications\NewOrderAlert;
 use App\Notifications\OrderConfirmation;
 use App\Services\Checkout\CheckoutData;
@@ -425,6 +426,36 @@ class CheckoutControllerTest extends TestCase
                 && $notification->order->reference === $reference,
         );
         Notification::assertCount(2);
+    }
+
+    public function test_checkout_alerts_the_store_when_an_order_takes_a_format_down_to_its_low_stock_threshold(): void
+    {
+        app(StoreSettings::class)->put(['notifications.orders_email' => 'commandes@myperfum.ma']);
+        $variant = $this->sellableVariant(stock: 7);
+        $variant->update(['low_stock_threshold' => 5]);
+        Notification::fake();
+
+        $this->withCart($this->cartWith([[$variant, 2]]))->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemand(
+            LowStockAlert::class,
+            fn (LowStockAlert $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === 'commandes@myperfum.ma'
+                && count($notification->variants) === 1
+                && $notification->variants[0]->is($variant)
+                && $notification->variants[0]->stock === 5,
+        );
+    }
+
+    public function test_checkout_does_not_alert_again_for_a_format_already_under_its_threshold(): void
+    {
+        app(StoreSettings::class)->put(['notifications.orders_email' => 'commandes@myperfum.ma']);
+        $variant = $this->sellableVariant(stock: 4);
+        $variant->update(['low_stock_threshold' => 5]);
+        Notification::fake();
+
+        $this->withCart($this->cartWith([[$variant, 1]]))->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemandTimes(LowStockAlert::class, 0);
     }
 
     public function test_checkout_alerts_the_store_at_its_contact_email_while_no_orders_inbox_is_set(): void

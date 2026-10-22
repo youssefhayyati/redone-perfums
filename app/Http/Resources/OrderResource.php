@@ -42,6 +42,8 @@ class OrderResource extends JsonResource
                 'id' => $item->id,
                 'type' => $item->type->value,
                 'name' => $item->name,
+                'sku' => $item->sku,
+                'pack_id' => $item->pack_id,
                 'variant_label' => $item->variant_label,
                 'unit_price' => $item->unit_price,
                 'compare_at_price' => $item->compare_at_price,

@@ -48,8 +48,20 @@ final class StoreSettings
             'contact.hours' => $s('contact', 'string', null, 'Horaires du service client'),
             'contact.hours_ar' => $s('contact', 'string', null, 'Horaires du service client (arabe)'),
 
+            // Shown as a map on the homepage once the coordinates are filled; the address comes from contact.address.
+            'location.coordinates' => $s('location', 'string', null, 'Coordonnées GPS de la boutique (latitude, longitude)'),
+            'location.zoom' => $s('location', 'integer', 16, 'Zoom de la carte (de 3 à 21)'),
+            'location.title' => $s('location', 'string', 'Venez sentir nos parfums', 'Titre de la section'),
+            'location.title_ar' => $s('location', 'string', 'تعالوا لاكتشاف عطورنا', 'Titre de la section (arabe)'),
+            'location.hours' => $s('location', 'string', null, 'Horaires d’ouverture de la boutique'),
+            'location.hours_ar' => $s('location', 'string', null, 'Horaires d’ouverture de la boutique (arabe)'),
+
             // Internal: never part of StorefrontConfig, which publishes the whole contact group.
             'notifications.orders_email' => $s('notifications', 'string', null, 'E-mail qui reçoit les nouvelles commandes (par défaut : e-mail de contact)'),
+
+            // Public identifiers, loaded on the storefront only after the visitor accepts cookies.
+            'analytics.ga4_id' => $s('analytics', 'string', null, 'Google Analytics 4 — identifiant de mesure (G-…)'),
+            'analytics.meta_pixel_id' => $s('analytics', 'string', null, 'Meta Pixel (Instagram, Facebook) — identifiant'),
 
             'social.instagram' => $s('social', 'url', null, 'Instagram'),
             'social.tiktok' => $s('social', 'url', null, 'TikTok'),

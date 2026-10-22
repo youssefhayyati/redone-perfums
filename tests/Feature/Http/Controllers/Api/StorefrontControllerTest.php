@@ -122,6 +122,35 @@ class StorefrontControllerTest extends TestCase
             ->assertDontSee('commandes@myperfum.ma');
     }
 
+    public function test_config_loads_no_tracker_until_one_is_configured(): void
+    {
+        $this->getJson('/api/storefront')->assertOk()->assertJsonPath('analytics', []);
+    }
+
+    public function test_config_shows_no_store_location_until_its_coordinates_are_filled(): void
+    {
+        app(StoreSettings::class)->put(['location.hours' => 'Du lundi au samedi, 10 h – 20 h']);
+
+        $this->getJson('/api/storefront')->assertOk()->assertJsonPath('location', null);
+    }
+
+    public function test_arabic_config_describes_the_store_location_in_arabic(): void
+    {
+        app(StoreSettings::class)->put([
+            'location.coordinates' => '34.0209, -6.8416',
+            'location.hours' => 'Du lundi au samedi, 10 h – 20 h',
+            'location.hours_ar' => 'من الاثنين إلى السبت، 10 – 20',
+        ]);
+
+        $response = $this->withHeader('X-Locale', 'ar')->getJson('/api/storefront');
+
+        $response->assertOk()
+            ->assertJsonPath('location.lat', 34.0209)
+            ->assertJsonPath('location.zoom', 16)
+            ->assertJsonPath('location.title', 'تعالوا لاكتشاف عطورنا')
+            ->assertJsonPath('location.hours', 'من الاثنين إلى السبت، 10 – 20');
+    }
+
     public function test_arabic_config_speaks_arabic(): void
     {
         City::factory()->count(3)->for(DeliveryZone::factory(), 'zone')->create();

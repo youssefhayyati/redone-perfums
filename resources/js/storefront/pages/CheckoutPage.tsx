@@ -5,6 +5,7 @@ import { ApiError } from '@shared/http';
 import { formatMoney } from '@shared/money';
 import { formatMoroccanPhone, isValidMoroccanPhone } from '@shared/phone';
 import { cn } from '@shared/format';
+import { cartItems, track } from '../analytics';
 import { api } from '../api';
 import { clearDraft, forgetIdempotencyKey, idempotencyKey, loadDraft, rememberOrderToken, saveDraft, type CheckoutForm } from '../checkout';
 import { CitySelect } from '../components/cart/CitySelect';
@@ -87,6 +88,14 @@ export default function CheckoutPage() {
     }, [user]);
 
     useEffect(() => saveDraft(form), [form]);
+
+    const checkoutTracked = useRef(false);
+    useEffect(() => {
+        if (cart && cart.lines.length > 0 && !checkoutTracked.current) {
+            checkoutTracked.current = true;
+            track({ type: 'begin_checkout', value: cart.total ?? cart.merchandise_total, items: cartItems(cart) });
+        }
+    }, [cart]);
 
     const set = (field: keyof CheckoutForm) => (value: string) => {
         setForm((current) => ({ ...current, [field]: value }));

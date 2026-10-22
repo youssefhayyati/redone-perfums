@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { ApiError } from '@shared/http';
+import { coordinatesFromMapsLink, mapEmbedUrl, parseGeoPoint } from '@shared/maps';
 import * as api from '../api';
 import { ErrorState, Skeleton } from '../components/ui/feedback';
 import { UnsavedChangesDialog } from '../components/ui/fields';
@@ -19,7 +20,27 @@ const HINTS: Record<string, string> = {
     'home.story_product_id': 'Parfum publié dont le récit est présenté sur l’accueil.',
     'announcement.link': 'Ex. /coffrets — laissé vide, l’annonce n’est pas cliquable.',
     'store.meta_description': 'Environ 150 caractères.',
+    'location.coordinates': 'Dans Google Maps, faites un clic droit sur la boutique puis cliquez sur les chiffres pour les copier. Coller le lien d’une page Google Maps fonctionne aussi.',
+    'location.zoom': '16 montre le quartier, 18 la rue.',
+    'analytics.ga4_id': 'Google Analytics → Admin → Flux de données → votre site : « ID de mesure ».',
+    'analytics.meta_pixel_id': 'Gestionnaire d’événements Meta → Sources de données → votre pixel : son numéro d’identification.',
 };
+
+/** What the homepage map will show, following the coordinates as they are typed. */
+function MapPreview({ coordinates, zoom }: { coordinates: string; zoom: string }) {
+    const point = parseGeoPoint(coordinates);
+    const level = Math.min(21, Math.max(3, Number.parseInt(zoom, 10) || 16));
+
+    return (
+        <div className="mt-5 overflow-hidden rounded-lg border border-line bg-sunken">
+            {point ? (
+                <iframe src={mapEmbedUrl(point, level, 'fr')} title="Aperçu de la carte de la boutique" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="block aspect-video w-full border-0" />
+            ) : (
+                <p className="flex aspect-video items-center justify-center p-6 text-center text-sm text-muted">Renseignez les coordonnées pour voir la carte. Tant qu’elles sont vides, la section reste masquée sur la boutique.</p>
+            )}
+        </div>
+    );
+}
 
 /** Arabic copy is stored beside its French setting, under the same key with "_ar". */
 const isArabicSetting = (key: string): boolean => key.endsWith('_ar');
@@ -155,11 +176,18 @@ function SettingsEditor({ initial }: { initial: SettingsPayload }) {
                                                     french={isArabicSetting(field.key) ? String(draft[field.key.slice(0, -3)] ?? '') : undefined}
                                                     products={payload.products}
                                                     error={errors[field.key]}
-                                                    onChange={(value) => setDraft((current) => ({ ...current, [field.key]: value }))}
+                                                    onChange={(value) =>
+                                                        setDraft((current) => ({
+                                                            ...current,
+                                                            // A pasted Google Maps link becomes its "latitude, longitude".
+                                                            [field.key]: field.key === 'location.coordinates' && typeof value === 'string' ? coordinatesFromMapsLink(value) : value,
+                                                        }))
+                                                    }
                                                 />
                                             </div>
                                         ))}
                                     </div>
+                                    {group.key === 'location' && <MapPreview coordinates={String(draft['location.coordinates'] ?? '')} zoom={String(draft['location.zoom'] ?? '')} />}
                                 </Panel>
                             </div>
                         ))}
