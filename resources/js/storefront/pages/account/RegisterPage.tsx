@@ -7,6 +7,7 @@ import { useHead } from '../../hooks/useHead';
 import { sessionActions, useSession } from '../../stores/session';
 import { toast } from '../../stores/ui';
 import { AuthLayout, fieldError, safeRedirect } from './AuthLayout';
+import { t } from '../../i18n';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -16,7 +17,7 @@ export default function RegisterPage() {
     const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', password_confirmation: '' });
     const [pending, setPending] = useState(false);
     const [error, setError] = useState<ApiError | null>(null);
-    useHead({ title: 'Créer un compte', noindex: true });
+    useHead({ title: t('Créer un compte'), noindex: true });
 
     if (status === 'authenticated' && !pending) {
         return <Navigate to={redirect} replace />;
@@ -30,34 +31,35 @@ export default function RegisterPage() {
         setError(null);
         try {
             const user = await sessionActions.register({ ...form, phone: form.phone.trim() || null });
-            toast.success(`Bienvenue, ${user.name.split(' ')[0]}.`);
+            toast.success(t('Bienvenue, {name}.', { name: user.name.split(' ')[0] }));
             navigate(redirect, { replace: true });
         } catch (failure) {
-            setError(failure instanceof ApiError ? failure : new ApiError(0, 'L’inscription a échoué.'));
+            setError(failure instanceof ApiError ? failure : new ApiError(0, t('L’inscription a échoué.')));
             setPending(false);
         }
     }
 
     return (
         <AuthLayout
-            eyebrow="Mon compte"
-            title="Créer votre compte"
-            intro="Suivez vos commandes et commandez plus vite la prochaine fois."
+            eyebrow={t('Mon compte')}
+            title={t('Créer votre compte')}
+            intro={t('Suivez vos commandes et commandez plus vite la prochaine fois.')}
             footer={
                 <>
-                    Déjà inscrit(e) ?{' '}
+                    {t('Déjà inscrit(e) ?')}{' '}
                     <Link to="/compte/connexion" className="text-ink underline underline-offset-4">
-                        Se connecter
+                        {t('Se connecter')}
                     </Link>
                 </>
             }
         >
             <form onSubmit={submit} noValidate className="flex flex-col gap-6">
                 {error && !error.isValidation && <FormAlert message={error.message} />}
-                <TextField label="Nom complet" name="name" autoComplete="name" value={form.name} onChange={update('name')} error={fieldError(error?.errors, 'name')} required />
-                <TextField label="E-mail" type="email" name="email" autoComplete="email" value={form.email} onChange={update('email')} error={fieldError(error?.errors, 'email')} required />
+                <TextField label={t('Nom complet')} name="name" autoComplete="name" value={form.name} onChange={update('name')} error={fieldError(error?.errors, 'name')} required />
+                <TextField label={t('E-mail')} type="email" dir="ltr" name="email" autoComplete="email" value={form.email} onChange={update('email')} error={fieldError(error?.errors, 'email')} required />
                 <TextField
-                    label="Téléphone"
+                    label={t('Téléphone')}
+                    dir="ltr"
                     type="tel"
                     name="phone"
                     inputMode="tel"
@@ -65,22 +67,22 @@ export default function RegisterPage() {
                     value={form.phone}
                     onChange={update('phone')}
                     optional
-                    hint="Pour préremplir vos prochaines commandes."
+                    hint={t('Pour préremplir vos prochaines commandes.')}
                     error={fieldError(error?.errors, 'phone')}
                 />
                 <TextField
-                    label="Mot de passe"
+                    label={t('Mot de passe')}
                     type="password"
                     name="password"
                     autoComplete="new-password"
                     value={form.password}
                     onChange={update('password')}
-                    hint="Au moins 10 caractères, avec des lettres et des chiffres."
+                    hint={t('Au moins 10 caractères, avec des lettres et des chiffres.')}
                     error={fieldError(error?.errors, 'password')}
                     required
                 />
                 <TextField
-                    label="Confirmation du mot de passe"
+                    label={t('Confirmation du mot de passe')}
                     type="password"
                     name="password_confirmation"
                     autoComplete="new-password"
@@ -89,7 +91,7 @@ export default function RegisterPage() {
                     required
                 />
                 <Button type="submit" size="lg" loading={pending}>
-                    Créer mon compte
+                    {t('Créer mon compte')}
                 </Button>
             </form>
         </AuthLayout>

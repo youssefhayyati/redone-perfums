@@ -20,12 +20,17 @@ class ProductRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:120'],
+            'name_ar' => ['nullable', 'string', 'max:120'],
             'slug' => ['required', 'string', 'max:140', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('products', 'slug')->ignore($productId)],
             'fragrance_family_id' => ['nullable', 'integer', 'exists:fragrance_families,id'],
             'tagline' => ['nullable', 'string', 'max:255'],
+            'tagline_ar' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
+            'description_ar' => ['nullable', 'string', 'max:5000'],
             'inspiration' => ['nullable', 'string', 'max:5000'],
+            'inspiration_ar' => ['nullable', 'string', 'max:5000'],
             'concentration' => ['nullable', 'string', 'max:60'],
+            'concentration_ar' => ['nullable', 'string', 'max:60'],
             'gender' => ['nullable', Rule::in(Product::GENDERS)],
             'longevity' => ['nullable', 'integer', 'between:1,5'],
             'sillage' => ['nullable', 'integer', 'between:1,5'],
@@ -35,7 +40,9 @@ class ProductRequest extends FormRequest
             'accent_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],
             'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_title_ar' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:320'],
+            'meta_description_ar' => ['nullable', 'string', 'max:320'],
             'published_at' => ['nullable', 'date'],
 
             'collection_ids' => ['array'],

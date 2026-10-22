@@ -33,7 +33,8 @@ export function NotesMarquee({ products }: { products: ProductCard[] }) {
     const copy = Array.from({ length: Math.ceil(MIN_NOTES_PER_COPY / notes.length) }, () => notes).flat();
 
     return (
-        <div aria-hidden="true" className="group overflow-hidden border-y border-line py-5 sm:py-7">
+        // Scrolls left to right in both languages: a decorative band, not text to be read in order.
+        <div aria-hidden="true" dir="ltr" className="group overflow-hidden border-y border-line py-5 sm:py-7">
             <div className={cn('flex w-max', !reduced && 'animate-marquee group-hover:[animation-play-state:paused]')} style={{ animationDuration: `${copy.length * 4}s` }}>
                 {[0, 1].map((track) => (
                     <ul key={track} className="flex shrink-0 items-center">

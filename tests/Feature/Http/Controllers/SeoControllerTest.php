@@ -46,6 +46,20 @@ class SeoControllerTest extends TestCase
             ->assertSee('<lastmod>2026-10-21T09:30:00+01:00</lastmod>', false);
     }
 
+    public function test_sitemap_lists_each_page_in_both_languages_linked_to_each_other(): void
+    {
+        Product::factory()->published()->create(['slug' => 'nuit-d-ambre']);
+        $base = config('app.url');
+
+        $response = $this->get('/sitemap.xml');
+
+        $response->assertOk()
+            ->assertSee("<loc>{$base}/parfums/nuit-d-ambre</loc>", false)
+            ->assertSee("<loc>{$base}/ar/parfums/nuit-d-ambre</loc>", false)
+            ->assertSee("<loc>{$base}/ar</loc>", false)
+            ->assertSee('<xhtml:link rel="alternate" hreflang="ar" href="'.$base.'/ar/parfums/nuit-d-ambre"/>', false);
+    }
+
     public function test_sitemap_leaves_out_what_customers_cannot_open(): void
     {
         Product::factory()->draft()->create(['slug' => 'brouillon-de-parfum']);

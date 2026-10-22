@@ -6,9 +6,11 @@ import { useConfig } from '../../config';
 import { useCart } from '../../stores/cart';
 import { ui } from '../../stores/ui';
 import { IconButton } from '../ui/Button';
+import { LanguageSwitch } from './LanguageSwitch';
 import { primaryNav } from './nav';
 import { ThemeToggle } from './ThemeToggle';
 import { Wordmark } from './Wordmark';
+import { t, tn } from '../../i18n';
 
 export function Header() {
     const config = useConfig();
@@ -33,8 +35,8 @@ export function Header() {
             )}
         >
             <div className="container-page grid h-16 grid-cols-[1fr_auto_1fr] items-center sm:h-[4.5rem]">
-                <nav aria-label="Navigation principale" className="flex items-center">
-                    <IconButton label="Ouvrir le menu" className="-ml-3 lg:hidden" onClick={() => ui.open('menu')}>
+                <nav aria-label={t('Navigation principale')} className="flex items-center">
+                    <IconButton label={t('Ouvrir le menu')} className="-ms-3 lg:hidden" onClick={() => ui.open('menu')}>
                         <Menu className="size-5" strokeWidth={1.25} />
                     </IconButton>
                     <ul className="hidden items-center gap-8 lg:flex">
@@ -55,17 +57,18 @@ export function Header() {
 
                 <Wordmark />
 
-                <div className="-mr-3 flex items-center justify-end">
-                    <IconButton label="Rechercher un parfum" onClick={() => ui.open('search')}>
+                <div className="-me-3 flex items-center justify-end">
+                    <IconButton label={t('Rechercher un parfum')} onClick={() => ui.open('search')}>
                         <Search className="size-[1.15rem]" strokeWidth={1.25} />
                     </IconButton>
                     <span className="hidden sm:contents">
+                        <LanguageSwitch className="me-1" />
                         <ThemeToggle />
                     </span>
-                    <NavLink to="/compte" aria-label="Mon compte" title="Mon compte" className="hidden size-11 items-center justify-center text-ink transition-colors hover:text-accent sm:inline-flex">
+                    <NavLink to="/compte" aria-label={t('Mon compte')} title={t('Mon compte')} className="hidden size-11 items-center justify-center text-ink transition-colors hover:text-accent sm:inline-flex">
                         <User className="size-[1.15rem]" strokeWidth={1.25} />
                     </NavLink>
-                    <IconButton label={count > 0 ? `Ouvrir le panier, ${count} article${count > 1 ? 's' : ''}` : 'Ouvrir le panier'} onClick={() => ui.open('cart')}>
+                    <IconButton label={count > 0 ? t('Ouvrir le panier, {items}', { items: tn(count, 'article') }) : t('Ouvrir le panier')} onClick={() => ui.open('cart')}>
                         <ShoppingBag className="size-[1.15rem]" strokeWidth={1.25} />
                         {count > 0 && (
                             <span aria-hidden="true" className="absolute top-1.5 right-1 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[0.625rem] leading-4 font-semibold text-on-accent tabular-nums">

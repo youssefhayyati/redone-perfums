@@ -7,7 +7,7 @@ import { Button, IconButton } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Dialog } from '../components/ui/Dialog';
 import { EmptyState, ErrorState, TableSkeleton } from '../components/ui/feedback';
-import { AffixInput, Field, Segmented, Switch, TextArea, TextInput } from '../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, Segmented, Switch, TextArea, TextInput } from '../components/ui/form';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { DataTable, Td, Th } from '../components/ui/Table';
 import { toast } from '../components/ui/toast';
@@ -23,18 +23,42 @@ interface PageForm {
     slug: string;
     body: string;
     meta_description: string;
+    title_ar: string;
+    body_ar: string;
+    meta_description_ar: string;
     is_published: boolean;
     sort_order: string;
 }
+
+type Language = 'fr' | 'ar';
+
+/** The fields edited in each language; the slug, publication and order are shared. */
+const COPY_FIELDS = {
+    fr: { title: 'title', body: 'body', meta_description: 'meta_description' },
+    ar: { title: 'title_ar', body: 'body_ar', meta_description: 'meta_description_ar' },
+} as const;
 
 const toForm = (page: AdminPage | null): PageForm => ({
     title: page?.title ?? '',
     slug: page?.slug ?? '',
     body: page?.body ?? '',
     meta_description: page?.meta_description ?? '',
+    title_ar: page?.title_ar ?? '',
+    body_ar: page?.body_ar ?? '',
+    meta_description_ar: page?.meta_description_ar ?? '',
     is_published: page?.is_published ?? false,
     sort_order: String(page?.sort_order ?? 0),
 });
+
+const nullableText = (value: string): string | null => (value.trim() === '' ? null : value.trim());
+
+/** The language holding the first error, so the editor shows the field to fix. */
+function languageWithErrors(errors: FieldErrors, current: Language): Language {
+    const inFrench = Object.values(COPY_FIELDS.fr).some((field) => errors[field]);
+    const inArabic = Object.values(COPY_FIELDS.ar).some((field) => errors[field]);
+
+    return inFrench ? 'fr' : inArabic ? 'ar' : current;
+}
 
 /** Preview of the light markup, rendered as text (never HTML) like the storefront. */
 export function MarkupPreview({ body }: { body: string }) {
@@ -71,6 +95,7 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
     const [form, setForm] = useState<PageForm>(() => toForm(page));
     const [initial, setInitial] = useState(() => JSON.stringify(toForm(page)));
     const [tab, setTab] = useState<'write' | 'preview'>('write');
+    const [language, setLanguage] = useState<Language>('fr');
     const [errors, setErrors] = useState<FieldErrors>({});
     const [busy, setBusy] = useState(false);
     const [confirmDiscard, setConfirmDiscard] = useState(false);
@@ -83,11 +108,15 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
             setInitial(JSON.stringify(next));
             setErrors({});
             setTab('write');
+            setLanguage('fr');
         }
     }, [open, page]);
 
     const set = <K extends keyof PageForm>(key: K, value: PageForm[K]) => setForm((current) => ({ ...current, [key]: value }));
     const requestClose = () => (dirty ? setConfirmDiscard(true) : onClose());
+    const arabic = language === 'ar';
+    const fields = COPY_FIELDS[language];
+    const copy = arabic ? arabicText : {};
 
     async function submit(event: FormEvent) {
         event.preventDefault();
@@ -101,6 +130,7 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
         if (hasErrors(local)) {
             setErrors(local);
             setTab('write');
+            setLanguage('fr');
             focusFirstInvalid();
 
             return;
@@ -111,7 +141,10 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                 title: form.title.trim(),
                 slug: form.slug.trim(),
                 body: form.body,
-                meta_description: form.meta_description.trim() === '' ? null : form.meta_description.trim(),
+                meta_description: nullableText(form.meta_description),
+                title_ar: nullableText(form.title_ar),
+                body_ar: form.body_ar.trim() === '' ? null : form.body_ar,
+                meta_description_ar: nullableText(form.meta_description_ar),
                 is_published: form.is_published,
                 sort_order: Number.parseInt(form.sort_order, 10) || 0,
             };
@@ -120,10 +153,11 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
             toast.success(page ? 'Page enregistrée.' : 'Page créée.');
             onClose();
         } catch (error) {
-            const fields = toFieldErrors(error);
-            setErrors(fields);
+            const invalid = toFieldErrors(error);
+            setErrors(invalid);
             setTab('write');
-            if (!hasErrors(fields)) {
+            setLanguage((current) => languageWithErrors(invalid, current));
+            if (!hasErrors(invalid)) {
                 toast.error(errorText(error));
             }
             focusFirstInvalid();
@@ -142,7 +176,7 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                 title={page ? `Modifier « ${page.title} »` : 'Nouvelle page'}
                 footer={
                     <>
-                        <span className="mr-auto text-xs text-muted">{plural(wordCount(form.body), 'mot')}</span>
+                        <span className="mr-auto text-xs text-muted">{plural(wordCount(form[fields.body]), 'mot')}</span>
                         <Button onClick={requestClose} disabled={busy}>
                             Annuler
                         </Button>
@@ -153,9 +187,31 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                 }
             >
                 <form id="page-form" onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-4">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <Segmented
+                            label="Langue du texte"
+                            value={language}
+                            onChange={setLanguage}
+                            options={[
+                                { value: 'fr', label: 'Français' },
+                                { value: 'ar', label: <span lang="ar">العربية</span> },
+                            ]}
+                        />
+                        {arabic && <p className="text-xs text-muted">{ARABIC_PANEL_HINT}</p>}
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Titre" required error={errors.title}>
-                            {(control) => <TextInput {...control} value={form.title} maxLength={160} onChange={(event) => set('title', event.target.value)} data-autofocus />}
+                        <Field key={fields.title} label="Titre" required={!arabic} optional={arabic} error={errors[fields.title]}>
+                            {(control) => (
+                                <TextInput
+                                    {...control}
+                                    {...copy}
+                                    value={form[fields.title]}
+                                    maxLength={160}
+                                    placeholder={arabic ? form.title : undefined}
+                                    onChange={(event) => set(fields.title, event.target.value)}
+                                    data-autofocus
+                                />
+                            )}
                         </Field>
                         <Field label="Identifiant d’URL" error={errors.slug} hint="Laissez vide pour le générer à partir du titre.">
                             {(control) => (
@@ -174,7 +230,8 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="text-xs font-medium text-ink">
-                                Contenu<span className="ml-0.5 text-danger" aria-hidden>*</span>
+                                Contenu
+                                {arabic ? <span className="ml-1 font-normal text-muted">(facultatif)</span> : <span className="ml-0.5 text-danger" aria-hidden>*</span>}
                             </span>
                             <Segmented
                                 label="Mode d’édition"
@@ -188,17 +245,43 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                             />
                         </div>
                         {tab === 'write' ? (
-                            <Field label="Contenu" labelHidden error={errors.body} hint="« ## Titre » pour un intertitre, « - élément » pour une liste, une ligne vide entre deux paragraphes.">
-                                {(control) => <TextArea {...control} rows={14} maxLength={60000} value={form.body} onChange={(event) => set('body', event.target.value)} className="font-mono text-[0.8125rem] leading-relaxed" />}
+                            <Field
+                                key={fields.body}
+                                label="Contenu"
+                                labelHidden
+                                error={errors[fields.body]}
+                                hint="« ## Titre » pour un intertitre, « - élément » pour une liste, une ligne vide entre deux paragraphes."
+                            >
+                                {(control) => (
+                                    <TextArea
+                                        {...control}
+                                        {...copy}
+                                        rows={14}
+                                        maxLength={60000}
+                                        value={form[fields.body]}
+                                        onChange={(event) => set(fields.body, event.target.value)}
+                                        className={arabic ? 'text-[0.9375rem] leading-relaxed' : 'font-mono text-[0.8125rem] leading-relaxed'}
+                                    />
+                                )}
                             </Field>
                         ) : (
-                            <div className="min-h-72 rounded-lg border border-line bg-canvas/40 p-5">
-                                <MarkupPreview body={form.body} />
+                            <div {...copy} className="min-h-72 rounded-lg border border-line bg-canvas/40 p-5">
+                                <MarkupPreview body={form[fields.body]} />
                             </div>
                         )}
                     </div>
-                    <Field label="Description SEO" optional error={errors.meta_description} counter={{ value: form.meta_description.length, max: 320 }}>
-                        {(control) => <TextArea {...control} rows={2} maxLength={320} value={form.meta_description} onChange={(event) => set('meta_description', event.target.value)} />}
+                    <Field key={fields.meta_description} label="Description SEO" optional error={errors[fields.meta_description]} counter={{ value: form[fields.meta_description].length, max: 320 }}>
+                        {(control) => (
+                            <TextArea
+                                {...control}
+                                {...copy}
+                                rows={2}
+                                maxLength={320}
+                                value={form[fields.meta_description]}
+                                placeholder={arabic ? form.meta_description : undefined}
+                                onChange={(event) => set(fields.meta_description, event.target.value)}
+                            />
+                        )}
                     </Field>
                     <div className="flex flex-wrap items-end justify-between gap-4">
                         <Switch checked={form.is_published} onChange={(value) => set('is_published', value)} label="Publiée" description="Visible sur la boutique et dans le pied de page." />
@@ -289,7 +372,12 @@ export default function ContentPagesPage() {
                                         </button>
                                         <span className="font-mono text-2xs text-muted">/pages/{page.slug}</span>
                                     </Td>
-                                    <Td>{page.is_published ? <Badge tone="success" dot>Publiée</Badge> : <Badge tone="muted" dot>Brouillon</Badge>}</Td>
+                                    <Td>
+                                        <div className="flex flex-wrap items-center gap-1.5">
+                                            {page.is_published ? <Badge tone="success" dot>Publiée</Badge> : <Badge tone="muted" dot>Brouillon</Badge>}
+                                            {!page.body_ar && <Badge tone="muted">Arabe à rédiger</Badge>}
+                                        </div>
+                                    </Td>
                                     <Td hideBelow="md" align="right" className="whitespace-nowrap text-xs tabular-nums text-muted">
                                         {formatDateTime(page.updated_at)}
                                     </Td>

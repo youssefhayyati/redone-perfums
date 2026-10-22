@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 /** 1 … 4 5 [6] 7 8 … 12 */
 export function pageWindow(current: number, last: number): Array<number | 'gap'> {
@@ -26,9 +27,9 @@ export function Pagination({ current, last, onChange }: { current: number; last:
     const arrow = 'inline-flex size-11 items-center justify-center text-muted transition-colors hover:text-ink disabled:opacity-30';
 
     return (
-        <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
-            <button type="button" className={arrow} onClick={() => onChange(current - 1)} disabled={current <= 1} aria-label="Page précédente">
-                <ChevronLeft className="size-4" strokeWidth={1.5} />
+        <nav aria-label={t('Pagination')} className="flex items-center justify-center gap-1">
+            <button type="button" className={arrow} onClick={() => onChange(current - 1)} disabled={current <= 1} aria-label={t('Page précédente')}>
+                <ChevronLeft className="size-4 rtl:-scale-x-100" strokeWidth={1.5} />
             </button>
             {pageWindow(current, last).map((page, index) =>
                 page === 'gap' ? (
@@ -41,15 +42,15 @@ export function Pagination({ current, last, onChange }: { current: number; last:
                         type="button"
                         onClick={() => onChange(page)}
                         aria-current={page === current ? 'page' : undefined}
-                        aria-label={`Page ${page}`}
+                        aria-label={t('Page {page}', { page })}
                         className={cn('inline-flex size-11 items-center justify-center text-sm tabular-nums transition-colors', page === current ? 'border-b border-accent text-ink' : 'text-muted hover:text-ink')}
                     >
                         {page}
                     </button>
                 ),
             )}
-            <button type="button" className={arrow} onClick={() => onChange(current + 1)} disabled={current >= last} aria-label="Page suivante">
-                <ChevronRight className="size-4" strokeWidth={1.5} />
+            <button type="button" className={arrow} onClick={() => onChange(current + 1)} disabled={current >= last} aria-label={t('Page suivante')}>
+                <ChevronRight className="size-4 rtl:-scale-x-100" strokeWidth={1.5} />
             </button>
         </nav>
     );

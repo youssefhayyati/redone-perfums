@@ -1,8 +1,9 @@
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 const WORDS: Record<string, string[]> = {
-    longevity: ['Discrète', 'Légère', 'Modérée', 'Tenace', 'Très tenace'],
-    sillage: ['Intime', 'Doux', 'Présent', 'Affirmé', 'Remarquable'],
+    longevity: [t('Discrète'), t('Légère'), t('Modérée'), t('Tenace'), t('Très tenace')],
+    sillage: [t('Intime'), t('Doux'), t('Présent'), t('Affirmé'), t('Remarquable')],
 };
 
 /** A 1–5 scale; nothing is rendered when the store has not communicated the value. */

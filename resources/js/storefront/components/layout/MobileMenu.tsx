@@ -3,8 +3,10 @@ import { useConfig } from '../../config';
 import { useSession } from '../../stores/session';
 import { ui, useUi } from '../../stores/ui';
 import { Drawer } from '../ui/Drawer';
+import { LanguageSwitch } from './LanguageSwitch';
 import { primaryNav } from './nav';
 import { ThemeToggle } from './ThemeToggle';
+import { t } from '../../i18n';
 
 export function MobileMenu() {
     const config = useConfig();
@@ -12,8 +14,8 @@ export function MobileMenu() {
     const signedIn = useSession((state) => state.status === 'authenticated');
 
     return (
-        <Drawer open={open} onClose={ui.close} side="left" title="Menu">
-            <nav aria-label="Menu mobile" className="flex flex-col gap-10 px-6 py-8">
+        <Drawer open={open} onClose={ui.close} side="start" title={t('Menu')}>
+            <nav aria-label={t('Menu mobile')} className="flex flex-col gap-10 px-6 py-8">
                 <ul className="flex flex-col gap-5">
                     {primaryNav(config).map((item) => (
                         <li key={item.to}>
@@ -26,7 +28,7 @@ export function MobileMenu() {
 
                 {config.collections.length > 0 && (
                     <div className="flex flex-col gap-4">
-                        <p className="eyebrow">Collections</p>
+                        <p className="eyebrow">{t('Collections')}</p>
                         <ul className="flex flex-col gap-3">
                             {config.collections.map((collection) => (
                                 <li key={collection.slug}>
@@ -41,9 +43,12 @@ export function MobileMenu() {
 
                 <div className="flex items-center justify-between border-t border-line pt-6">
                     <Link to="/compte" className="text-sm text-ink">
-                        {signedIn ? 'Mon compte' : 'Se connecter'}
+                        {signedIn ? t('Mon compte') : t('Se connecter')}
                     </Link>
-                    <ThemeToggle />
+                    <div className="flex items-center gap-1">
+                        <LanguageSwitch />
+                        <ThemeToggle />
+                    </div>
                 </div>
             </nav>
         </Drawer>

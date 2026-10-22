@@ -9,6 +9,7 @@ use App\Models\ProductVariant;
 use App\Notifications\OrderConfirmation;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\App;
 use Tests\TestCase;
 
 class OrderConfirmationTest extends TestCase
@@ -96,6 +97,22 @@ class OrderConfirmationTest extends TestCase
 
         $this->assertSame([], $mail->replyTo);
         $this->assertStringNotContainsString('Répondez simplement', (string) $mail->render());
+    }
+
+    public function test_arabic_order_is_confirmed_in_arabic_right_to_left(): void
+    {
+        $order = $this->order();
+        $order->forceFill(['locale' => 'ar'])->save();
+
+        $mail = (new OrderConfirmation($order))->locale('ar');
+        App::setLocale('ar');
+        $message = $mail->toMail(new AnonymousNotifiable);
+        $html = (string) $message->render();
+
+        $this->assertSame('تم استلام طلبك RP-261021-AMBRE2', $message->subject);
+        $this->assertStringContainsString('dir="rtl"', $html);
+        $this->assertStringContainsString('شكرًا، Salma.', $html);
+        $this->assertStringContainsString('href="'.config('app.url').'/ar/commande/confirmation/RP-261021-AMBRE2?token=jeton-invite-ambre"', $html);
     }
 
     /**

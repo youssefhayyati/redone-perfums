@@ -1,6 +1,7 @@
 import type { Variant } from '@shared/types';
 import { formatMoney } from '@shared/money';
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 interface VariantPickerProps {
     variants: Variant[];
@@ -12,7 +13,7 @@ interface VariantPickerProps {
 export function VariantPicker({ variants, value, onChange, name = 'variant' }: VariantPickerProps) {
     return (
         <fieldset className="flex flex-col gap-3">
-            <legend className="eyebrow mb-3">Contenance</legend>
+            <legend className="eyebrow mb-3">{t('Contenance')}</legend>
             <div className="flex flex-wrap gap-2">
                 {variants.map((variant) => {
                     const selected = variant.id === value;
@@ -38,7 +39,7 @@ export function VariantPicker({ variants, value, onChange, name = 'variant' }: V
                             />
                             <span className="text-sm text-ink">{variant.label}</span>
                             <span className={cn('text-xs tabular-nums', soldOut ? 'text-muted line-through' : 'text-muted')}>{formatMoney(variant.price)}</span>
-                            {soldOut && <span className="text-2xs tracking-[0.14em] text-muted uppercase">Épuisé</span>}
+                            {soldOut && <span className="text-2xs tracking-[0.14em] text-muted uppercase">{t('Épuisé')}</span>}
                         </label>
                     );
                 })}

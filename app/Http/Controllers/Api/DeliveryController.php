@@ -18,11 +18,11 @@ class DeliveryController extends Controller
         return response()->json([
             'data' => $cities->map(fn (City $city) => [
                 'id' => $city->id,
-                'name' => $city->name,
-                'region' => $city->region,
+                'name' => $city->translated('name'),
+                'region' => $city->translated('region'),
                 'fee' => $city->zone->fee,
                 'free_shipping_threshold' => $city->zone->free_shipping_threshold,
-                'estimate' => $city->zone->delivery_estimate,
+                'estimate' => $city->zone->translated('delivery_estimate'),
             ]),
         ]);
     }

@@ -6,7 +6,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Seeds what a fresh store needs to be explored: a delivery grid, content pages and
- * a fictional demo catalogue. No account is created here — staff accounts are made
+ * a fictional demo catalogue, each with its Arabic version. No account is created here — staff accounts are made
  * with `php artisan app:create-admin`.
  */
 class DatabaseSeeder extends Seeder
@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             DeliverySeeder::class,
             PageSeeder::class,
             DemoCatalogSeeder::class,
+            ArabicContentSeeder::class,
         ]);
     }
 }

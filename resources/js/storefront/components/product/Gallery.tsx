@@ -4,6 +4,7 @@ import { cn } from '@shared/format';
 import { LightSweep } from '../../motion/LightSweep';
 import { ProductImage } from '../ui/ProductImage';
 import { auraStyle } from './ProductCard';
+import { t } from '../../i18n';
 
 export function Gallery({ images, name, accent }: { images: ImageAsset[]; name: string; accent: string | null }) {
     const [active, setActive] = useState(0);
@@ -12,7 +13,7 @@ export function Gallery({ images, name, accent }: { images: ImageAsset[]; name: 
     return (
         <div className="flex flex-col gap-3">
             {/* Mobile: swipeable strip */}
-            <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory overflow-x-auto md:hidden" aria-label={`Images de ${name}`}>
+            <div className="no-scrollbar -mx-5 flex snap-x snap-mandatory overflow-x-auto md:hidden" aria-label={t('Images de {name}', { name })}>
                 {(images.length > 0 ? images : [null]).map((image, index) => (
                     <div key={image?.id ?? index} className="aura relative aspect-[4/5] w-full shrink-0 snap-center overflow-hidden" style={auraStyle(accent)}>
                         <ProductImage image={image} alt={name} priority={index === 0} sizes="100vw" className="absolute inset-0 size-full p-[10%]" />
@@ -27,14 +28,14 @@ export function Gallery({ images, name, accent }: { images: ImageAsset[]; name: 
                 <LightSweep />
             </div>
             {images.length > 1 && (
-                <div className="hidden gap-3 md:flex" role="tablist" aria-label="Choisir une image">
+                <div className="hidden gap-3 md:flex" role="tablist" aria-label={t('Choisir une image')}>
                     {images.map((image, index) => (
                         <button
                             key={image.id}
                             type="button"
                             role="tab"
                             aria-selected={index === active}
-                            aria-label={`Image ${index + 1} sur ${images.length}`}
+                            aria-label={t('Image {index} sur {count}', { index: index + 1, count: images.length })}
                             onClick={() => setActive(index)}
                             className={cn('aura size-20 overflow-hidden border transition-colors', index === active ? 'border-ink' : 'border-transparent hover:border-line-strong')}
                             style={auraStyle(accent)}

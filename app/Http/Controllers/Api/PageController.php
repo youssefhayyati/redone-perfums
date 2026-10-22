@@ -15,9 +15,9 @@ class PageController extends Controller
         return response()->json([
             'data' => [
                 'slug' => $page->slug,
-                'title' => $page->title,
-                'body' => $page->body,
-                'meta_description' => $page->meta_description,
+                'title' => $page->translated('title'),
+                'body' => $page->translated('body'),
+                'meta_description' => $page->translated('meta_description'),
                 'updated_at' => $page->updated_at?->toIso8601String(),
             ],
         ]);

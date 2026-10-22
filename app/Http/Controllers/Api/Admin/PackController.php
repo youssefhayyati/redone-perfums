@@ -118,10 +118,13 @@ class PackController extends Controller
         return [
             'id' => $p->id,
             'name' => $p->name,
+            'name_ar' => $p->name_ar,
             'slug' => $p->slug,
             'type' => $p->type->value,
             'tagline' => $p->tagline,
+            'tagline_ar' => $p->tagline_ar,
             'description' => $p->description,
+            'description_ar' => $p->description_ar,
             'image_path' => $p->image_path,
             'image_url' => $p->imageUrl(),
             'selection_count' => $p->selection_count,

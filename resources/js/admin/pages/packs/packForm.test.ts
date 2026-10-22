@@ -14,6 +14,9 @@ const base: AdminPack = {
     type: 'fixed',
     tagline: null,
     description: null,
+    name_ar: 'علبة الليل',
+    tagline_ar: null,
+    description_ar: null,
     image_path: null,
     image_url: null,
     selection_count: null,
@@ -52,6 +55,8 @@ describe('packFormToPayload', () => {
         expect(errors).toEqual({});
         expect(payload).toMatchObject({
             type: 'fixed',
+            name_ar: 'علبة الليل',
+            tagline_ar: null,
             pricing_type: 'amount',
             price: null,
             discount_value: 30000,

@@ -297,6 +297,58 @@ class SpaControllerTest extends TestCase
         ];
     }
 
+    public function test_arabic_pages_render_right_to_left_with_arabic_metadata(): void
+    {
+        $product = Product::factory()->published()->create(['name' => 'Aurore', 'slug' => 'aurore', 'name_ar' => 'الفجر', 'tagline_ar' => 'عنبر وزهر البرتقال']);
+        ProductVariant::factory()->for($product)->create();
+
+        $response = $this->get('/ar/parfums/aurore');
+
+        $response->assertOk()
+            ->assertSee('<html lang="ar" dir="rtl"', false)
+            ->assertSee('<title>الفجر — Myperfum</title>', false)
+            ->assertSee('<meta property="og:locale" content="ar_MA">', false);
+        $this->assertSame('عنبر وزهر البرتقال', $response->viewData('meta')['description']);
+        $this->assertSame('الفجر', $this->jsonLd($response)['name']);
+    }
+
+    public function test_pages_link_to_their_version_in_each_language(): void
+    {
+        $response = $this->get('/boutique');
+
+        $response->assertOk()
+            ->assertSee('<html lang="fr" dir="ltr"', false)
+            ->assertSee('hreflang="fr" href="'.config('app.url').'/boutique"', false)
+            ->assertSee('hreflang="ar" href="'.config('app.url').'/ar/boutique"', false)
+            ->assertSee('hreflang="x-default" href="'.config('app.url').'/boutique"', false);
+    }
+
+    public function test_arabic_home_page_renders_with_200(): void
+    {
+        $response = $this->get('/ar');
+
+        $response->assertOk()
+            ->assertSee('<html lang="ar" dir="rtl"', false)
+            ->assertSee('<title>Myperfum — دار عطور</title>', false);
+    }
+
+    public function test_unknown_arabic_path_returns_404_and_is_not_indexed(): void
+    {
+        $response = $this->get('/ar/page-qui-n-existe-pas');
+
+        $response->assertNotFound()
+            ->assertSee('noindex', false);
+    }
+
+    public function test_private_arabic_pages_are_not_indexed_nor_offered_in_other_languages(): void
+    {
+        $response = $this->get('/ar/panier');
+
+        $response->assertOk()
+            ->assertSee('noindex', false)
+            ->assertDontSee('hreflang', false);
+    }
+
     #[DataProvider('adminPaths')]
     public function test_admin_shell_renders_with_200_and_is_never_indexed(string $path): void
     {

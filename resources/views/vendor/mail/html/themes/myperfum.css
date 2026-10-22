@@ -71,14 +71,14 @@ h3 {
     font-size: 14px;
     font-weight: bold;
     margin-top: 0;
-    text-align: left;
+    text-align: start;
 }
 
 p {
     font-size: 15px;
     line-height: 1.6em;
     margin-top: 0;
-    text-align: left;
+    text-align: start;
 }
 
 p.sub {

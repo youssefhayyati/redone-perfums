@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PackEligibility;
 use App\Enums\PackPricing;
 use App\Enums\PackType;
+use App\Models\Concerns\HasTranslations;
 use App\Support\MediaUrl;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,10 +17,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'name', 'slug', 'type', 'tagline', 'description', 'image_path', 'selection_count',
     'allowed_sizes', 'eligibility', 'allow_duplicates', 'pricing_type', 'price',
     'discount_value', 'is_active', 'sort_order',
+    'name_ar', 'tagline_ar', 'description_ar',
 ])]
 class Pack extends Model
 {
-    use HasFactory;
+    use HasFactory, HasTranslations;
+
+    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    public const TRANSLATABLE = ['name', 'tagline', 'description'];
 
     protected function casts(): array
     {

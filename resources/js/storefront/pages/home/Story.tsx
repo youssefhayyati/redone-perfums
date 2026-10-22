@@ -7,6 +7,7 @@ import { NotesPyramid, hasNotes } from '../../components/product/NotesPyramid';
 import { auraStyle } from '../../components/product/ProductCard';
 import { Reveal } from '../../motion/Reveal';
 import { ChapterHeader } from './ChapterHeader';
+import { t } from '../../i18n';
 
 export function Story({ index, story }: { index: string; story: NonNullable<HomePayload['story']> }) {
     const reduced = useReducedMotionConfig();
@@ -29,11 +30,11 @@ export function Story({ index, story }: { index: string; story: NonNullable<Home
             </motion.div>
 
             <div className="flex flex-col gap-10 lg:col-span-5 lg:col-start-8">
-                <ChapterHeader index={index} label={story.eyebrow ?? 'Le récit'} title={story.title} id="story-title" meta={product.concentration} />
+                <ChapterHeader index={index} label={story.eyebrow ?? t('Le récit')} title={story.title} id="story-title" meta={product.concentration} />
                 {story.body && (
                     <Reveal delay={0.1}>
                         <blockquote className="relative max-w-xl font-display text-2xl leading-snug text-muted italic sm:text-[1.8rem]">
-                            <span aria-hidden="true" className="absolute -top-6 -left-1 font-display text-7xl leading-none text-accent not-italic opacity-60 sm:-left-8">
+                            <span aria-hidden="true" className="absolute -start-1 -top-6 font-display text-7xl leading-none text-accent not-italic opacity-60 sm:-start-8">
                                 “
                             </span>
                             {story.body}
@@ -47,7 +48,7 @@ export function Story({ index, story }: { index: string; story: NonNullable<Home
                 )}
                 <Reveal delay={0.25}>
                     <ButtonLink to={`/parfums/${product.slug}`} variant="secondary">
-                        Découvrir {product.name}
+                        {t('Découvrir {name}', { name: product.name })}
                     </ButtonLink>
                 </Reveal>
             </div>

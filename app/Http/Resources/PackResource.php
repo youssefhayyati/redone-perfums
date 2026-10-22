@@ -19,10 +19,10 @@ class PackResource extends JsonResource
         return [
             'id' => $this->id,
             'slug' => $this->slug,
-            'name' => $this->name,
+            'name' => $this->translated('name'),
             'type' => $this->type->value,
-            'tagline' => $this->tagline,
-            'description' => $this->description,
+            'tagline' => $this->translated('tagline'),
+            'description' => $this->translated('description'),
             'image' => $this->imageUrl(),
             'selection_count' => $this->isCustom() ? $this->selection_count : null,
             'bottle_count' => $this->bottleCount(),
@@ -39,7 +39,7 @@ class PackResource extends JsonResource
                 'quantity' => $item->quantity,
                 'variant' => $item->variant ? new VariantResource($item->variant) : null,
                 'product' => $item->variant?->product ? [
-                    'name' => $item->variant->product->name,
+                    'name' => $item->variant->product->translated('name'),
                     'slug' => $item->variant->product->slug,
                     'image' => $item->variant->product->images->first()?->toPublicArray(),
                 ] : null,

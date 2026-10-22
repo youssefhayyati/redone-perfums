@@ -2,12 +2,12 @@ import { Link } from 'react-router';
 import { motion } from 'framer-motion';
 import type { Pack, ProductCard } from '@shared/types';
 import { formatMoney } from '@shared/money';
-import { plural } from '@shared/format';
 import { ButtonLink } from '../../components/ui/Button';
 import { ProductImage } from '../../components/ui/ProductImage';
 import { EASE_LUXE } from '../../motion/easing';
 import { Reveal } from '../../motion/Reveal';
 import { ChapterHeader } from './ChapterHeader';
+import { t, tn } from '../../i18n';
 
 const slots = {
     hidden: {},
@@ -42,24 +42,23 @@ export function PacksTeaser({ index, packs, products }: { index: string; packs: 
         <section className="grain border-y border-line bg-raised" aria-labelledby="packs-title">
             <div className="container-page grid grid-cols-1 items-center gap-16 py-24 sm:py-32 lg:grid-cols-12 lg:gap-0">
                 <div className="flex flex-col gap-8 lg:col-span-6">
-                    <ChapterHeader index={index} label="Coffrets" title="Composez votre propre coffret." id="packs-title" />
+                    <ChapterHeader index={index} label={t('Coffrets')} title={t('Composez votre propre coffret.')} id="packs-title" />
                     <Reveal delay={0.1}>
-                        <p className="max-w-md text-muted">Réunissez vos parfums préférés dans un écrin, à un prix plus doux que l’achat séparé. Le prix final s’affiche dès que votre sélection est complète.</p>
+                        <p className="max-w-md text-muted">{t('Réunissez vos parfums préférés dans un écrin, à un prix plus doux que l’achat séparé. Le prix final s’affiche dès que votre sélection est complète.')}</p>
                     </Reveal>
                     <ul className="flex flex-col divide-y divide-line border-y border-line">
                         {packs.map((pack) => (
                             <li key={pack.id}>
                                 <Link to={`/coffrets/${pack.slug}`} className="group flex items-baseline justify-between gap-6 py-5">
                                     <span className="flex flex-col gap-1">
-                                        <span className="font-display text-2xl transition-[color,translate] duration-500 ease-luxe group-hover:translate-x-2 group-hover:text-accent">{pack.name}</span>
+                                        <span className="font-display text-2xl transition-[color,translate] duration-500 ease-luxe group-hover:translate-x-2 group-hover:text-accent rtl:group-hover:-translate-x-2">{pack.name}</span>
                                         <span className="text-xs text-muted">
-                                            {plural(pack.bottle_count, 'flacon')} · {pack.pricing.label}
+                                            {tn(pack.bottle_count, 'flacon')} · {pack.pricing.label}
                                         </span>
                                     </span>
                                     {pack.starting_price !== null && (
                                         <span className="text-sm whitespace-nowrap tabular-nums">
-                                            {pack.type === 'custom' && pack.pricing.type !== 'fixed' ? 'dès ' : ''}
-                                            {formatMoney(pack.starting_price)}
+                                            {pack.type === 'custom' && pack.pricing.type !== 'fixed' ? t('dès {price}', { price: formatMoney(pack.starting_price) }) : formatMoney(pack.starting_price)}
                                         </span>
                                     )}
                                 </Link>
@@ -67,7 +66,7 @@ export function PacksTeaser({ index, packs, products }: { index: string; packs: 
                         ))}
                     </ul>
                     <ButtonLink to="/coffrets" variant="secondary" className="self-start">
-                        Tous les coffrets
+                        {t('Tous les coffrets')}
                     </ButtonLink>
                 </div>
                 <Composition products={products} />

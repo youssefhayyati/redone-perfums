@@ -56,6 +56,21 @@ class ProductControllerTest extends TestCase
         ]);
     }
 
+    public function test_store_saves_the_arabic_version_of_the_texts(): void
+    {
+        $response = $this->actingAs($this->manager())->postJson('/api/admin/products', $this->payload([
+            'name_ar' => 'عنبر الليل',
+            'tagline_ar' => 'عنبر وفانيليا وعود',
+            'description_ar' => 'وصف بالعربية.',
+        ]));
+
+        $response->assertCreated()
+            ->assertJsonPath('data.name', 'Ambre Nocturne')
+            ->assertJsonPath('data.name_ar', 'عنبر الليل')
+            ->assertJsonPath('data.tagline_ar', 'عنبر وفانيليا وعود');
+        $this->assertDatabaseHas('products', ['slug' => 'ambre-nocturne', 'name_ar' => 'عنبر الليل', 'description_ar' => 'وصف بالعربية.']);
+    }
+
     public function test_store_records_the_initial_stock_as_an_initial_movement(): void
     {
         $manager = $this->manager();

@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { motion, useReducedMotionConfig, useScroll, useTransform } from 'framer-motion';
+import { isRtl } from '@shared/locale';
 import type { HomePayload, Product, ProductCard } from '@shared/types';
 import { ButtonLink } from '../../components/ui/Button';
 import { Price } from '../../components/ui/Price';
@@ -10,6 +11,7 @@ import { auraStyle } from '../../components/product/ProductCard';
 import { useConfig } from '../../config';
 import { EASE_LUXE, stagger } from '../../motion/easing';
 import { RevealWords } from '../../motion/Reveal';
+import { t } from '../../i18n';
 
 const fade = {
     hidden: { opacity: 0, y: 18 },
@@ -21,18 +23,18 @@ function FeaturedPerfume({ product }: { product: Product | ProductCard }) {
     return (
         <Link
             to={`/parfums/${product.slug}`}
-            className="group flex w-full max-w-sm items-center gap-4 rounded-2xl border border-line bg-canvas/45 p-2.5 pr-4 text-left backdrop-blur-md transition-colors duration-500 ease-luxe hover:border-accent sm:w-auto"
+            className="group flex w-full max-w-sm items-center gap-4 rounded-2xl border border-line bg-canvas/45 p-2.5 pe-4 text-start backdrop-blur-md transition-colors duration-500 ease-luxe hover:border-accent sm:w-auto"
         >
             <span className="aura relative size-16 shrink-0 overflow-hidden rounded-xl" style={auraStyle(product.accent_color)}>
                 <ProductImage image={product.image} alt="" sizes="64px" className="absolute inset-0 size-full p-1" />
             </span>
             <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="text-2xs tracking-label text-muted uppercase">{product.concentration ?? 'La signature'}</span>
+                <span className="text-2xs tracking-label text-muted uppercase">{product.concentration ?? t('La signature')}</span>
                 <span className="truncate font-display text-xl leading-tight">{product.name}</span>
                 <Price amount={product.price_from} from={product.has_price_range} className="text-xs" />
             </span>
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-line transition-colors duration-500 ease-luxe group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent">
-                <ArrowUpRight className="size-4 transition-transform duration-500 ease-spring group-hover:rotate-45" strokeWidth={1.5} />
+                <ArrowUpRight className="size-4 transition-transform duration-500 ease-spring group-hover:rotate-45 rtl:-scale-x-100" strokeWidth={1.5} />
             </span>
         </Link>
     );
@@ -62,7 +64,7 @@ export function Hero({ hero, product }: { hero: HomePayload['hero'] | undefined;
                     aria-hidden="true"
                     className="absolute inset-0 -z-10"
                     style={{
-                        background: `radial-gradient(55% 65% at 70% 80%, color-mix(in oklab, ${accent} 26%, transparent), transparent 75%), radial-gradient(35% 40% at 0% 0%, color-mix(in oklab, var(--color-accent) 8%, transparent), transparent 70%)`,
+                        background: `radial-gradient(55% 65% at ${isRtl() ? 30 : 70}% 80%, color-mix(in oklab, ${accent} 26%, transparent), transparent 75%), radial-gradient(35% 40% at 0% 0%, color-mix(in oklab, var(--color-accent) 8%, transparent), transparent 70%)`,
                     }}
                 />
 
@@ -92,7 +94,7 @@ export function Hero({ hero, product }: { hero: HomePayload['hero'] | undefined;
                 )}
 
                 {/* The stage: the perfume in a halo, below the title on small screens and on the right on large ones. */}
-                <div aria-hidden="true" className="relative h-[22rem] sm:h-[28rem] lg:absolute lg:top-[5%] lg:right-[3%] lg:bottom-0 lg:left-[42%] lg:h-auto">
+                <div aria-hidden="true" className="relative h-[22rem] sm:h-[28rem] lg:absolute lg:start-[42%] lg:end-[3%] lg:top-[5%] lg:bottom-0 lg:h-auto">
                     <motion.span
                         className="absolute bottom-[-30%] left-1/2 aspect-square w-[min(88vw,40rem)] -translate-x-1/2 rounded-full border border-line lg:top-1/2 lg:bottom-auto lg:w-[min(42vw,38rem)] lg:-translate-y-1/2"
                         style={{ scale: reduced ? 1 : haloScale, background: `radial-gradient(closest-side, color-mix(in oklab, ${accent} 34%, transparent), color-mix(in oklab, ${accent} 8%, transparent) 70%, transparent)` }}
@@ -128,11 +130,11 @@ export function Hero({ hero, product }: { hero: HomePayload['hero'] | undefined;
                             {hero.subtitle && <p className="max-w-sm leading-relaxed text-muted">{hero.subtitle}</p>}
                             <div className="flex flex-wrap items-center gap-x-7 gap-y-4">
                                 <ButtonLink to="/boutique" size="lg">
-                                    Découvrir la boutique
+                                    {t('Découvrir la boutique')}
                                 </ButtonLink>
                                 {hasPacks && (
                                     <Link to="/coffrets" className="link-draw inline-flex items-center gap-2 text-2xs font-medium tracking-[0.2em] uppercase">
-                                        Composer un coffret <ArrowRight className="size-3.5" strokeWidth={1.5} />
+                                        {t('Composer un coffret')} <ArrowRight className="size-3.5 rtl:-scale-x-100" strokeWidth={1.5} />
                                     </Link>
                                 )}
                             </div>

@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Enums\Permission;
 use App\Models\User;
 use App\Services\Settings\StoreSettings;
+use App\Support\Locale;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
@@ -34,7 +35,8 @@ class AppServiceProvider extends ServiceProvider
             ? Password::min(10)->letters()->numbers()->uncompromised()
             : Password::min(8)->letters()->numbers());
 
-        ResetPassword::createUrlUsing(fn (User $user, string $token) => url('/compte/reinitialiser?'.http_build_query([
+        // The link opens the reset page in the language the request was made in.
+        ResetPassword::createUrlUsing(fn (User $user, string $token) => url(Locale::path('/compte/reinitialiser', $this->app->getLocale()).'?'.http_build_query([
             'token' => $token,
             'email' => $user->email,
         ])));

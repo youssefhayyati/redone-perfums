@@ -73,7 +73,7 @@ final class PackResolver
     public function resolveSelection(Pack $pack, array $variantIds, string $field = 'selections'): array
     {
         if (! $pack->is_active) {
-            throw ValidationException::withMessages([$field => 'Ce coffret n’est plus proposé.']);
+            throw ValidationException::withMessages([$field => __('Ce coffret n’est plus proposé.')]);
         }
 
         if (! $pack->isCustom()) {
@@ -85,7 +85,7 @@ final class PackResolver
 
         if (count($ids) !== $required) {
             throw ValidationException::withMessages([
-                $field => "Ce coffret se compose de {$required} parfums : vous en avez choisi ".count($ids).'.',
+                $field => __('Ce coffret se compose de :required parfums : vous en avez choisi :chosen.', ['required' => $required, 'chosen' => count($ids)]),
             ]);
         }
 
@@ -99,7 +99,7 @@ final class PackResolver
         foreach ($ids as $id) {
             $variant = $eligible->get($id);
             if ($variant === null) {
-                throw ValidationException::withMessages([$field => 'Un des parfums choisis ne peut pas entrer dans ce coffret.']);
+                throw ValidationException::withMessages([$field => __('Un des parfums choisis ne peut pas entrer dans ce coffret.')]);
             }
             $variants[] = $variant;
         }
@@ -107,7 +107,7 @@ final class PackResolver
         if (! $pack->allow_duplicates) {
             $productIds = array_map(fn (ProductVariant $v) => $v->product_id, $variants);
             if (count($productIds) !== count(array_unique($productIds))) {
-                throw ValidationException::withMessages([$field => 'Chaque parfum ne peut être choisi qu’une fois dans ce coffret.']);
+                throw ValidationException::withMessages([$field => __('Chaque parfum ne peut être choisi qu’une fois dans ce coffret.')]);
             }
         }
 
@@ -129,7 +129,7 @@ final class PackResolver
         foreach ($pack->items as $item) {
             $variant = $item->variant;
             if ($variant === null || ! $variant->isSellable()) {
-                throw ValidationException::withMessages(['pack' => 'Ce coffret est momentanément indisponible.']);
+                throw ValidationException::withMessages(['pack' => __('Ce coffret est momentanément indisponible.')]);
             }
             for ($i = 0; $i < $item->quantity; $i++) {
                 $variants[] = $variant;
@@ -137,7 +137,7 @@ final class PackResolver
         }
 
         if ($variants === []) {
-            throw ValidationException::withMessages(['pack' => 'Ce coffret est momentanément indisponible.']);
+            throw ValidationException::withMessages(['pack' => __('Ce coffret est momentanément indisponible.')]);
         }
 
         return $variants;
@@ -199,9 +199,9 @@ final class PackResolver
     public static function describePricing(Pack $pack): string
     {
         return match ($pack->pricing_type) {
-            PackPricing::Fixed => 'Prix fixe',
-            PackPricing::Percent => '-'.$pack->discount_value.' % sur la sélection',
-            PackPricing::Amount => '-'.intdiv((int) $pack->discount_value, 100).' DH sur la sélection',
+            PackPricing::Fixed => __('Prix fixe'),
+            PackPricing::Percent => __('-:percent % sur la sélection', ['percent' => $pack->discount_value]),
+            PackPricing::Amount => __('-:amount DH sur la sélection', ['amount' => intdiv((int) $pack->discount_value, 100)]),
         };
     }
 }

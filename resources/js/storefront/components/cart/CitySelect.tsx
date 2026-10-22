@@ -1,7 +1,9 @@
 import type { City } from '@shared/types';
+import { getLocale } from '@shared/locale';
 import { formatMoney } from '@shared/money';
 import { api } from '../../api';
 import { useQuery } from '../../hooks/useQuery';
+import { t } from '../../i18n';
 
 interface CitySelectProps {
     id?: string;
@@ -24,7 +26,7 @@ export function CitySelect({ id, name, value, onChange, className = 'field-contr
     const regions = new Map<string, City[]>();
 
     cities.forEach((city) => {
-        const region = city.region ?? 'Autres villes';
+        const region = city.region ?? t('Autres villes');
         regions.set(region, [...(regions.get(region) ?? []), city]);
     });
 
@@ -39,14 +41,14 @@ export function CitySelect({ id, name, value, onChange, className = 'field-contr
             aria-describedby={describedBy}
             disabled={!data}
         >
-            <option value="">{data ? 'Choisissez votre ville' : 'Chargement des villes…'}</option>
+            <option value="">{data ? t('Choisissez votre ville') : t('Chargement des villes…')}</option>
             {[...regions.entries()]
-                .sort(([a], [b]) => a.localeCompare(b, 'fr'))
+                .sort(([a], [b]) => a.localeCompare(b, getLocale()))
                 .map(([region, list]) => (
                     <optgroup key={region} label={region}>
                         {list.map((city) => (
                             <option key={city.id} value={city.id}>
-                                {city.name} — {city.fee === 0 ? 'livraison offerte' : formatMoney(city.fee)}
+                                {city.name} — {city.fee === 0 ? t('livraison offerte') : formatMoney(city.fee)}
                             </option>
                         ))}
                     </optgroup>

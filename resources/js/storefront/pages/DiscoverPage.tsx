@@ -1,6 +1,5 @@
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
-import { plural } from '@shared/format';
 import { api } from '../api';
 import { ProductCard } from '../components/product/ProductCard';
 import { PageHeader } from '../components/ui/PageHeader';
@@ -8,21 +7,22 @@ import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
 import { Reveal, RevealGroup, RevealItem } from '../motion/Reveal';
+import { t, tn } from '../i18n';
 
 export default function DiscoverPage() {
     const { data, error, refetch } = useQuery('families', (signal) => api.families({ signal }));
-    useHead({ title: 'Guide olfactif', description: 'Les familles olfactives de la maison, pour trouver le parfum qui vous ressemble.' });
+    useHead({ title: t('Guide olfactif'), description: t('Les familles olfactives de la maison, pour trouver le parfum qui vous ressemble.') });
     const families = data?.data ?? [];
 
     return (
         <div className="container-page pt-12 sm:pt-16">
             <PageHeader
-                label="Guide olfactif"
-                title="Trouvez le parfum qui vous ressemble."
-                meta={families.length > 0 ? plural(families.length, 'famille') : null}
+                label={t('Guide olfactif')}
+                title={t('Trouvez le parfum qui vous ressemble.')}
+                meta={families.length > 0 ? tn(families.length, 'famille') : null}
                 aside={
                     families.length > 0 && (
-                        <nav aria-label="Familles olfactives">
+                        <nav aria-label={t('Familles olfactives')}>
                             <ul className="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
                                 {families.map((family) => (
                                     <li key={family.slug}>
@@ -36,18 +36,18 @@ export default function DiscoverPage() {
                     )
                 }
             >
-                <p className="max-w-xl text-muted">Les parfums se rangent en familles, selon la matière qui domine leur caractère. Commencez par celle qui vous attire, puis laissez-vous surprendre.</p>
+                <p className="max-w-xl text-muted">{t('Les parfums se rangent en familles, selon la matière qui domine leur caractère. Commencez par celle qui vous attire, puis laissez-vous surprendre.')}</p>
             </PageHeader>
 
             {error && !data ? (
                 <ErrorState message={error.message} onRetry={refetch} />
             ) : !data ? (
-                <div className="flex flex-col gap-6 py-16" role="status" aria-label="Chargement">
+                <div className="flex flex-col gap-6 py-16" role="status" aria-label={t('Chargement')}>
                     <div className="skeleton h-10 w-1/3" />
                     <div className="skeleton h-64 w-full" />
                 </div>
             ) : families.length === 0 ? (
-                <EmptyState title="Le guide arrive bientôt" />
+                <EmptyState title={t('Le guide arrive bientôt')} />
             ) : (
                 <div className="flex flex-col divide-y divide-line">
                     {families.map((family, index) => (
@@ -59,7 +59,7 @@ export default function DiscoverPage() {
                                 </h2>
                                 {family.description && <p className="text-muted">{family.description}</p>}
                                 <Link to={`/boutique?famille=${family.slug}`} className="link-draw inline-flex items-center gap-2 self-start text-2xs font-medium tracking-[0.2em] uppercase">
-                                    {plural(family.products_count, 'parfum')} <ArrowRight className="size-3.5" strokeWidth={1.5} />
+                                    {tn(family.products_count, 'parfum')} <ArrowRight className="size-3.5 rtl:-scale-x-100" strokeWidth={1.5} />
                                 </Link>
                             </Reveal>
                             <RevealGroup as="ul" className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-3">

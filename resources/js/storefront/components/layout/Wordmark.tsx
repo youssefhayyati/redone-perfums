@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { LogoMark } from '@shared/LogoMark';
 import { cn } from '@shared/format';
 import { useConfig } from '../../config';
+import { t } from '../../i18n';
 
 /** The logotype sets a leading "my" in accent italic: *my*perfum. Any other text is set as is. */
 function LogoType({ text }: { text: string }) {
@@ -23,7 +24,7 @@ export function Wordmark({ className, withDescriptor = true }: { className?: str
     const { store } = useConfig();
 
     return (
-        <Link to="/" className={cn('group flex items-center gap-2.5 leading-none', className)} aria-label={`${store.name} — accueil`}>
+        <Link to="/" className={cn('group flex items-center gap-2.5 leading-none', className)} aria-label={t('{store} — accueil', { store: store.name })}>
             <LogoMark className="size-7 shrink-0 text-ink transition-transform duration-500 ease-spring group-hover:-rotate-12 sm:size-8" />
             <span className="flex flex-col items-start gap-1.5">
                 <span className="wordmark text-[1.6rem] sm:text-[1.85rem]">

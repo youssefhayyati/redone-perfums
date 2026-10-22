@@ -1,10 +1,11 @@
 import type { NoteLayer, NotesPyramid as Notes } from '@shared/types';
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 const LAYERS: Array<{ key: NoteLayer; label: string; hint: string }> = [
-    { key: 'top', label: 'Tête', hint: 'Les premières minutes' },
-    { key: 'heart', label: 'Cœur', hint: 'Les heures qui suivent' },
-    { key: 'base', label: 'Fond', hint: 'Le sillage qui demeure' },
+    { key: 'top', label: t('Notes de tête'), hint: t('Les premières minutes') },
+    { key: 'heart', label: t('Notes de cœur'), hint: t('Les heures qui suivent') },
+    { key: 'base', label: t('Notes de fond'), hint: t('Le sillage qui demeure') },
 ];
 
 export function hasNotes(notes: Notes | null | undefined): notes is Notes {
@@ -19,7 +20,7 @@ export function NotesPyramid({ notes, compact = false, className }: { notes: Not
                     <dt className="flex flex-col gap-1">
                         <span className="flex items-center gap-3 font-display text-xl">
                             {!compact && <span className="text-xs text-accent tabular-nums">0{index + 1}</span>}
-                            Notes de {layer.label.toLowerCase()}
+                            {layer.label}
                         </span>
                         {!compact && <span className="text-xs text-faint">{layer.hint}</span>}
                     </dt>

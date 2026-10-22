@@ -28,19 +28,6 @@ class CheckoutRequest extends FormRequest
         ];
     }
 
-    public function attributes(): array
-    {
-        return [
-            'customer_name' => 'nom complet',
-            'phone' => 'téléphone',
-            'email' => 'e-mail',
-            'city_id' => 'ville',
-            'address' => 'adresse',
-            'delivery_notes' => 'instructions de livraison',
-            'payment_method' => 'mode de paiement',
-        ];
-    }
-
     public function toData(): CheckoutData
     {
         $city = City::query()->with('zone')->findOrFail($this->integer('city_id'));

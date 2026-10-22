@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '@shared/format';
 import { Button } from './Button';
+import { t } from '../../i18n';
 
 export function EmptyState({ title, children, action, className }: { title: string; children?: ReactNode; action?: ReactNode; className?: string }) {
     return (
@@ -15,7 +16,7 @@ export function EmptyState({ title, children, action, className }: { title: stri
 
 export function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
     return (
-        <EmptyState title="Un contretemps" action={onRetry && <Button variant="secondary" onClick={onRetry}>Réessayer</Button>}>
+        <EmptyState title={t('Un contretemps')} action={onRetry && <Button variant="secondary" onClick={onRetry}>{t('Réessayer')}</Button>}>
             <p>{message}</p>
         </EmptyState>
     );

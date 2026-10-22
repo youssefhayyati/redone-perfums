@@ -41,6 +41,14 @@ export interface ProductForm {
     inspiration: string;
     meta_title: string;
     meta_description: string;
+    /** Arabic storefront copy; left blank, the French text is shown. */
+    name_ar: string;
+    tagline_ar: string;
+    description_ar: string;
+    inspiration_ar: string;
+    concentration_ar: string;
+    meta_title_ar: string;
+    meta_description_ar: string;
     sort_order: string;
     notes: NotesByLayer;
     variants: VariantRow[];
@@ -97,6 +105,13 @@ export function emptyProductForm(): ProductForm {
         inspiration: '',
         meta_title: '',
         meta_description: '',
+        name_ar: '',
+        tagline_ar: '',
+        description_ar: '',
+        inspiration_ar: '',
+        concentration_ar: '',
+        meta_title_ar: '',
+        meta_description_ar: '',
         sort_order: '0',
         notes: { top: [], heart: [], base: [] },
         variants: [newVariantRow({ key: 'variant-new-1' })],
@@ -123,6 +138,13 @@ export function productToForm(product: AdminProduct): ProductForm {
         inspiration: product.inspiration ?? '',
         meta_title: product.meta_title ?? '',
         meta_description: product.meta_description ?? '',
+        name_ar: product.name_ar ?? '',
+        tagline_ar: product.tagline_ar ?? '',
+        description_ar: product.description_ar ?? '',
+        inspiration_ar: product.inspiration_ar ?? '',
+        concentration_ar: product.concentration_ar ?? '',
+        meta_title_ar: product.meta_title_ar ?? '',
+        meta_description_ar: product.meta_description_ar ?? '',
         sort_order: String(product.sort_order ?? 0),
         notes: {
             top: product.notes?.top ?? [],
@@ -249,6 +271,13 @@ export function productFormToPayload(form: ProductForm): { payload: ProductPaylo
         inspiration: nullableText(form.inspiration),
         meta_title: nullableText(form.meta_title),
         meta_description: nullableText(form.meta_description),
+        name_ar: nullableText(form.name_ar),
+        tagline_ar: nullableText(form.tagline_ar),
+        description_ar: nullableText(form.description_ar),
+        inspiration_ar: nullableText(form.inspiration_ar),
+        concentration_ar: nullableText(form.concentration_ar),
+        meta_title_ar: nullableText(form.meta_title_ar),
+        meta_description_ar: nullableText(form.meta_description_ar),
         sort_order: parseInteger(form.sort_order) ?? 0,
         notes: { top: uniqueNotes(form.notes.top), heart: uniqueNotes(form.notes.heart), base: uniqueNotes(form.notes.base) },
         variants,

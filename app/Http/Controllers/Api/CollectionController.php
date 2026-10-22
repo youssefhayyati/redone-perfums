@@ -49,9 +49,9 @@ class CollectionController extends Controller
 
         return response()->json([
             'data' => $families->map(fn (FragranceFamily $family) => [
-                'name' => $family->name,
+                'name' => $family->translated('name'),
                 'slug' => $family->slug,
-                'description' => $family->description,
+                'description' => $family->translated('description'),
                 'products_count' => $family->products->count(),
                 'products' => ProductCardResource::collection($family->products->take(3)),
             ]),

@@ -2,7 +2,6 @@ import { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { buildQuery } from '@shared/http';
-import { plural } from '@shared/format';
 import { api } from '../api';
 import { ProductGrid, ProductGridSkeleton } from '../components/product/ProductGrid';
 import { FilterPanel } from '../components/shop/FilterPanel';
@@ -14,6 +13,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
+import { t, tn } from '../i18n';
 
 const PER_PAGE = 12;
 
@@ -27,8 +27,8 @@ export default function ShopPage() {
     const products = useQuery(`products:${buildQuery(apiQuery)}`, (signal) => api.products(apiQuery, { signal }), { keepPrevious: true });
     const facets = useQuery('facets', (signal) => api.facets({ signal }), { staleTime: 300_000 });
 
-    const title = filters.q.trim() ? `« ${filters.q.trim()} »` : 'Tous les parfums';
-    useHead({ title: filters.q.trim() ? `Recherche : ${filters.q.trim()}` : 'La boutique' });
+    const title = filters.q.trim() ? `« ${filters.q.trim()} »` : t('Tous les parfums');
+    useHead({ title: filters.q.trim() ? t('Recherche : {q}', { q: filters.q.trim() }) : t('La boutique') });
 
     function update(changes: Partial<ShopFilters>) {
         const next: ShopFilters = { ...filters, page: 1, ...changes };
@@ -53,9 +53,9 @@ export default function ShopPage() {
             label: facets.data?.collections.find((collection) => collection.slug === slug)?.name ?? slug,
             remove: () => update({ collections: filters.collections.filter((item) => item !== slug) }),
         })),
-        ...filters.sizes.map((size) => ({ key: `s-${size}`, label: `${size} ml`, remove: () => update({ sizes: filters.sizes.filter((item) => item !== size) }) })),
-        ...(filters.minPrice !== null ? [{ key: 'min', label: `Dès ${filters.minPrice} DH`, remove: () => update({ minPrice: null }) }] : []),
-        ...(filters.maxPrice !== null ? [{ key: 'max', label: `Jusqu’à ${filters.maxPrice} DH`, remove: () => update({ maxPrice: null }) }] : []),
+        ...filters.sizes.map((size) => ({ key: `s-${size}`, label: t('{sizes} ml', { sizes: size }), remove: () => update({ sizes: filters.sizes.filter((item) => item !== size) }) })),
+        ...(filters.minPrice !== null ? [{ key: 'min', label: t('Dès {price} DH', { price: filters.minPrice }), remove: () => update({ minPrice: null }) }] : []),
+        ...(filters.maxPrice !== null ? [{ key: 'max', label: t('Jusqu’à {price} DH', { price: filters.maxPrice }), remove: () => update({ maxPrice: null }) }] : []),
     ];
 
     const total = products.data?.meta.total;
@@ -63,10 +63,10 @@ export default function ShopPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <PageHeader label="La boutique" title={title} meta={<span aria-live="polite">{total !== undefined ? plural(total, 'parfum') : ''}</span>} />
+            <PageHeader label={t('La boutique')} title={title} meta={<span aria-live="polite">{total !== undefined ? tn(total, 'parfum') : ''}</span>} />
 
             <div className="grid grid-cols-1 gap-10 pt-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14">
-                <aside className="hidden lg:block" aria-label="Filtres">
+                <aside className="hidden lg:block" aria-label={t('Filtres')}>
                     <div className="sticky top-28">
                         <FilterPanel facets={facets.data} filters={filters} onChange={update} />
                     </div>
@@ -77,7 +77,7 @@ export default function ShopPage() {
                         <div className="flex flex-wrap items-center gap-2">
                             <Button variant="secondary" size="sm" className="lg:hidden" onClick={() => setFiltersOpen(true)}>
                                 <SlidersHorizontal className="size-3.5" strokeWidth={1.5} />
-                                Filtres{activeCount > 0 ? ` (${activeCount})` : ''}
+                                {activeCount > 0 ? t('Filtres ({count})', { count: activeCount }) : t('Filtres')}
                             </Button>
                             {chips.map((chip) => (
                                 <button
@@ -85,21 +85,21 @@ export default function ShopPage() {
                                     type="button"
                                     onClick={chip.remove}
                                     className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-xs text-ink transition-colors hover:border-ink"
-                                    aria-label={`Retirer le filtre ${chip.label}`}
+                                    aria-label={t('Retirer le filtre {label}', { label: chip.label })}
                                 >
                                     {chip.label}
                                     <X className="size-3 text-muted" strokeWidth={1.5} />
                                 </button>
                             ))}
                             {chips.length > 1 && (
-                                <button type="button" onClick={reset} className="link-draw ml-1 text-xs text-muted hover:text-ink">
-                                    Tout effacer
+                                <button type="button" onClick={reset} className="link-draw ms-1 text-xs text-muted hover:text-ink">
+                                    {t('Tout effacer')}
                                 </button>
                             )}
                         </div>
 
                         <label className="flex items-center gap-3 text-xs text-muted">
-                            <span className="eyebrow">Trier</span>
+                            <span className="eyebrow">{t('Trier')}</span>
                             <select value={filters.sort} onChange={(event) => update({ sort: event.target.value })} className="field-control min-h-10 w-auto py-2 text-sm">
                                 {Object.entries(SORT_LABELS).map(([value, label]) => (
                                     <option key={value} value={value}>
@@ -116,16 +116,16 @@ export default function ShopPage() {
                         <ProductGridSkeleton count={6} cols={3} />
                     ) : products.data && products.data.data.length === 0 ? (
                         <EmptyState
-                            title="Aucun parfum ne correspond"
+                            title={t('Aucun parfum ne correspond')}
                             action={
                                 activeCount > 0 && (
                                     <Button variant="secondary" onClick={reset}>
-                                        Effacer les filtres
+                                        {t('Effacer les filtres')}
                                     </Button>
                                 )
                             }
                         >
-                            <p>Élargissez votre recherche ou explorez une autre famille olfactive.</p>
+                            <p>{t('Élargissez votre recherche ou explorez une autre famille olfactive.')}</p>
                         </EmptyState>
                     ) : (
                         products.data && (
@@ -142,11 +142,11 @@ export default function ShopPage() {
             <Drawer
                 open={filtersOpen}
                 onClose={() => setFiltersOpen(false)}
-                side="left"
-                title="Filtres"
+                side="start"
+                title={t('Filtres')}
                 footer={
                     <Button className="w-full" onClick={() => setFiltersOpen(false)}>
-                        {total !== undefined ? `Voir ${plural(total, 'parfum')}` : 'Voir les parfums'}
+                        {total !== undefined ? t('Voir {items}', { items: tn(total, 'parfum') }) : t('Voir les parfums')}
                     </Button>
                 }
             >

@@ -97,7 +97,7 @@ final class CartCalculator
                 // Keep the already-loaded variant for display instead of lazy loading it later.
                 $item->setRelation('variant', $variant);
 
-                return CartLine::unavailable($item, 'Un article de votre panier n’est plus disponible.');
+                return CartLine::unavailable($item, __('Un article de votre panier n’est plus disponible.'));
             }
 
             return new CartLine($item, $variant->price, $variant->compare_at_price, [$variant]);
@@ -105,13 +105,13 @@ final class CartCalculator
 
         $pack = $item->pack;
         if ($pack === null || ! $pack->is_active) {
-            return CartLine::unavailable($item, 'Un coffret de votre panier n’est plus proposé.');
+            return CartLine::unavailable($item, __('Un coffret de votre panier n’est plus proposé.'));
         }
 
         try {
             $resolved = $this->packs->resolveSelection($pack, $item->selections ?? []);
         } catch (ValidationException $e) {
-            return CartLine::unavailable($item, 'Coffret « '.$pack->name.' » : '.collect($e->errors())->flatten()->first());
+            return CartLine::unavailable($item, __('Coffret « :pack » : :reason', ['pack' => $pack->translated('name'), 'reason' => collect($e->errors())->flatten()->first()]));
         }
 
         // Price from the (possibly locked) rows loaded for this calculation.
@@ -119,7 +119,7 @@ final class CartCalculator
         foreach ($resolved as $variant) {
             $fresh = $variants->get($variant->id);
             if ($fresh === null || ! $fresh->isSellable()) {
-                return CartLine::unavailable($item, 'Coffret « '.$pack->name.' » : un des parfums n’est plus disponible.');
+                return CartLine::unavailable($item, __('Coffret « :pack » : un des parfums n’est plus disponible.', ['pack' => $pack->translated('name')]));
             }
             $selection[] = $fresh;
         }
@@ -152,9 +152,10 @@ final class CartCalculator
             }
 
             $available = max(0, $variant->stock);
+            $replace = ['item' => $variant->product->translated('name').' '.$variant->label(), 'count' => $available];
             $message = $available === 0
-                ? "{$variant->product->name} {$variant->label()} est en rupture de stock."
-                : "{$variant->product->name} {$variant->label()} : il n’en reste que {$available}.";
+                ? __(':item est en rupture de stock.', $replace)
+                : __(':item : il n’en reste que :count.', $replace);
 
             foreach ($lines as $line) {
                 if (isset($line->demand()[$variantId]) && ! $line->hasIssue('insufficient_stock')) {
@@ -200,7 +201,7 @@ final class CartCalculator
         $city->loadMissing('zone');
 
         if (! $city->is_active || $city->zone === null || ! $city->zone->is_active) {
-            return [null, 'La livraison n’est pas disponible pour cette ville.'];
+            return [null, __('La livraison n’est pas disponible pour cette ville.')];
         }
 
         return [$city->zone->feeFor($merchandiseTotal), null];

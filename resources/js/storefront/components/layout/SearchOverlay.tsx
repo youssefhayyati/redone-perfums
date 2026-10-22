@@ -13,6 +13,7 @@ import { EASE_LUXE } from '../../motion/easing';
 import { ui, useUi } from '../../stores/ui';
 import { ProductImage } from '../ui/ProductImage';
 import { Spinner } from '../ui/Spinner';
+import { t, tn } from '../../i18n';
 
 function SearchResults({ term }: { term: string }) {
     const debounced = useDebouncedValue(term.trim(), 220);
@@ -25,9 +26,9 @@ function SearchResults({ term }: { term: string }) {
     if (!ready) {
         return (
             <div className="flex flex-col gap-4">
-                <p className="eyebrow">Explorer</p>
+                <p className="eyebrow">{t('Explorer')}</p>
                 <ul className="flex flex-wrap gap-2">
-                    {[{ name: 'Tous les parfums', to: '/boutique' }, ...config.collections.map((c) => ({ name: c.name, to: `/collections/${c.slug}` })), { name: 'Guide olfactif', to: '/decouvrir' }].map(
+                    {[{ name: t('Tous les parfums'), to: '/boutique' }, ...config.collections.map((c) => ({ name: c.name, to: `/collections/${c.slug}` })), { name: t('Guide olfactif'), to: '/decouvrir' }].map(
                         (link) => (
                             <li key={link.to}>
                                 <Link to={link.to} className="inline-flex rounded-full border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-ink hover:text-ink">
@@ -47,7 +48,7 @@ function SearchResults({ term }: { term: string }) {
         <div className="flex flex-col gap-4" aria-busy={fetching}>
             <div className="flex items-center justify-between">
                 <p className="eyebrow" aria-live="polite">
-                    {fetching && !data ? 'Recherche…' : results.length > 0 ? `${data?.meta.total} résultat${(data?.meta.total ?? 0) > 1 ? 's' : ''}` : 'Aucun parfum ne correspond'}
+                    {fetching && !data ? t('Recherche…') : results.length > 0 ? tn(data?.meta.total ?? 0, 'résultat') : t('Aucun parfum ne correspond')}
                 </p>
                 {fetching && <Spinner className="size-4 text-muted" />}
             </div>
@@ -72,7 +73,7 @@ function SearchResults({ term }: { term: string }) {
             )}
             {(data?.meta.total ?? 0) > results.length && (
                 <Link to={`/boutique?q=${encodeURIComponent(debounced)}`} className="link-draw inline-flex items-center gap-2 self-start text-sm">
-                    Voir tous les résultats <ArrowRight className="size-4" strokeWidth={1.25} />
+                    {t('Voir tous les résultats')} <ArrowRight className="size-4 rtl:-scale-x-100" strokeWidth={1.25} />
                 </Link>
             )}
         </div>
@@ -104,7 +105,7 @@ export function SearchOverlay() {
                         ref={panel}
                         role="dialog"
                         aria-modal="true"
-                        aria-label="Rechercher un parfum"
+                        aria-label={t('Rechercher un parfum')}
                         className="relative max-h-[85dvh] overflow-y-auto border-b border-line bg-canvas"
                         initial={{ y: '-100%' }}
                         animate={{ y: 0 }}
@@ -115,7 +116,7 @@ export function SearchOverlay() {
                             <form role="search" onSubmit={submit} className="flex items-center gap-4 border-b border-line-strong pb-4">
                                 <Search className="size-6 shrink-0 text-muted" strokeWidth={1} />
                                 <label htmlFor="search-input" className="sr-only">
-                                    Nom, note ou famille olfactive
+                                    {t('Nom, note ou famille olfactive')}
                                 </label>
                                 <input
                                     id="search-input"
@@ -124,10 +125,10 @@ export function SearchOverlay() {
                                     autoComplete="off"
                                     value={term}
                                     onChange={(event) => setTerm(event.target.value)}
-                                    placeholder="Ambre, rose, oud…"
+                                    placeholder={t('Ambre, rose, oud…')}
                                     className="min-w-0 flex-1 bg-transparent font-display text-3xl outline-none placeholder:text-faint sm:text-5xl"
                                 />
-                                <button type="button" onClick={ui.close} className="inline-flex size-10 items-center justify-center text-muted hover:text-ink" aria-label="Fermer la recherche">
+                                <button type="button" onClick={ui.close} className="inline-flex size-10 items-center justify-center text-muted hover:text-ink" aria-label={t('Fermer la recherche')}>
                                     <X className="size-5" strokeWidth={1.25} />
                                 </button>
                             </form>

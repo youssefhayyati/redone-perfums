@@ -21,7 +21,7 @@ class PasswordResetController extends Controller
         // The response never reveals whether an account exists.
         Password::sendResetLink(['email' => mb_strtolower(trim($request->string('email')))]);
 
-        return response()->json(['message' => 'Si un compte existe pour cette adresse, un lien de réinitialisation vient d’être envoyé.']);
+        return response()->json(['message' => __('Si un compte existe pour cette adresse, un lien de réinitialisation vient d’être envoyé.')]);
     }
 
     public function reset(Request $request): JsonResponse
@@ -46,9 +46,9 @@ class PasswordResetController extends Controller
         );
 
         if ($status !== Password::PASSWORD_RESET) {
-            throw ValidationException::withMessages(['email' => 'Ce lien n’est plus valide. Demandez-en un nouveau.']);
+            throw ValidationException::withMessages(['email' => __('Ce lien n’est plus valide. Demandez-en un nouveau.')]);
         }
 
-        return response()->json(['message' => 'Votre mot de passe a été modifié. Vous pouvez vous connecter.']);
+        return response()->json(['message' => __('Votre mot de passe a été modifié. Vous pouvez vous connecter.')]);
     }
 }

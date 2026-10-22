@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowUpRight } from 'lucide-react';
 import type { Collection } from '@shared/types';
-import { cn, plural } from '@shared/format';
+import { cn } from '@shared/format';
 import { RevealGroup, RevealItem } from '../../motion/Reveal';
 import { ChapterHeader } from './ChapterHeader';
+import { t, tn } from '../../i18n';
 
 function CollectionVisual({ collection, className }: { collection: Collection; className?: string }) {
     if (collection.image) {
@@ -24,7 +25,7 @@ export function CollectionIndex({ index, collections }: { index: string; collect
 
     return (
         <section className="container-page flex flex-col gap-14 py-24 sm:gap-20 sm:py-32" aria-labelledby="collections-title">
-            <ChapterHeader index={index} label="Les collections" title="Des univers à explorer" id="collections-title" meta={plural(collections.length, 'univers', 'univers')} />
+            <ChapterHeader index={index} label={t('Les collections')} title={t('Des univers à explorer')} id="collections-title" meta={tn(collections.length, 'univers')} />
 
             <div className="grid grid-cols-1 items-center lg:grid-cols-12">
                 <RevealGroup as="ul" className="border-t border-line lg:col-span-7" step={0.08}>
@@ -40,8 +41,8 @@ export function CollectionIndex({ index, collections }: { index: string; collect
                                 <span className="flex min-w-0 flex-col gap-2">
                                     <span
                                         className={cn(
-                                            'font-display text-display-md transition-[color,translate] duration-500 ease-luxe group-hover:translate-x-2 group-hover:text-accent',
-                                            position === active && 'lg:translate-x-2 lg:text-accent',
+                                            'font-display text-display-md transition-[color,translate] duration-500 ease-luxe group-hover:translate-x-2 group-hover:text-accent rtl:group-hover:-translate-x-2',
+                                            position === active && 'lg:translate-x-2 lg:text-accent rtl:lg:-translate-x-2',
                                         )}
                                     >
                                         {collection.name}
@@ -50,7 +51,7 @@ export function CollectionIndex({ index, collections }: { index: string; collect
                                 </span>
                                 <span className="flex items-center gap-5">
                                     {collection.products_count !== undefined && (
-                                        <span className="hidden text-2xs tracking-label text-muted uppercase sm:inline">{plural(collection.products_count, 'parfum')}</span>
+                                        <span className="hidden text-2xs tracking-label text-muted uppercase sm:inline">{tn(collection.products_count, 'parfum')}</span>
                                     )}
                                     <span className="relative aspect-[3/4] w-14 overflow-hidden rounded-xl bg-raised lg:hidden">
                                         <CollectionVisual collection={collection} className="absolute inset-0 size-full" />
@@ -59,7 +60,7 @@ export function CollectionIndex({ index, collections }: { index: string; collect
                                         aria-hidden="true"
                                         className="hidden size-11 items-center justify-center rounded-full border border-line transition-colors duration-500 ease-luxe group-hover:border-accent group-hover:bg-accent group-hover:text-on-accent lg:flex"
                                     >
-                                        <ArrowUpRight className="size-4 transition-transform duration-500 ease-luxe group-hover:rotate-45" strokeWidth={1.5} />
+                                        <ArrowUpRight className="size-4 transition-transform duration-500 ease-luxe group-hover:rotate-45 rtl:-scale-x-100" strokeWidth={1.5} />
                                     </span>
                                 </span>
                             </Link>

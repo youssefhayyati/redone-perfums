@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Support\Locale;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -37,10 +38,10 @@ class OrderConfirmation extends Notification implements ShouldQueue
         $order = $this->order->loadMissing('items.selections');
 
         $message = (new MailMessage)
-            ->subject("Votre commande {$order->reference} est bien reçue")
+            ->subject(__('Votre commande :reference est bien reçue', ['reference' => $order->reference]))
             ->markdown('mail.orders.confirmation', [
                 'order' => $order,
-                'url' => url('/commande/confirmation/'.$order->reference.'?'.http_build_query(['token' => $order->guest_token])),
+                'url' => url(Locale::path('/commande/confirmation/'.$order->reference, $order->locale).'?'.http_build_query(['token' => $order->guest_token])),
                 'canReply' => $this->replyToAddress !== null,
             ]);
 

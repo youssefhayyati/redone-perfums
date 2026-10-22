@@ -15,6 +15,7 @@ use App\Models\ProductVariant;
 use App\Models\User;
 use App\Services\Checkout\CheckoutData;
 use App\Services\Checkout\OrderPlacer;
+use App\Support\Locale;
 use Closure;
 use Database\Factories\OrderFactory;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -115,6 +116,16 @@ class OrderControllerTest extends TestCase
             ->assertJsonPath('data.items.0.quantity', 2)
             ->assertJsonPath('data.events.0.note', 'Commande passée en ligne.')
             ->assertJsonPath('data.allowed_transitions.*.value', ['confirmed', 'cancelled']);
+    }
+
+    public function test_show_returns_the_language_the_customer_ordered_in(): void
+    {
+        $order = Order::factory()->create(['locale' => Locale::ARABIC]);
+
+        $this->actingAs($this->support())
+            ->getJson("/api/admin/orders/{$order->reference}")
+            ->assertOk()
+            ->assertJsonPath('data.locale', 'ar');
     }
 
     public function test_allowed_status_change_is_applied_and_logged(): void

@@ -6,6 +6,7 @@ import { api } from '../../api';
 import { ButtonLabel } from '../ui/Button';
 import { Checkbox } from '../ui/Field';
 import { Spinner } from '../ui/Spinner';
+import { t } from '../../i18n';
 
 export function NewsletterForm({ source = 'footer' }: { source?: string }) {
     const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
     async function submit(event: FormEvent) {
         event.preventDefault();
         if (!consent) {
-            setErrors({ consent: 'Merci d’accepter de recevoir nos e-mails.' });
+            setErrors({ consent: t('Merci d’accepter de recevoir nos e-mails.') });
 
             return;
         }
@@ -55,14 +56,14 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
                 )}
             >
                 <label htmlFor="newsletter-email" className="sr-only">
-                    Adresse e-mail
+                    {t('Adresse e-mail')}
                 </label>
                 <input
                     id="newsletter-email"
                     type="email"
                     required
                     autoComplete="email"
-                    placeholder="Votre adresse e-mail"
+                    placeholder={t('Votre adresse e-mail')}
                     value={email}
                     onChange={(event) => setEmail(event.target.value)}
                     aria-invalid={errors.email ? true : undefined}
@@ -73,15 +74,15 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
                     type="submit"
                     disabled={status === 'sending'}
                     aria-busy={status === 'sending' || undefined}
-                    aria-label="S’inscrire"
-                    title="S’inscrire"
+                    aria-label={t('S’inscrire')}
+                    title={t('S’inscrire')}
                     className="btn flex size-12 shrink-0 items-center justify-center rounded-full border border-line-strong text-ink [--btn-fill:var(--color-accent)] hover:border-accent hover:text-on-accent focus-visible:border-accent focus-visible:text-on-accent disabled:opacity-60"
                 >
                     {status === 'sending' ? (
                         <Spinner className="size-4" />
                     ) : (
                         <ButtonLabel>
-                            <ArrowRight className="size-4" strokeWidth={1.5} />
+                            <ArrowRight className="size-4 rtl:-scale-x-100" strokeWidth={1.5} />
                         </ButtonLabel>
                     )}
                 </button>
@@ -91,7 +92,7 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
                     {errors.email}
                 </p>
             )}
-            <Checkbox label="J’accepte de recevoir les nouvelles de la maison. Désinscription en un clic à tout moment." checked={consent} onChange={(event) => setConsent(event.target.checked)} />
+            <Checkbox label={t('J’accepte de recevoir les nouvelles de la maison. Désinscription en un clic à tout moment.')} checked={consent} onChange={(event) => setConsent(event.target.checked)} />
             {errors.consent && (
                 <p role="alert" className="text-xs text-danger">
                     {errors.consent}

@@ -8,6 +8,7 @@ import { EmptyState, ErrorState } from '../../components/ui/States';
 import { useHead } from '../../hooks/useHead';
 import { useQuery } from '../../hooks/useQuery';
 import { RequireAuth } from './RequireAuth';
+import { t } from '../../i18n';
 
 function OrderDetail() {
     const { reference = '' } = useParams();
@@ -16,8 +17,8 @@ function OrderDetail() {
 
     if (error?.isNotFound) {
         return (
-            <EmptyState title="Commande introuvable" action={<ButtonLink to="/compte">Mes commandes</ButtonLink>}>
-                <p>Cette commande n’est pas associée à votre compte.</p>
+            <EmptyState title={t('Commande introuvable')} action={<ButtonLink to="/compte">{t('Mes commandes')}</ButtonLink>}>
+                <p>{t('Cette commande n’est pas associée à votre compte.')}</p>
             </EmptyState>
         );
     }
@@ -27,20 +28,20 @@ function OrderDetail() {
     }
 
     if (!order) {
-        return <div className="skeleton h-96 w-full" role="status" aria-label="Chargement de la commande" />;
+        return <div className="skeleton h-96 w-full" role="status" aria-label={t('Chargement de la commande')} />;
     }
 
     return (
         <div className="flex flex-col gap-10">
             <header className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-8">
                 <div className="flex flex-col gap-3">
-                    <p className="eyebrow">Commande du {formatDateTime(order.placed_at)}</p>
+                    <p className="eyebrow">{t('Commande du {date}', { date: formatDateTime(order.placed_at) })}</p>
                     <h1 className="font-display text-display-md tabular-nums lining-nums">{order.reference}</h1>
                 </div>
                 <OrderStatusBadge status={order.status} label={order.status_label} />
             </header>
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_22rem]">
-                <section className="flex flex-col gap-6" aria-label="Articles">
+                <section className="flex flex-col gap-6" aria-label={t('Articles')}>
                     <OrderItems order={order} />
                     <OrderTotals order={order} />
                 </section>
@@ -53,7 +54,7 @@ function OrderDetail() {
 }
 
 export default function AccountOrderPage() {
-    useHead({ title: 'Ma commande', noindex: true });
+    useHead({ title: t('Ma commande'), noindex: true });
 
     return (
         <div className="container-page pt-10 sm:pt-14">

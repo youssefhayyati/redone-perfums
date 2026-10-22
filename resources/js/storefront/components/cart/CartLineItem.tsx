@@ -3,12 +3,13 @@ import { Link } from 'react-router';
 import { TriangleAlert, X } from 'lucide-react';
 import type { CartLine } from '@shared/types';
 import { ApiError } from '@shared/http';
-import { cn, plural } from '@shared/format';
+import { cn } from '@shared/format';
 import { cartActions } from '../../stores/cart';
 import { toast } from '../../stores/ui';
 import { Price } from '../ui/Price';
 import { ProductImage } from '../ui/ProductImage';
 import { QuantityStepper } from '../ui/QuantityStepper';
+import { t, tn } from '../../i18n';
 
 interface CartLineItemProps {
     line: CartLine;
@@ -27,7 +28,7 @@ function lineLink(line: CartLine): string | null {
 export function CartLineItem({ line, maxQuantity, compact = false }: CartLineItemProps) {
     const [pending, setPending] = useState(false);
     const link = lineLink(line);
-    const title = line.type === 'product' ? (line.product?.name ?? 'Article indisponible') : (line.pack?.name ?? 'Coffret indisponible');
+    const title = line.type === 'product' ? (line.product?.name ?? t('Article indisponible')) : (line.pack?.name ?? t('Coffret indisponible'));
     const image = line.type === 'product' ? line.product?.image : line.selections[0]?.image;
     const packImage = line.type === 'pack' ? line.pack?.image : null;
 
@@ -36,7 +37,7 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
         try {
             await action();
         } catch (error) {
-            toast.error(error instanceof ApiError ? error.message : 'La modification n’a pas pu être enregistrée.');
+            toast.error(error instanceof ApiError ? error.message : t('La modification n’a pas pu être enregistrée.'));
         } finally {
             setPending(false);
         }
@@ -64,7 +65,7 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
                         )}
                         {line.type === 'product' && line.variant && <p className="mt-1 text-xs text-muted">{line.variant.label}</p>}
                         {line.type === 'pack' && (
-                            <p className="mt-1 text-xs text-muted">{plural(line.selections.length, 'flacon')}</p>
+                            <p className="mt-1 text-xs text-muted">{tn(line.selections.length, 'flacon')}</p>
                         )}
                     </div>
                     <button
@@ -72,17 +73,17 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
                         onClick={() => run(() => cartActions.remove(line.id))}
                         disabled={pending}
                         className="-m-2 p-2 text-muted transition-colors hover:text-ink"
-                        aria-label={`Retirer ${title} du panier`}
+                        aria-label={t('Retirer {title} du panier', { title })}
                     >
                         <X className="size-4" strokeWidth={1.5} />
                     </button>
                 </div>
 
                 {line.type === 'pack' && line.selections.length > 0 && (
-                    <ul className="flex flex-col gap-1 border-l border-line pl-3 text-xs text-muted">
+                    <ul className="flex flex-col gap-1 border-s border-line ps-3 text-xs text-muted">
                         {line.selections.map((selection, index) => (
                             <li key={`${selection.variant_id}-${index}`}>
-                                {selection.product_name} · {selection.size_ml} ml
+                                {selection.product_name} · {t('{sizes} ml', { sizes: selection.size_ml })}
                             </li>
                         ))}
                     </ul>
@@ -90,7 +91,7 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
 
                 {line.type === 'pack' && line.pack?.editable && (
                     <Link to={`/coffrets/${line.pack.slug}?ligne=${line.id}`} className="link-draw self-start text-xs text-ink">
-                        Modifier la composition
+                        {t('Modifier la composition')}
                     </Link>
                 )}
 
@@ -112,7 +113,7 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
                         max={maxQuantity}
                         disabled={pending || line.unit_price === null}
                         onChange={(quantity) => run(() => cartActions.setQuantity(line.id, quantity))}
-                        label={`Quantité pour ${title}`}
+                        label={t('Quantité pour {title}', { title })}
                     />
                     {line.unit_price !== null && (
                         <Price

@@ -4,7 +4,7 @@ import { ArrowRight } from 'lucide-react';
 import type { Customer } from '@shared/types';
 import { ApiError } from '@shared/http';
 import { formatMoney } from '@shared/money';
-import { cn, formatDate, plural } from '@shared/format';
+import { cn, formatDate } from '@shared/format';
 import { api } from '../../api';
 import { OrderStatusBadge } from '../../components/order/OrderSummary';
 import { Pagination } from '../../components/shop/Pagination';
@@ -18,11 +18,12 @@ import { sessionActions, useSession } from '../../stores/session';
 import { toast } from '../../stores/ui';
 import { fieldError } from './AuthLayout';
 import { RequireAuth } from './RequireAuth';
+import { t, tn } from '../../i18n';
 
 const TABS = [
-    { key: 'commandes', label: 'Mes commandes' },
-    { key: 'profil', label: 'Mes informations' },
-    { key: 'securite', label: 'Mot de passe' },
+    { key: 'commandes', label: t('Mes commandes') },
+    { key: 'profil', label: t('Mes informations') },
+    { key: 'securite', label: t('Mot de passe') },
 ] as const;
 
 type Tab = (typeof TABS)[number]['key'];
@@ -37,13 +38,13 @@ function Orders() {
     }
 
     if (!data) {
-        return <div className="skeleton h-48 w-full" role="status" aria-label="Chargement des commandes" />;
+        return <div className="skeleton h-48 w-full" role="status" aria-label={t('Chargement des commandes')} />;
     }
 
     if (data.data.length === 0) {
         return (
-            <EmptyState title="Aucune commande pour le moment" action={<ButtonLink to="/boutique">Découvrir la boutique</ButtonLink>}>
-                <p>Vos commandes apparaîtront ici dès votre premier achat.</p>
+            <EmptyState title={t('Aucune commande pour le moment')} action={<ButtonLink to="/boutique">{t('Découvrir la boutique')}</ButtonLink>}>
+                <p>{t('Vos commandes apparaîtront ici dès votre premier achat.')}</p>
             </EmptyState>
         );
     }
@@ -58,11 +59,11 @@ function Orders() {
                                 <span className="text-ink tabular-nums">{order.reference}</span>
                                 <span className="text-xs text-muted">{formatDate(order.placed_at)}</span>
                             </span>
-                            <span className="hidden text-sm text-muted sm:block">{plural(order.items_count, 'article')}</span>
+                            <span className="hidden text-sm text-muted sm:block">{tn(order.items_count, 'article')}</span>
                             <OrderStatusBadge status={order.status} label={order.status_label} />
                             <span className="flex items-center gap-3 text-sm tabular-nums">
                                 {formatMoney(order.total)}
-                                <ArrowRight className="size-4 text-muted transition-transform group-hover:translate-x-1" strokeWidth={1.25} />
+                                <ArrowRight className="size-4 text-muted transition-transform group-hover:translate-x-1 rtl:-scale-x-100 rtl:group-hover:-translate-x-1" strokeWidth={1.25} />
                             </span>
                         </Link>
                     </li>
@@ -87,9 +88,9 @@ function Profile({ user }: { user: Customer }) {
             const { user: updated } = await api.updateProfile({ name, phone: phone.trim() || null });
             sessionActions.update(updated);
             setPhone(updated.phone ?? '');
-            toast.success('Vos informations ont été enregistrées.');
+            toast.success(t('Vos informations ont été enregistrées.'));
         } catch (failure) {
-            setError(failure instanceof ApiError ? failure : new ApiError(0, 'L’enregistrement a échoué.'));
+            setError(failure instanceof ApiError ? failure : new ApiError(0, t('L’enregistrement a échoué.')));
         } finally {
             setPending(false);
         }
@@ -98,11 +99,11 @@ function Profile({ user }: { user: Customer }) {
     return (
         <form onSubmit={submit} noValidate className="flex max-w-lg flex-col gap-6">
             {error && !error.isValidation && <FormAlert message={error.message} />}
-            <TextField label="Nom complet" name="name" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} error={fieldError(error?.errors, 'name')} required />
-            <TextField label="E-mail" type="email" value={user.email} disabled hint="Pour changer d’adresse e-mail, contactez-nous." />
-            <TextField label="Téléphone" type="tel" name="phone" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} optional error={fieldError(error?.errors, 'phone')} />
+            <TextField label={t('Nom complet')} name="name" autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} error={fieldError(error?.errors, 'name')} required />
+            <TextField label={t('E-mail')} type="email" dir="ltr" value={user.email} disabled hint={t('Pour changer d’adresse e-mail, contactez-nous.')} />
+            <TextField label={t('Téléphone')} type="tel" dir="ltr" name="phone" inputMode="tel" autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} optional error={fieldError(error?.errors, 'phone')} />
             <Button type="submit" loading={pending} className="self-start">
-                Enregistrer
+                {t('Enregistrer')}
             </Button>
         </form>
     );
@@ -122,7 +123,7 @@ function Security() {
             setForm({ current_password: '', password: '', password_confirmation: '' });
             toast.success(message);
         } catch (failure) {
-            setError(failure instanceof ApiError ? failure : new ApiError(0, 'Le mot de passe n’a pas pu être modifié.'));
+            setError(failure instanceof ApiError ? failure : new ApiError(0, t('Le mot de passe n’a pas pu être modifié.')));
         } finally {
             setPending(false);
         }
@@ -132,7 +133,7 @@ function Security() {
         <form onSubmit={submit} noValidate className="flex max-w-lg flex-col gap-6">
             {error && !error.isValidation && <FormAlert message={error.message} />}
             <TextField
-                label="Mot de passe actuel"
+                label={t('Mot de passe actuel')}
                 type="password"
                 autoComplete="current-password"
                 value={form.current_password}
@@ -141,18 +142,18 @@ function Security() {
                 required
             />
             <TextField
-                label="Nouveau mot de passe"
+                label={t('Nouveau mot de passe')}
                 type="password"
                 autoComplete="new-password"
                 value={form.password}
                 onChange={(event) => setForm({ ...form, password: event.target.value })}
-                hint="Au moins 10 caractères, avec des lettres et des chiffres."
+                hint={t('Au moins 10 caractères, avec des lettres et des chiffres.')}
                 error={fieldError(error?.errors, 'password')}
                 required
             />
-            <TextField label="Confirmation" type="password" autoComplete="new-password" value={form.password_confirmation} onChange={(event) => setForm({ ...form, password_confirmation: event.target.value })} required />
+            <TextField label={t('Confirmation')} type="password" autoComplete="new-password" value={form.password_confirmation} onChange={(event) => setForm({ ...form, password_confirmation: event.target.value })} required />
             <Button type="submit" loading={pending} className="self-start">
-                Modifier le mot de passe
+                {t('Modifier le mot de passe')}
             </Button>
         </form>
     );
@@ -172,24 +173,24 @@ function Account() {
             navigate('/', { replace: true });
         } catch {
             setLeaving(false);
-            toast.error('La déconnexion a échoué. Réessayez.');
+            toast.error(t('La déconnexion a échoué. Réessayez.'));
         }
     }
 
     return (
         <div className="container-page pt-12 sm:pt-16">
             <PageHeader
-                label="Mon compte"
-                title={`Bonjour, ${user.name.split(' ')[0]}`}
+                label={t('Mon compte')}
+                title={t('Bonjour, {name}', { name: user.name.split(' ')[0] })}
                 aside={
                     <Button variant="quiet" size="sm" onClick={logout} loading={leaving} className="self-start lg:self-auto">
-                        Se déconnecter
+                        {t('Se déconnecter')}
                     </Button>
                 }
             />
 
             <div className="grid grid-cols-1 gap-10 pt-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16">
-                <nav aria-label="Rubriques du compte">
+                <nav aria-label={t('Rubriques du compte')}>
                     <ul className="no-scrollbar flex gap-6 overflow-x-auto border-b border-line lg:flex-col lg:gap-1 lg:border-b-0">
                         {TABS.map((item) => (
                             <li key={item.key}>
@@ -198,7 +199,7 @@ function Account() {
                                     onClick={() => setParams({ onglet: item.key })}
                                     aria-current={tab === item.key ? 'page' : undefined}
                                     className={cn(
-                                        'whitespace-nowrap border-b py-3 text-sm transition-colors lg:w-full lg:border-b-0 lg:border-l lg:py-2.5 lg:pl-4 lg:text-left',
+                                        'whitespace-nowrap border-b py-3 text-sm transition-colors lg:w-full lg:border-b-0 lg:border-s lg:py-2.5 lg:ps-4 lg:text-start',
                                         tab === item.key ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink',
                                     )}
                                 >
@@ -219,7 +220,7 @@ function Account() {
 }
 
 export default function AccountPage() {
-    useHead({ title: 'Mon compte', noindex: true });
+    useHead({ title: t('Mon compte'), noindex: true });
 
     return (
         <RequireAuth>

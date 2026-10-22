@@ -64,7 +64,7 @@ final class CartSummary
         $messages = [];
 
         if ($this->isEmpty()) {
-            $messages[] = 'Votre panier est vide.';
+            $messages[] = __('Votre panier est vide.');
         }
 
         foreach ($this->lines as $line) {

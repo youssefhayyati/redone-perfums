@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\NoteLayer;
 use App\Enums\ProductStatus;
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,10 +19,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'fragrance_family_id', 'name', 'slug', 'tagline', 'description', 'inspiration',
     'concentration', 'gender', 'longevity', 'sillage', 'status', 'is_featured', 'badge',
     'accent_color', 'sort_order', 'meta_title', 'meta_description', 'published_at',
+    'name_ar', 'tagline_ar', 'description_ar', 'inspiration_ar', 'concentration_ar', 'meta_title_ar', 'meta_description_ar',
 ])]
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasTranslations, SoftDeletes;
+
+    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    public const TRANSLATABLE = ['name', 'tagline', 'description', 'inspiration', 'concentration', 'meta_title', 'meta_description'];
 
     public const BADGES = ['new', 'bestseller', 'limited'];
 
@@ -94,7 +99,7 @@ class Product extends Model
         $layers = array_fill_keys(array_map(fn (NoteLayer $l) => $l->value, NoteLayer::cases()), []);
 
         foreach ($this->notes as $note) {
-            $layers[$note->pivot->layer][] = $note->name;
+            $layers[$note->pivot->layer][] = $note->translated('name');
         }
 
         return $layers;

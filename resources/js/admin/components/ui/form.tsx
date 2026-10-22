@@ -71,6 +71,12 @@ export function FieldError({ id, children, className }: { id?: string; children:
     );
 }
 
+/** Spread on an input holding Arabic storefront copy so it is typed right to left. */
+export const arabicText = { dir: 'rtl', lang: 'ar' } as const;
+
+/** Description for the panel of a form that collects the Arabic version of the copy. */
+export const ARABIC_PANEL_HINT = 'Textes de la boutique en arabe (/ar). Laissé vide, un champ reprend le texte français.';
+
 export function TextInput({ className, ...props }: ComponentProps<'input'>) {
     return <input {...props} className={cn('field-control', className)} />;
 }

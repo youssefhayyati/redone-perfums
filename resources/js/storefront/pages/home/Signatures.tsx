@@ -1,11 +1,12 @@
 import { Link } from 'react-router';
 import { ArrowRight } from 'lucide-react';
 import type { ProductCard as ProductCardData } from '@shared/types';
-import { cn, plural } from '@shared/format';
+import { cn } from '@shared/format';
 import { ProductCard } from '../../components/product/ProductCard';
 import { ProductGridSkeleton } from '../../components/product/ProductGrid';
 import { RevealGroup, RevealItem } from '../../motion/Reveal';
 import { ChapterHeader } from './ChapterHeader';
+import { t, tn } from '../../i18n';
 
 const SHOWN = 4;
 
@@ -17,13 +18,13 @@ export function Signatures({ index, products }: { index: string; products: Produ
         <section className="container-page flex flex-col gap-14 py-24 sm:gap-20 sm:py-32" aria-labelledby="featured-title">
             <ChapterHeader
                 index={index}
-                label="La sélection"
-                title="Nos signatures"
+                label={t('La sélection')}
+                title={t('Nos signatures')}
                 id="featured-title"
-                meta={products ? plural(products.length, 'parfum') : null}
+                meta={products ? tn(products.length, 'parfum') : null}
                 action={
                     <Link to="/boutique" className="link-draw inline-flex items-center gap-2 text-2xs font-medium tracking-[0.2em] uppercase">
-                        Toute la boutique <ArrowRight className="size-3.5" strokeWidth={1.5} />
+                        {t('Toute la boutique')} <ArrowRight className="size-3.5 rtl:-scale-x-100" strokeWidth={1.5} />
                     </Link>
                 }
             />

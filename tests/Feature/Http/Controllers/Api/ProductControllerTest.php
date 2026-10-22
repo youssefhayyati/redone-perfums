@@ -206,6 +206,17 @@ class ProductControllerTest extends TestCase
             ->assertJsonPath('meta.per_page', $expectedPerPage);
     }
 
+    public function test_index_search_finds_a_product_by_its_arabic_name(): void
+    {
+        ProductVariant::factory()->for(Product::factory()->published()->state(['slug' => 'nuit-d-ambre', 'name_ar' => 'ليلة العنبر']))->create();
+        ProductVariant::factory()->for(Product::factory()->published()->state(['slug' => 'oud-minuit', 'name_ar' => 'عود منتصف الليل']))->create();
+
+        $response = $this->withHeader('X-Locale', 'ar')->getJson('/api/products?q=العنبر');
+
+        $response->assertOk();
+        $this->assertSame(['nuit-d-ambre'], $this->slugs($response));
+    }
+
     public function test_facets_only_reflect_the_published_catalog(): void
     {
         $woody = FragranceFamily::factory()->named('Boisé')->create(['sort_order' => 1]);

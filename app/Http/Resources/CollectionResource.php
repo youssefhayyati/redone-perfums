@@ -16,9 +16,9 @@ class CollectionResource extends JsonResource
         return [
             'id' => $this->id,
             'slug' => $this->slug,
-            'name' => $this->name,
-            'tagline' => $this->tagline,
-            'description' => $this->description,
+            'name' => $this->translated('name'),
+            'tagline' => $this->translated('tagline'),
+            'description' => $this->translated('description'),
             'image' => $this->imageUrl(),
             'accent_color' => $this->accent_color,
             'products_count' => $this->whenCounted('products'),

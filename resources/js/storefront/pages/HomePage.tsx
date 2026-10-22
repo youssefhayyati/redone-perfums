@@ -11,6 +11,7 @@ import { NotesMarquee } from './home/NotesMarquee';
 import { PacksTeaser } from './home/PacksTeaser';
 import { Signatures } from './home/Signatures';
 import { Story } from './home/Story';
+import { t } from '../i18n';
 
 type Chapter = 'featured' | 'story' | 'collections' | 'packs';
 
@@ -46,7 +47,7 @@ export default function HomePage() {
             {data && hasPacks && <PacksTeaser index={numberOf('packs')} packs={data.packs} products={data.featured} />}
 
             {config.benefits.length > 0 && (
-                <section className="container-page pt-24 sm:pt-32" aria-label="Nos engagements">
+                <section className="container-page pt-24 sm:pt-32" aria-label={t('Nos engagements')}>
                     <Benefits benefits={config.benefits} />
                 </section>
             )}

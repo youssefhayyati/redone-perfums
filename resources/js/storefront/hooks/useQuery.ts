@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, isAbortError } from '@shared/http';
+import { t } from '../i18n';
 
 /**
  * Read-only data loading with a small in-memory cache: cached data renders at once
@@ -39,7 +40,7 @@ interface State<T> {
 }
 
 function toApiError(error: unknown): ApiError {
-    return error instanceof ApiError ? error : new ApiError(500, 'Une erreur est survenue. Réessayez dans un instant.');
+    return error instanceof ApiError ? error : new ApiError(500, t('Une erreur est survenue. Réessayez dans un instant.'));
 }
 
 export function invalidateQueries(prefix: string): void {

@@ -19,6 +19,7 @@ import { useHead } from '../hooks/useHead';
 import { invalidateQueries } from '../hooks/useQuery';
 import { cartActions, useCart } from '../stores/cart';
 import { useSession } from '../stores/session';
+import { t, tn, tNodes } from '../i18n';
 
 type Errors = Partial<Record<keyof CheckoutForm | 'city_id', string>>;
 
@@ -29,22 +30,22 @@ function validate(form: CheckoutForm, cityId: number | null, emailRequired: bool
     const errors: Errors = {};
 
     if (form.customer_name.trim().length < 2) {
-        errors.customer_name = 'Indiquez votre nom complet.';
+        errors.customer_name = t('Indiquez votre nom complet.');
     }
     if (!isValidMoroccanPhone(form.phone)) {
-        errors.phone = 'Saisissez un numéro marocain valide (ex. 06 12 34 56 78).';
+        errors.phone = t('Saisissez un numéro marocain valide (ex. 06 12 34 56 78).');
     }
     if (form.email.trim() === '' ? emailRequired : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-        errors.email = form.email.trim() === '' ? 'Indiquez votre adresse e-mail.' : 'Cette adresse e-mail n’est pas valide.';
+        errors.email = form.email.trim() === '' ? t('Indiquez votre adresse e-mail.') : t('Cette adresse e-mail n’est pas valide.');
     }
     if (cityId === null) {
-        errors.city_id = 'Choisissez votre ville de livraison.';
+        errors.city_id = t('Choisissez votre ville de livraison.');
     }
     if (form.address.trim().length < 8) {
-        errors.address = 'Précisez votre adresse (rue, numéro, quartier).';
+        errors.address = t('Précisez votre adresse (rue, numéro, quartier).');
     }
     if (!form.payment_method) {
-        errors.payment_method = 'Choisissez un mode de paiement.';
+        errors.payment_method = t('Choisissez un mode de paiement.');
     }
 
     return errors;
@@ -58,7 +59,7 @@ export default function CheckoutPage() {
     const cityId = useCart((state) => state.cityId);
     const user = useSession((state) => state.user);
     const formRef = useRef<HTMLFormElement>(null);
-    useHead({ title: 'Commande', noindex: true });
+    useHead({ title: t('Commande'), noindex: true });
 
     const [form, setForm] = useState<CheckoutForm>(() => ({
         customer_name: '',
@@ -155,7 +156,7 @@ export default function CheckoutPage() {
                     void cartActions.load();
                 }
             } else {
-                setAlert([error instanceof ApiError ? error.message : 'La commande n’a pas pu être envoyée. Réessayez.']);
+                setAlert([error instanceof ApiError ? error.message : t('La commande n’a pas pu être envoyée. Réessayez.')]);
             }
         } finally {
             setSubmitting(false);
@@ -164,7 +165,7 @@ export default function CheckoutPage() {
 
     if (loading && !cart) {
         return (
-            <div className="flex justify-center py-40 text-muted" role="status" aria-label="Chargement">
+            <div className="flex justify-center py-40 text-muted" role="status" aria-label={t('Chargement')}>
                 <Spinner className="size-6" />
             </div>
         );
@@ -173,8 +174,8 @@ export default function CheckoutPage() {
     if (!cart || cart.lines.length === 0) {
         return (
             <div className="container-page pt-12">
-                <EmptyState title="Votre panier est vide" action={<ButtonLink to="/boutique">Découvrir la boutique</ButtonLink>}>
-                    <p>Ajoutez un parfum ou un coffret pour passer commande.</p>
+                <EmptyState title={t('Votre panier est vide')} action={<ButtonLink to="/boutique">{t('Découvrir la boutique')}</ButtonLink>}>
+                    <p>{t('Ajoutez un parfum ou un coffret pour passer commande.')}</p>
                 </EmptyState>
             </div>
         );
@@ -185,27 +186,27 @@ export default function CheckoutPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <PageHeader label="Commande" title="Finaliser votre commande" />
+            <PageHeader label={t('Commande')} title={t('Finaliser votre commande')} />
 
             <form ref={formRef} onSubmit={submit} noValidate className="grid grid-cols-1 gap-12 pt-10 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-16">
                 <div className="flex flex-col gap-12">
                     {alert.length > 0 && <FormAlert message={alert.join(' ')} />}
                     {blocked && (
-                        <p role="alert" className="flex items-start gap-3 border-l-2 border-warning bg-warning/8 px-4 py-3 text-sm">
+                        <p role="alert" className="flex items-start gap-3 border-s-2 border-warning bg-warning/8 px-4 py-3 text-sm">
                             <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" strokeWidth={1.5} />
                             <span>
-                                Votre panier contient des articles à revoir.{' '}
+                                {t('Votre panier contient des articles à revoir.')}{' '}
                                 <Link to="/panier" className="underline underline-offset-4">
-                                    Retourner au panier
+                                    {t('Retourner au panier')}
                                 </Link>
                             </span>
                         </p>
                     )}
 
                     <fieldset className="flex flex-col gap-6">
-                        <legend className="mb-6 font-display text-2xl">Vos coordonnées</legend>
+                        <legend className="mb-6 font-display text-2xl">{t('Vos coordonnées')}</legend>
                         <TextField
-                            label="Nom complet"
+                            label={t('Nom complet')}
                             name="customer_name"
                             autoComplete="name"
                             value={form.customer_name}
@@ -215,7 +216,7 @@ export default function CheckoutPage() {
                         />
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <TextField
-                                label="Téléphone"
+                                label={t('Téléphone')}
                                 name="phone"
                                 type="tel"
                                 inputMode="tel"
@@ -223,28 +224,30 @@ export default function CheckoutPage() {
                                 value={form.phone}
                                 onChange={(event) => set('phone')(event.target.value)}
                                 onBlur={() => isValidMoroccanPhone(form.phone) && set('phone')(formatMoroccanPhone(form.phone))}
-                                hint="Le livreur vous appelle à ce numéro."
+                                hint={t('Le livreur vous appelle à ce numéro.')}
+                                dir="ltr"
                                 error={errors.phone}
                                 placeholder="06 12 34 56 78"
                                 required
                             />
                             <TextField
-                                label="E-mail"
+                                label={t('E-mail')}
                                 name="email"
                                 type="email"
                                 autoComplete="email"
                                 value={form.email}
                                 onChange={(event) => set('email')(event.target.value)}
                                 optional={!config.checkout.email_required}
-                                hint="Pour recevoir le récapitulatif de votre commande."
+                                hint={t('Pour recevoir le récapitulatif de votre commande.')}
+                                dir="ltr"
                                 error={errors.email}
                             />
                         </div>
                     </fieldset>
 
                     <fieldset className="flex flex-col gap-6">
-                        <legend className="mb-6 font-display text-2xl">Livraison</legend>
-                        <Field label="Ville" error={errors.city_id ?? cart.delivery?.error ?? undefined} hint={cart.delivery?.estimate ? `Délai indicatif : ${cart.delivery.estimate}` : undefined}>
+                        <legend className="mb-6 font-display text-2xl">{t('Livraison')}</legend>
+                        <Field label={t('Ville')} error={errors.city_id ?? cart.delivery?.error ?? undefined} hint={cart.delivery?.estimate ? t('Délai indicatif : {estimate}', { estimate: cart.delivery.estimate }) : undefined}>
                             {(a11y) => (
                                 <CitySelect
                                     id={a11y.id}
@@ -260,32 +263,32 @@ export default function CheckoutPage() {
                             )}
                         </Field>
                         <TextAreaField
-                            label="Adresse"
+                            label={t('Adresse')}
                             name="address"
                             autoComplete="street-address"
                             rows={3}
                             value={form.address}
                             onChange={(event) => set('address')(event.target.value)}
-                            placeholder="Rue, numéro, immeuble, quartier"
+                            placeholder={t('Rue, numéro, immeuble, quartier')}
                             error={errors.address}
                             required
                         />
                         <TextAreaField
-                            label="Instructions de livraison"
+                            label={t('Instructions de livraison')}
                             name="delivery_notes"
                             rows={2}
                             value={form.delivery_notes}
                             onChange={(event) => set('delivery_notes')(event.target.value)}
-                            placeholder="Étage, code d’accès, horaires préférés…"
+                            placeholder={t('Étage, code d’accès, horaires préférés…')}
                             optional
                             error={errors.delivery_notes}
                         />
                     </fieldset>
 
                     <fieldset className="flex flex-col gap-4">
-                        <legend className="mb-6 font-display text-2xl">Paiement</legend>
+                        <legend className="mb-6 font-display text-2xl">{t('Paiement')}</legend>
                         {config.payment_methods.length === 0 ? (
-                            <p className="text-sm text-danger">Aucun mode de paiement n’est disponible pour le moment.</p>
+                            <p className="text-sm text-danger">{t('Aucun mode de paiement n’est disponible pour le moment.')}</p>
                         ) : (
                             config.payment_methods.map((method) => (
                                 <label
@@ -311,9 +314,9 @@ export default function CheckoutPage() {
                     </fieldset>
                 </div>
 
-                <aside aria-label="Récapitulatif de la commande">
+                <aside aria-label={t('Récapitulatif de la commande')}>
                     <div className="flex flex-col gap-6 rounded-card border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
-                        <h2 className="font-display text-2xl">Votre commande</h2>
+                        <h2 className="font-display text-2xl">{t('Votre commande')}</h2>
                         <ul className="flex flex-col gap-3 border-b border-line pb-6 text-sm">
                             {cart.lines.map((line) => (
                                 <li key={line.id} className="flex justify-between gap-4">
@@ -321,7 +324,7 @@ export default function CheckoutPage() {
                                         <span className="text-ink">{line.type === 'product' ? line.product?.name : line.pack?.name}</span>
                                         <span className="text-muted">
                                             {' '}
-                                            {line.type === 'product' ? line.variant?.label : `${line.selections.length} flacons`}
+                                            {line.type === 'product' ? line.variant?.label : tn(line.selections.length, 'flacon')}
                                             {line.quantity > 1 ? ` × ${line.quantity}` : ''}
                                         </span>
                                     </span>
@@ -333,19 +336,19 @@ export default function CheckoutPage() {
                         <Totals cart={cart} />
                         <Button type="submit" size="lg" loading={submitting} disabled={blocked || config.payment_methods.length === 0}>
                             <Lock className="size-3.5" strokeWidth={1.5} />
-                            Valider la commande
+                            {t('Valider la commande')}
                         </Button>
                         <p className="text-center text-xs leading-relaxed text-muted">
                             {termsPage ? (
-                                <>
-                                    En validant, vous acceptez nos{' '}
-                                    <Link to={`/pages/${termsPage.slug}`} className="underline underline-offset-4">
-                                        conditions générales de vente
-                                    </Link>
-                                    .
-                                </>
+                                tNodes('En validant, vous acceptez nos {terms}.', {
+                                    terms: (
+                                        <Link to={`/pages/${termsPage.slug}`} className="underline underline-offset-4">
+                                            {t('conditions générales de vente')}
+                                        </Link>
+                                    ),
+                                })
                             ) : (
-                                'Vous réglez à la réception de votre commande.'
+                                t('Vous réglez à la réception de votre commande.')
                             )}
                         </p>
                     </div>

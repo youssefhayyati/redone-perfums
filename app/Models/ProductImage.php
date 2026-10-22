@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Locale;
 use App\Support\MediaUrl;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -53,7 +54,8 @@ class ProductImage extends Model
             'id' => $this->id,
             'url' => $this->url(),
             'srcset' => $this->srcset(),
-            'alt' => $this->alt,
+            // Alt texts are written in French; Arabic pages fall back to the translated product name.
+            'alt' => Locale::isArabic() ? null : $this->alt,
             'width' => $this->width,
             'height' => $this->height,
         ];

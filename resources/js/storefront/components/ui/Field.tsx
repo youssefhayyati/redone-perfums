@@ -1,5 +1,6 @@
 import { useId, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 interface FieldShellProps {
     label: ReactNode;
@@ -26,11 +27,11 @@ export function Field({ label, error, hint, optional = false, className, childre
                 {children({ id, 'aria-invalid': error ? true : undefined, 'aria-describedby': describedBy })}
                 <label htmlFor={id} className="field-label">
                     {label}
-                    {optional && <span className="sr-only"> (facultatif)</span>}
+                    {optional && <span className="sr-only">{t(' (facultatif)')}</span>}
                 </label>
                 {optional && (
                     <span aria-hidden="true" className="field-optional">
-                        Facultatif
+                        {t('Facultatif')}
                     </span>
                 )}
             </div>
@@ -97,7 +98,7 @@ export function FormAlert({ message, tone = 'error' }: { message: string | null 
     return (
         <p
             role={tone === 'error' ? 'alert' : 'status'}
-            className={cn('border-l-2 px-4 py-3 text-sm', tone === 'error' ? 'border-danger bg-danger/8 text-ink' : 'border-success bg-success/8 text-ink')}
+            className={cn('border-s-2 px-4 py-3 text-sm', tone === 'error' ? 'border-danger bg-danger/8 text-ink' : 'border-success bg-success/8 text-ink')}
         >
             {message}
         </p>

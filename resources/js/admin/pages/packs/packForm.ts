@@ -22,6 +22,9 @@ export interface PackForm {
     type: PackType;
     tagline: string;
     description: string;
+    name_ar: string;
+    tagline_ar: string;
+    description_ar: string;
     image_path: string | null;
     image_url: string | null;
     is_active: boolean;
@@ -50,6 +53,9 @@ export function emptyPackForm(): PackForm {
         type: 'custom',
         tagline: '',
         description: '',
+        name_ar: '',
+        tagline_ar: '',
+        description_ar: '',
         image_path: null,
         image_url: null,
         is_active: true,
@@ -80,6 +86,9 @@ export function packToForm(pack: AdminPack, products: CatalogOptionProduct[]): P
         type: pack.type,
         tagline: pack.tagline ?? '',
         description: pack.description ?? '',
+        name_ar: pack.name_ar ?? '',
+        tagline_ar: pack.tagline_ar ?? '',
+        description_ar: pack.description_ar ?? '',
         image_path: pack.image_path,
         image_url: pack.image_url,
         is_active: pack.is_active,
@@ -174,6 +183,9 @@ export function packFormToPayload(form: PackForm): { payload: PackPayload; error
         type: form.type,
         tagline: text(form.tagline),
         description: text(form.description),
+        name_ar: text(form.name_ar),
+        tagline_ar: text(form.tagline_ar),
+        description_ar: text(form.description_ar),
         image_path: form.image_path,
         is_active: form.is_active,
         sort_order: parseInteger(form.sort_order) ?? 0,

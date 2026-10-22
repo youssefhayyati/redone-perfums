@@ -105,6 +105,8 @@ Route::prefix('admin')->group(function () {
 
             Route::apiResource('families', Admin\FamilyController::class)->except('show');
             Route::get('notes', [Admin\FamilyController::class, 'notes']);
+            Route::get('notes/translations', [Admin\NoteController::class, 'index']);
+            Route::put('notes/{note}', [Admin\NoteController::class, 'update']);
 
             Route::apiResource('collections', Admin\CollectionController::class);
             Route::apiResource('packs', Admin\PackController::class);

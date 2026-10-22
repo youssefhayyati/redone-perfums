@@ -54,6 +54,6 @@ class AccountController extends Controller
 
         $request->user()->forceFill(['password' => $request->string('password')])->save();
 
-        return response()->json(['message' => 'Mot de passe mis à jour.']);
+        return response()->json(['message' => __('Mot de passe mis à jour.')]);
     }
 }

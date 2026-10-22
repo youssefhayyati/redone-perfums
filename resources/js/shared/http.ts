@@ -1,9 +1,11 @@
 /**
  * JSON client for the Laravel API. Requests are same-origin, so the session cookie
  * travels with them; mutating requests echo Laravel's XSRF-TOKEN cookie (Sanctum's
- * stateful SPA flow). Errors surface as ApiError with a French, user-presentable
- * message and Laravel's per-field validation errors.
+ * stateful SPA flow). Errors surface as ApiError with a user-presentable message in the
+ * page's language and Laravel's per-field validation errors.
  */
+
+import { getLocale, type Locale } from './locale';
 
 type QueryValue = string | number | boolean | null | undefined | ReadonlyArray<string | number>;
 
@@ -48,14 +50,27 @@ export class ApiError extends Error {
     }
 }
 
-const FALLBACK_MESSAGES: Record<number, string> = {
-    0: 'Connexion impossible. Vérifiez votre réseau puis réessayez.',
-    401: 'Veuillez vous connecter pour continuer.',
-    403: 'Cette action ne vous est pas autorisée.',
-    404: 'Contenu introuvable.',
-    419: 'Votre session a expiré. Rechargez la page.',
-    429: 'Trop de tentatives. Patientez un instant avant de réessayer.',
-    500: 'Une erreur est survenue. Réessayez dans un instant.',
+const FALLBACK_MESSAGES: Record<Locale, Record<number, string>> = {
+    fr: {
+        0: 'Connexion impossible. Vérifiez votre réseau puis réessayez.',
+        401: 'Veuillez vous connecter pour continuer.',
+        403: 'Cette action ne vous est pas autorisée.',
+        404: 'Contenu introuvable.',
+        419: 'Votre session a expiré. Rechargez la page.',
+        429: 'Trop de tentatives. Patientez un instant avant de réessayer.',
+        500: 'Une erreur est survenue. Réessayez dans un instant.',
+        400: 'La requête n’a pas pu aboutir.',
+    },
+    ar: {
+        0: 'تعذّر الاتصال. تحقّق من شبكتك ثم حاول مجددًا.',
+        401: 'يُرجى تسجيل الدخول للمتابعة.',
+        403: 'هذا الإجراء غير مسموح لك.',
+        404: 'المحتوى غير موجود.',
+        419: 'انتهت صلاحية جلستك. أعد تحميل الصفحة.',
+        429: 'محاولات كثيرة. انتظر قليلًا قبل إعادة المحاولة.',
+        500: 'حدث خطأ. حاول مرة أخرى بعد لحظة.',
+        400: 'تعذّر إتمام الطلب.',
+    },
 };
 
 /** Framework defaults that are English or expose internals; replaced by our own wording. */
@@ -67,7 +82,9 @@ export function errorMessage(status: number, serverMessage: unknown): string {
         return serverMessage;
     }
 
-    return FALLBACK_MESSAGES[status] ?? (status >= 500 ? FALLBACK_MESSAGES[500]! : 'La requête n’a pas pu aboutir.');
+    const messages = FALLBACK_MESSAGES[getLocale()];
+
+    return messages[status] ?? (status >= 500 ? messages[500]! : messages[400]!);
 }
 
 export function readCookie(name: string): string | null {

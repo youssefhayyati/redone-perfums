@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router';
 import { Spinner } from '../../components/ui/Spinner';
 import { useSession } from '../../stores/session';
+import { t } from '../../i18n';
 
 /** Renders children for a signed-in customer; sends guests to the sign-in page. */
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -10,7 +11,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 
     if (status === 'unknown') {
         return (
-            <div className="flex justify-center py-40 text-muted" role="status" aria-label="Chargement">
+            <div className="flex justify-center py-40 text-muted" role="status" aria-label={t('Chargement')}>
                 <Spinner className="size-6" />
             </div>
         );

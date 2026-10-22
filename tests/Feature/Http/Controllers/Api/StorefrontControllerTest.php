@@ -122,6 +122,29 @@ class StorefrontControllerTest extends TestCase
             ->assertDontSee('commandes@myperfum.ma');
     }
 
+    public function test_arabic_config_speaks_arabic(): void
+    {
+        City::factory()->count(3)->for(DeliveryZone::factory(), 'zone')->create();
+        app(StoreSettings::class)->put(['announcement.text_ar' => 'شحن مجاني هذا الأسبوع']);
+
+        $response = $this->withHeader('X-Locale', 'ar')->getJson('/api/storefront');
+
+        $response->assertOk()
+            ->assertJsonPath('store.descriptor', 'دار عطور')
+            ->assertJsonPath('announcement.text', 'شحن مجاني هذا الأسبوع')
+            ->assertJsonPath('payment_methods.0.label', 'الدفع عند الاستلام')
+            ->assertJsonPath('benefits.0.text', 'التوصيل إلى 3 مدن، وتُحتسب رسوم التوصيل حسب مدينتك قبل تأكيد الطلب.');
+    }
+
+    public function test_arabic_home_uses_the_arabic_hero_texts(): void
+    {
+        $response = $this->withHeader('X-Locale', 'ar')->getJson('/api/home');
+
+        $response->assertOk()
+            ->assertJsonPath('hero.title', 'الساعة التي يتجلّى فيها العطر.')
+            ->assertJsonPath('hero.eyebrow', 'دار عطور · مجموعة الليل');
+    }
+
     public function test_home_features_published_featured_products_in_their_manual_order(): void
     {
         $second = Product::factory()->published()->featured()->withVariant()->create(['sort_order' => 2]);

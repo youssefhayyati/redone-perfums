@@ -29,6 +29,7 @@ class AdminOrderResource extends JsonResource
             'phone' => MoroccanPhone::format($this->phone),
             'phone_e164' => $this->phone,
             'email' => $this->email,
+            'locale' => $this->locale,
             'city_id' => $this->city_id,
             'city' => $this->city_name,
             'delivery_zone' => $this->delivery_zone_name,

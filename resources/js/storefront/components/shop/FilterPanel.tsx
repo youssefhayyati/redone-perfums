@@ -2,11 +2,12 @@ import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import type { Facets } from '@shared/types';
 import { cn } from '@shared/format';
 import { toggle, type ShopFilters } from './filters';
+import { t } from '../../i18n';
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
     return (
         <fieldset className="flex flex-col gap-4 border-t border-line pt-6">
-            <legend className="eyebrow float-left mb-4 w-full">{title}</legend>
+            <legend className="eyebrow float-start mb-4 w-full">{title}</legend>
             {children}
         </fieldset>
     );
@@ -61,7 +62,7 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
         <div className="flex flex-col gap-6">
             <form role="search" onSubmit={applySearch} className="flex flex-col gap-2">
                 <label htmlFor="shop-search" className="eyebrow">
-                    Rechercher
+                    {t('Rechercher')}
                 </label>
                 <input
                     id="shop-search"
@@ -69,13 +70,13 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
                     onBlur={() => search !== filters.q && onChange({ q: search })}
-                    placeholder="Nom, note, famille…"
+                    placeholder={t('Nom, note, famille…')}
                     className="field-control"
                 />
             </form>
 
             {facets && facets.families.length > 0 && (
-                <Group title="Famille olfactive">
+                <Group title={t('Famille olfactive')}>
                     {facets.families.map((family) => (
                         <CheckRow
                             key={family.slug}
@@ -89,7 +90,7 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
             )}
 
             {facets && facets.collections.length > 0 && (
-                <Group title="Collection">
+                <Group title={t('Collection')}>
                     {facets.collections.map((collection) => (
                         <CheckRow
                             key={collection.slug}
@@ -102,7 +103,7 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
             )}
 
             {facets && facets.sizes.length > 0 && (
-                <Group title="Contenance">
+                <Group title={t('Contenance')}>
                     <div className="flex flex-wrap gap-2">
                         {facets.sizes.map((size) => {
                             const active = filters.sizes.includes(size);
@@ -124,19 +125,19 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
             )}
 
             {facets && facets.price.max > 0 && (
-                <Group title="Prix (DH)">
+                <Group title={t('Prix (DH)')}>
                     <form onSubmit={applyPrice} className="flex flex-col gap-3">
                         <div className="grid grid-cols-2 gap-2">
                             <label className="flex flex-col gap-1.5 text-xs text-muted">
-                                Minimum
+                                {t('Minimum')}
                                 <input type="number" inputMode="numeric" min={0} value={min} onChange={(event) => setMin(event.target.value)} onBlur={() => applyPrice()} placeholder={String(Math.floor(facets.price.min / 100))} className="field-control min-h-10 py-2" />
                             </label>
                             <label className="flex flex-col gap-1.5 text-xs text-muted">
-                                Maximum
+                                {t('Maximum')}
                                 <input type="number" inputMode="numeric" min={0} value={max} onChange={(event) => setMax(event.target.value)} onBlur={() => applyPrice()} placeholder={String(Math.ceil(facets.price.max / 100))} className="field-control min-h-10 py-2" />
                             </label>
                         </div>
-                        <p className="text-xs text-faint">Le prix et la contenance s’appliquent au même flacon.</p>
+                        <p className="text-xs text-faint">{t('Le prix et la contenance s’appliquent au même flacon.')}</p>
                     </form>
                 </Group>
             )}

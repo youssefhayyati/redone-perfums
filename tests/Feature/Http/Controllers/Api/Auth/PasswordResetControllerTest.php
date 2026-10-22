@@ -35,6 +35,19 @@ class PasswordResetControllerTest extends TestCase
         );
     }
 
+    public function test_forgot_password_from_the_arabic_storefront_links_to_the_arabic_page(): void
+    {
+        $user = User::factory()->create(['email' => 'salma@example.com']);
+        Notification::fake();
+
+        $response = $this->withHeader('X-Locale', 'ar')->postJson('/api/auth/forgot-password', ['email' => 'salma@example.com']);
+
+        $response->assertOk()
+            ->assertExactJson(['message' => 'إذا كان هناك حساب مرتبط بهذا البريد، فقد أرسلنا إليه رابطًا لإعادة تعيين كلمة المرور.']);
+        $notification = Notification::sent($user, ResetPassword::class)->sole();
+        $this->assertStringContainsString('/ar/compte/reinitialiser?token=', $notification->toMail($user)->actionUrl);
+    }
+
     public function test_forgot_password_gives_the_same_answer_for_an_unknown_address_and_sends_nothing(): void
     {
         User::factory()->create(['email' => 'salma@example.com']);

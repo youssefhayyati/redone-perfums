@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="ltr" data-theme="dark">
+<html lang="{{ $meta['locale'] }}" dir="{{ $meta['dir'] }}" data-theme="dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -10,6 +10,11 @@
     <link rel="canonical" href="{{ $meta['url'] }}">
     @if ($meta['noindex'])
         <meta name="robots" content="noindex, nofollow">
+    @else
+        @foreach ($meta['alternates'] as $hreflang => $href)
+            <link rel="alternate" hreflang="{{ $hreflang }}" href="{{ $href }}">
+        @endforeach
+        <link rel="alternate" hreflang="x-default" href="{{ $meta['alternates']['fr'] }}">
     @endif
 
     <meta property="og:site_name" content="{{ $meta['site_name'] }}">
@@ -18,14 +23,19 @@
     <meta property="og:description" content="{{ $meta['description'] }}">
     <meta property="og:url" content="{{ $meta['url'] }}">
     <meta property="og:image" content="{{ $meta['image'] }}">
-    <meta property="og:locale" content="fr_MA">
+    <meta property="og:locale" content="{{ $meta['locale'] === 'ar' ? 'ar_MA' : 'fr_MA' }}">
+    <meta property="og:locale:alternate" content="{{ $meta['locale'] === 'ar' ? 'fr_MA' : 'ar_MA' }}">
     <meta name="twitter:card" content="summary_large_image">
 
     <meta name="theme-color" content="#0b0a09">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
 
-    @fonts(['fraunces', 'dm-sans'])
+    @if ($meta['locale'] === 'ar')
+        @fonts(['fraunces', 'dm-sans', 'amiri', 'ibm-plex-sans-arabic'])
+    @else
+        @fonts(['fraunces', 'dm-sans'])
+    @endif
     @viteReactRefresh
     @vite(['resources/js/storefront/main.tsx'])
 

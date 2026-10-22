@@ -5,6 +5,7 @@ import { formatMoroccanPhone } from '@shared/phone';
 import { useConfig } from '../../config';
 import { NewsletterForm } from './NewsletterForm';
 import { SocialIcon } from './SocialIcon';
+import { t } from '../../i18n';
 
 function FooterColumn({ title, children }: { title: string; children: ReactNode }) {
     return (
@@ -28,36 +29,36 @@ export function Footer() {
         <footer className="mt-24 border-t border-line bg-raised sm:mt-32">
             <div className="container-page grid grid-cols-1 gap-12 border-b border-line py-16 lg:grid-cols-2 lg:gap-24 lg:py-20">
                 <div className="flex flex-col gap-4">
-                    <p className="eyebrow">La lettre de la maison</p>
-                    <p className="max-w-md font-display text-display-sm text-balance">Nouvelles compositions, coffrets et éditions rares, en avant-première.</p>
+                    <p className="eyebrow">{t('La lettre de la maison')}</p>
+                    <p className="max-w-md font-display text-display-sm text-balance">{t('Nouvelles compositions, coffrets et éditions rares, en avant-première.')}</p>
                 </div>
                 <NewsletterForm />
             </div>
 
             <div className="container-page grid grid-cols-2 gap-10 py-16 md:grid-cols-4">
-                <FooterColumn title="La boutique">
-                    <li><Link to="/boutique" className={linkClass}>Tous les parfums</Link></li>
+                <FooterColumn title={t('La boutique')}>
+                    <li><Link to="/boutique" className={linkClass}>{t('Tous les parfums')}</Link></li>
                     {config.collections.slice(0, 4).map((collection) => (
                         <li key={collection.slug}>
                             <Link to={`/collections/${collection.slug}`} className={linkClass}>{collection.name}</Link>
                         </li>
                     ))}
-                    {config.has_packs && <li><Link to="/coffrets" className={linkClass}>Coffrets</Link></li>}
-                    <li><Link to="/decouvrir" className={linkClass}>Guide olfactif</Link></li>
+                    {config.has_packs && <li><Link to="/coffrets" className={linkClass}>{t('Coffrets')}</Link></li>}
+                    <li><Link to="/decouvrir" className={linkClass}>{t('Guide olfactif')}</Link></li>
                 </FooterColumn>
 
-                <FooterColumn title="Informations">
+                <FooterColumn title={t('Informations')}>
                     {config.pages.map((page) => (
                         <li key={page.slug}>
                             <Link to={`/pages/${page.slug}`} className={linkClass}>{page.title}</Link>
                         </li>
                     ))}
-                    <li><Link to="/compte" className={linkClass}>Mon compte</Link></li>
-                    <li><Link to="/panier" className={linkClass}>Panier</Link></li>
+                    <li><Link to="/compte" className={linkClass}>{t('Mon compte')}</Link></li>
+                    <li><Link to="/panier" className={linkClass}>{t('Panier')}</Link></li>
                 </FooterColumn>
 
                 {hasContact && (
-                    <FooterColumn title="Nous écrire">
+                    <FooterColumn title={t('Nous écrire')}>
                         {contact.email && (
                             <li><a href={`mailto:${contact.email}`} className={`${linkClass} inline-flex items-center gap-2`}><Mail className="size-3.5" strokeWidth={1.5} />{contact.email}</a></li>
                         )}
@@ -75,7 +76,7 @@ export function Footer() {
                 )}
 
                 {networks.length > 0 && (
-                    <FooterColumn title="Suivre la maison">
+                    <FooterColumn title={t('Suivre la maison')}>
                         {networks.map((network) => (
                             <li key={network}>
                                 <a href={social[network]} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-2 capitalize`}>
@@ -89,7 +90,7 @@ export function Footer() {
             </div>
 
             <div className="container-page flex flex-col gap-3 border-t border-line py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-                <p>© {new Date().getFullYear()} {config.store.name}. Tous droits réservés.</p>
+                <p>© {new Date().getFullYear()} {config.store.name}. {t('Tous droits réservés.')}</p>
                 {config.payment_methods.length > 0 && <p>{config.payment_methods.map((method) => method.label).join(' · ')}</p>}
             </div>
         </footer>

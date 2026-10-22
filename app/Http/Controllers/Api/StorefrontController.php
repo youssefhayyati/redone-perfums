@@ -10,8 +10,8 @@ use App\Http\Resources\ProductResource;
 use App\Models\Collection;
 use App\Models\Pack;
 use App\Models\Product;
-use App\Services\Settings\StoreSettings;
 use App\Services\Settings\StorefrontConfig;
+use App\Services\Settings\StoreSettings;
 use Illuminate\Http\JsonResponse;
 
 class StorefrontController extends Controller
@@ -62,15 +62,15 @@ class StorefrontController extends Controller
 
         return response()->json([
             'hero' => [
-                'eyebrow' => $this->settings->get('home.hero_eyebrow'),
-                'title' => $this->settings->get('home.hero_title'),
-                'subtitle' => $this->settings->get('home.hero_subtitle'),
+                'eyebrow' => $this->settings->localized('home.hero_eyebrow'),
+                'title' => $this->settings->localized('home.hero_title'),
+                'subtitle' => $this->settings->localized('home.hero_subtitle'),
             ],
             'featured' => ProductCardResource::collection($featured),
             'story' => $storyProduct ? [
-                'eyebrow' => $this->settings->get('home.story_eyebrow'),
-                'title' => $this->settings->get('home.story_title') ?: $storyProduct->name,
-                'body' => $this->settings->get('home.story_body') ?: $storyProduct->inspiration,
+                'eyebrow' => $this->settings->localized('home.story_eyebrow'),
+                'title' => $this->settings->localized('home.story_title') ?: $storyProduct->translated('name'),
+                'body' => $this->settings->localized('home.story_body') ?: $storyProduct->translated('inspiration'),
                 'product' => new ProductResource($storyProduct),
             ] : null,
             'collections' => CollectionResource::collection($collections),

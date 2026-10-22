@@ -30,6 +30,19 @@ export default defineConfig({
                     preload: [{ weight: 400 }, { weight: 500 }],
                     fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
                 }),
+                // Arabic storefront: a calligraphic naskh for display, a clear sans for text.
+                bunny('Amiri', {
+                    weights: [400, 700],
+                    subsets: ['arabic'],
+                    preload: [{ weight: 400 }],
+                    fallbacks: ['serif'],
+                }),
+                bunny('IBM Plex Sans Arabic', {
+                    weights: [400, 500, 600],
+                    subsets: ['arabic'],
+                    preload: [{ weight: 400 }],
+                    fallbacks: ['sans-serif'],
+                }),
                 // Admin interface.
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],

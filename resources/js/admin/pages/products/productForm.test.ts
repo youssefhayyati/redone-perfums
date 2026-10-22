@@ -22,6 +22,13 @@ const product: AdminProduct = {
     sort_order: 2,
     meta_title: null,
     meta_description: null,
+    name_ar: 'ليلة العنبر',
+    tagline_ar: null,
+    description_ar: null,
+    inspiration_ar: null,
+    concentration_ar: 'ماء عطر',
+    meta_title_ar: null,
+    meta_description_ar: null,
     published_at: '2026-10-01T09:00:00+01:00',
     sales_count: 12,
     deleted_at: null,
@@ -59,6 +66,18 @@ describe('productFormToPayload', () => {
         expect(payload.published_at).toBe('2026-10-01T09:00:00');
         expect(payload.fragrance_family_id).toBe(3);
         expect(payload.notes.base).toEqual(['Ambre', 'Vanille']);
+        expect(payload.name_ar).toBe('ليلة العنبر');
+        expect(payload.concentration_ar).toBe('ماء عطر');
+    });
+
+    it('sends blank Arabic copy as null so the French text is shown', () => {
+        const form = productToForm(product);
+        form.name_ar = '   ';
+        form.tagline_ar = ' عنبر وفانيليا ';
+        const { payload } = productFormToPayload(form);
+        expect(payload.name_ar).toBeNull();
+        expect(payload.tagline_ar).toBe('عنبر وفانيليا');
+        expect(payload.description_ar).toBeNull();
     });
 
     it('converts typed dirhams to centimes and nullifies empty optionals', () => {

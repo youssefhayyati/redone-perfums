@@ -1,4 +1,5 @@
 import { createHttp, type Query } from '@shared/http';
+import { getLocale } from '@shared/locale';
 import type {
     Cart,
     City,
@@ -21,7 +22,8 @@ import { getCartToken } from './cartToken';
 
 export const http = createHttp({
     baseUrl: '/api',
-    headers: () => ({ 'X-Cart-Token': getCartToken() }),
+    // The API answers in the page's language (see app/Http/Middleware/SetLocale.php).
+    headers: () => ({ 'X-Cart-Token': getCartToken(), 'X-Locale': getLocale() }),
 });
 
 export interface CheckoutPayload {

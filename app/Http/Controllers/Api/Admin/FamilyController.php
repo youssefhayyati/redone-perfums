@@ -68,8 +68,10 @@ class FamilyController extends Controller
 
         return $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'name_ar' => ['nullable', 'string', 'max:80'],
             'slug' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('fragrance_families', 'slug')->ignore($family?->id)],
             'description' => ['nullable', 'string', 'max:2000'],
+            'description_ar' => ['nullable', 'string', 'max:2000'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],
         ]);
     }

@@ -21,7 +21,7 @@ class CheckoutController extends Controller
     public function store(CheckoutRequest $request): JsonResponse
     {
         $cart = $this->carts->findForCheckout($request->header('X-Cart-Token'));
-        abort_if($cart === null, 422, 'Votre panier est introuvable ou vide.');
+        abort_if($cart === null, 422, __('Votre panier est introuvable ou vide.'));
 
         $key = $request->header('Idempotency-Key');
         $key = is_string($key) && preg_match('/^[A-Za-z0-9\-]{16,80}$/', $key) ? $key : null;

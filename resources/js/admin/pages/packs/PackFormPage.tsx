@@ -10,7 +10,7 @@ import { Button, IconButton } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { ErrorState, InlineAlert, Skeleton } from '../../components/ui/feedback';
 import { ChipToggleGroup, UnsavedChangesDialog } from '../../components/ui/fields';
-import { AffixInput, Field, FieldError, Fieldset, MoneyInput, RadioCards, SelectInput, Switch, TextArea, TextInput } from '../../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, FieldError, Fieldset, MoneyInput, RadioCards, SelectInput, Switch, TextArea, TextInput } from '../../components/ui/form';
 import { FormBar } from '../../components/ui/FormBar';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { ImageField, ProductPicker } from '../../components/ui/pickers';
@@ -226,6 +226,20 @@ function PackEditor({ initial, options }: { initial: AdminPack | null; options: 
                             </Field>
                             <Field label="Description" optional error={errors.description} counter={{ value: form.description.length, max: 3000 }}>
                                 {(control) => <TextArea {...control} rows={4} maxLength={3000} value={form.description} onChange={(event) => set('description', event.target.value)} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel title="Version arabe" description={ARABIC_PANEL_HINT}>
+                        <div className="flex flex-col gap-4">
+                            <Field label="Nom" optional error={errors.name_ar}>
+                                {(control) => <TextInput {...control} {...arabicText} value={form.name_ar} maxLength={120} placeholder={form.name} onChange={(event) => set('name_ar', event.target.value)} />}
+                            </Field>
+                            <Field label="Accroche" optional error={errors.tagline_ar} counter={{ value: form.tagline_ar.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...arabicText} value={form.tagline_ar} maxLength={255} placeholder={form.tagline} onChange={(event) => set('tagline_ar', event.target.value)} />}
+                            </Field>
+                            <Field label="Description" optional error={errors.description_ar} counter={{ value: form.description_ar.length, max: 3000 }}>
+                                {(control) => <TextArea {...control} {...arabicText} rows={4} maxLength={3000} value={form.description_ar} onChange={(event) => set('description_ar', event.target.value)} />}
                             </Field>
                         </div>
                     </Panel>

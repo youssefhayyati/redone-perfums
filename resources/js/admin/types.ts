@@ -142,6 +142,8 @@ export interface AdminOrder {
     phone: string;
     phone_e164: string;
     email: string | null;
+    /** Language the customer ordered in, and to speak with them. */
+    locale: 'fr' | 'ar';
     city_id: number | null;
     city: string;
     delivery_zone: string | null;
@@ -219,6 +221,13 @@ export interface AdminProduct {
     sort_order: number;
     meta_title: string | null;
     meta_description: string | null;
+    name_ar: string | null;
+    tagline_ar: string | null;
+    description_ar: string | null;
+    inspiration_ar: string | null;
+    concentration_ar: string | null;
+    meta_title_ar: string | null;
+    meta_description_ar: string | null;
     published_at: string | null;
     sales_count: number;
     deleted_at: string | null;
@@ -251,6 +260,13 @@ export interface ProductPayload {
     inspiration: string | null;
     meta_title: string | null;
     meta_description: string | null;
+    name_ar: string | null;
+    tagline_ar: string | null;
+    description_ar: string | null;
+    inspiration_ar: string | null;
+    concentration_ar: string | null;
+    meta_title_ar: string | null;
+    meta_description_ar: string | null;
     sort_order: number;
     notes: NotesByLayer;
     variants: Array<{
@@ -285,25 +301,40 @@ export interface CatalogOptions {
 export interface Family {
     id: number;
     name: string;
+    name_ar: string | null;
     slug: string;
     description: string | null;
+    description_ar: string | null;
     sort_order: number;
     products_count?: number;
 }
 
 export interface FamilyPayload {
     name: string;
+    name_ar: string | null;
     slug: string;
     description: string | null;
+    description_ar: string | null;
     sort_order: number;
+}
+
+/** A fragrance note and its Arabic name, as listed for translation. */
+export interface NoteTranslation {
+    id: number;
+    name: string;
+    name_ar: string | null;
+    products_count: number;
 }
 
 export interface AdminCollection {
     id: number;
     name: string;
+    name_ar: string | null;
     slug: string;
     tagline: string | null;
+    tagline_ar: string | null;
     description: string | null;
+    description_ar: string | null;
     image_path: string | null;
     image_url: string | null;
     accent_color: string | null;
@@ -317,9 +348,12 @@ export interface AdminCollection {
 
 export interface CollectionPayload {
     name: string;
+    name_ar: string | null;
     slug: string;
     tagline: string | null;
+    tagline_ar: string | null;
     description: string | null;
+    description_ar: string | null;
     image_path: string | null;
     accent_color: string | null;
     is_visible: boolean;
@@ -335,10 +369,13 @@ export type PackEligibility = 'all' | 'collections' | 'products';
 export interface AdminPack {
     id: number;
     name: string;
+    name_ar: string | null;
     slug: string;
     type: PackType;
     tagline: string | null;
+    tagline_ar: string | null;
     description: string | null;
+    description_ar: string | null;
     image_path: string | null;
     image_url: string | null;
     selection_count: number | null;
@@ -362,10 +399,13 @@ export interface AdminPack {
 
 export interface PackPayload {
     name: string;
+    name_ar: string | null;
     slug: string;
     type: PackType;
     tagline: string | null;
+    tagline_ar: string | null;
     description: string | null;
+    description_ar: string | null;
     image_path: string | null;
     is_active: boolean;
     sort_order: number;
@@ -471,8 +511,11 @@ export interface AdminPage {
     id: number;
     slug: string;
     title: string;
+    title_ar: string | null;
     body: string;
+    body_ar: string | null;
     meta_description: string | null;
+    meta_description_ar: string | null;
     is_published: boolean;
     sort_order: number;
     created_at: string | null;
@@ -481,9 +524,12 @@ export interface AdminPage {
 
 export interface PagePayload {
     title: string;
+    title_ar: string | null;
     slug: string;
     body: string;
+    body_ar: string | null;
     meta_description: string | null;
+    meta_description_ar: string | null;
     is_published: boolean;
     sort_order: number;
 }
@@ -511,6 +557,7 @@ export interface DeliveryZone {
     fee: number;
     free_shipping_threshold: number | null;
     delivery_estimate: string | null;
+    delivery_estimate_ar: string | null;
     is_active: boolean;
     sort_order: number;
     cities_count?: number;
@@ -521,6 +568,7 @@ export interface ZonePayload {
     fee: number;
     free_shipping_threshold: number | null;
     delivery_estimate: string | null;
+    delivery_estimate_ar: string | null;
     is_active: boolean;
     sort_order: number;
 }
@@ -528,7 +576,9 @@ export interface ZonePayload {
 export interface AdminCity {
     id: number;
     name: string;
+    name_ar: string | null;
     region: string | null;
+    region_ar: string | null;
     delivery_zone_id: number | null;
     is_active: boolean;
     sort_order: number;
@@ -537,7 +587,9 @@ export interface AdminCity {
 
 export interface CityPayload {
     name: string;
+    name_ar: string | null;
     region: string | null;
+    region_ar: string | null;
     delivery_zone_id: number | null;
     is_active: boolean;
 }

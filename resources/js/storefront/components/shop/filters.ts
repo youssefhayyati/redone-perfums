@@ -1,4 +1,5 @@
 import type { Query } from '@shared/http';
+import { t } from '../../i18n';
 
 /**
  * Shop filters live in the URL (French parameter names, prices in dirhams) so that
@@ -16,11 +17,11 @@ export interface ShopFilters {
 }
 
 export const SORT_LABELS: Record<string, string> = {
-    featured: 'Sélection de la maison',
-    newest: 'Nouveautés',
-    popular: 'Meilleures ventes',
-    price_asc: 'Prix croissant',
-    price_desc: 'Prix décroissant',
+    featured: t('Sélection de la maison'),
+    newest: t('Nouveautés'),
+    popular: t('Meilleures ventes'),
+    price_asc: t('Prix croissant'),
+    price_desc: t('Prix décroissant'),
 };
 
 const list = (value: string | null) => (value ? value.split(',').map((item) => item.trim()).filter(Boolean) : []);

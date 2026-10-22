@@ -17,7 +17,7 @@ class NewsletterController extends Controller
             'consent' => ['accepted'],
             'source' => ['nullable', 'string', 'max:40'],
         ], [
-            'consent.accepted' => 'Merci d’accepter de recevoir nos e-mails.',
+            'consent.accepted' => __('Merci d’accepter de recevoir nos e-mails.'),
         ]);
 
         $email = mb_strtolower(trim($data['email']));
@@ -33,7 +33,7 @@ class NewsletterController extends Controller
         $subscriber->save();
 
         // Same answer whether or not the address was already known.
-        return response()->json(['message' => 'Merci. Vous recevrez nos prochaines nouvelles.']);
+        return response()->json(['message' => __('Merci. Vous recevrez nos prochaines nouvelles.')]);
     }
 
     public function unsubscribe(Request $request): JsonResponse
@@ -43,6 +43,6 @@ class NewsletterController extends Controller
 
         $subscriber?->forceFill(['status' => 'unsubscribed', 'unsubscribed_at' => now()])->save();
 
-        return response()->json(['message' => 'Vous êtes désinscrit(e) de la newsletter.']);
+        return response()->json(['message' => __('Vous êtes désinscrit(e) de la newsletter.')]);
     }
 }

@@ -67,6 +67,27 @@ Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / lega
 - `Settings\StoreSettings`: typed defaults, cached, admin-editable.
 - `Media\ImageProcessor`: validates uploads and writes 480/960/1600 px WebP variants.
 
+## Languages
+
+The storefront speaks French (`/…`) and Modern Standard Arabic (`/ar/…`, right to left);
+the admin stays French and edits both.
+
+- **Content**: translatable columns have an `_ar` sibling (`name_ar`, `tagline_ar`…),
+  listed in each model's `TRANSLATABLE`. `HasTranslations::translated()` returns the
+  Arabic text when the app locale is Arabic and it is filled, the French one otherwise.
+  Settings follow the same rule with `{key}_ar` keys and `StoreSettings::localized()`.
+- **API**: the storefront sends `X-Locale` (never `Accept-Language`, so admin calls stay
+  French); `SetLocale` applies it. Server messages are written in French and translated
+  by `lang/ar.json` (and `lang/ar/*.php` for validation).
+- **Pages**: `SpaController` reads the `/ar` prefix and sets `<html lang dir>`, the
+  translated meta and hreflang alternates; the sitemap lists both languages.
+- **Storefront copy**: written in French in the components and wrapped in `t()`,
+  `tNodes()` (placeholders filled by elements) or `tn()` (counted nouns, Arabic's six
+  plural forms); `resources/js/storefront/i18n/ar.ts` must translate every message, which
+  the types enforce. Layout uses logical utilities (`ms-`, `ps-`, `start-`) and `rtl:`.
+- **Orders**: `orders.locale` records the customer's language; their confirmation is
+  sent in it, while the store's alert is always French.
+
 ## Roles
 
 `admin` (everything), `manager` (catalog, orders, customers, promotions, content),

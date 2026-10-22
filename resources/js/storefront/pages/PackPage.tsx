@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import type { Pack, PackOption, PackQuote, Variant } from '@shared/types';
 import { ApiError, isAbortError } from '@shared/http';
 import { formatMoney } from '@shared/money';
-import { cn, plural } from '@shared/format';
+import { cn } from '@shared/format';
 import { api } from '../api';
 import { PackOptionCard } from '../components/pack/PackOptionCard';
 import { PackSlots, type SlotItem } from '../components/pack/PackSlots';
@@ -19,9 +19,10 @@ import { EASE_LUXE } from '../motion/easing';
 import { cartActions, useCart } from '../stores/cart';
 import { toast, ui } from '../stores/ui';
 import NotFoundPage from './NotFoundPage';
+import { t, tn } from '../i18n';
 
 function PackHeader({ pack, kind }: { pack: Pack; kind: string }) {
-    const facts = [plural(pack.bottle_count, 'flacon'), pack.allowed_sizes?.length ? `${pack.allowed_sizes.join(' / ')} ml` : null, pack.pricing.label].filter(Boolean);
+    const facts = [tn(pack.bottle_count, 'flacon'), pack.allowed_sizes?.length ? t('{sizes} ml', { sizes: pack.allowed_sizes.join(' / ') }) : null, pack.pricing.label].filter(Boolean);
 
     return (
         <header className="flex max-w-3xl flex-col gap-5">
@@ -44,7 +45,7 @@ function PriceSummary({ pack, full, quote, quoting, quoteError }: { pack: Pack; 
     if (full && quoting && !quote) {
         return (
             <div className="flex items-center gap-3 text-sm text-muted" role="status">
-                <Spinner className="size-4" /> Calcul du prix…
+                <Spinner className="size-4" /> {t('Calcul du prix…')}
             </div>
         );
     }
@@ -64,12 +65,12 @@ function PriceSummary({ pack, full, quote, quoting, quoteError }: { pack: Pack; 
                     <span className="font-display text-4xl tabular-nums lining-nums">{formatMoney(quote.price)}</span>
                     {quote.compare_at > quote.price && (
                         <s className="text-sm text-muted tabular-nums">
-                            <span className="sr-only">au lieu de </span>
+                            <span className="sr-only">{t('au lieu de ')}</span>
                             {formatMoney(quote.compare_at)}
                         </s>
                     )}
                 </p>
-                {quote.savings > 0 && <p className="text-sm text-success">Vous économisez {formatMoney(quote.savings)}</p>}
+                {quote.savings > 0 && <p className="text-sm text-success">{t('Vous économisez {amount}', { amount: formatMoney(quote.savings) })}</p>}
             </div>
         );
     }
@@ -77,7 +78,7 @@ function PriceSummary({ pack, full, quote, quoting, quoteError }: { pack: Pack; 
     return (
         <div className="flex flex-col gap-1">
             <p className="font-display text-2xl">{pack.pricing.type === 'fixed' && pack.pricing.price !== null ? formatMoney(pack.pricing.price) : pack.pricing.label}</p>
-            <p className="text-xs text-muted">Le prix exact s’affiche dès que votre sélection est complète.</p>
+            <p className="text-xs text-muted">{t('Le prix exact s’affiche dès que votre sélection est complète.')}</p>
         </div>
     );
 }
@@ -142,7 +143,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
             api.quotePack(pack.slug, idsKey.split(',').map(Number), { signal: controller.signal })
                 .then(setQuote, (error: unknown) => {
                     if (!isAbortError(error)) {
-                        setQuoteError(error instanceof ApiError ? error.message : 'Le prix n’a pas pu être calculé.');
+                        setQuoteError(error instanceof ApiError ? error.message : t('Le prix n’a pas pu être calculé.'));
                     }
                 })
                 .finally(() => {
@@ -186,7 +187,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
         try {
             if (editLine) {
                 await cartActions.replaceSelections(editLine.id, ids);
-                toast.success('Votre coffret a été mis à jour.');
+                toast.success(t('Votre coffret a été mis à jour.'));
                 navigate('/panier');
             } else {
                 await cartActions.addPack(pack.id, ids);
@@ -194,7 +195,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                 ui.open('cart');
             }
         } catch (error) {
-            toast.error(error instanceof ApiError ? error.message : 'Le coffret n’a pas pu être ajouté.');
+            toast.error(error instanceof ApiError ? error.message : t('Le coffret n’a pas pu être ajouté.'));
         } finally {
             setSubmitting(false);
         }
@@ -203,7 +204,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
     const panel = (
         <div className="flex flex-col gap-6">
             <div className="flex items-baseline justify-between">
-                <h2 className="font-display text-2xl">{editLine ? 'Modifier le coffret' : 'Votre coffret'}</h2>
+                <h2 className="font-display text-2xl">{editLine ? t('Modifier le coffret') : t('Votre coffret')}</h2>
                 <p className="text-sm text-muted tabular-nums" aria-live="polite">
                     {items.length} / {count}
                 </p>
@@ -215,15 +216,15 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
             <PriceSummary pack={pack} full={full} quote={quote} quoting={quoting} quoteError={quoteError} />
             {shortages.length > 0 && (
                 <p role="alert" className="text-sm text-warning">
-                    Stock insuffisant pour {shortages.map((entry) => `${entry!.option.name} ${entry!.variant.label}`).join(', ')}.
+                    {t('Stock insuffisant pour {items}.', { items: shortages.map((entry) => `${entry!.option.name} ${entry!.variant.label}`).join(t(', ')) })}
                 </p>
             )}
             <Button size="lg" onClick={submit} loading={submitting} disabled={!canSubmit}>
-                {editLine ? 'Mettre à jour le coffret' : full ? 'Ajouter au panier' : `Choisissez encore ${plural(count - items.length, 'parfum')}`}
+                {editLine ? t('Mettre à jour le coffret') : full ? t('Ajouter au panier') : t('Choisissez encore {items}', { items: tn(count - items.length, 'parfum') })}
             </Button>
             {items.length > 0 && (
                 <button type="button" onClick={() => setItems([])} className="link-draw self-center text-xs text-muted hover:text-ink">
-                    Vider la sélection
+                    {t('Vider la sélection')}
                 </button>
             )}
         </div>
@@ -231,19 +232,19 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
 
     return (
         <div className="container-page pt-8 pb-28 sm:pt-12 lg:pb-0">
-            <Breadcrumbs items={[{ label: 'Coffrets', to: '/coffrets' }, { label: pack.name }]} />
+            <Breadcrumbs items={[{ label: t('Coffrets'), to: '/coffrets' }, { label: pack.name }]} />
             <div className="pt-8 pb-12">
-                <PackHeader pack={pack} kind={editLine ? 'Modification de votre coffret' : 'Coffret à composer'} />
+                <PackHeader pack={pack} kind={editLine ? t('Modification de votre coffret') : t('Coffret à composer')} />
             </div>
 
             <div className="grid grid-cols-1 gap-12 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
                 <section aria-labelledby="options-title" className="flex flex-col gap-8">
                     <h2 id="options-title" className="sr-only">
-                        Parfums disponibles
+                        {t('Parfums disponibles')}
                     </h2>
                     <div className="flex flex-col gap-4 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
                         <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1">
-                            {[[null, 'Tous'] as const, ...families].map(([slug, name]) => (
+                            {[[null, t('Tous')] as const, ...families].map(([slug, name]) => (
                                 <button
                                     key={slug ?? 'all'}
                                     type="button"
@@ -256,17 +257,17 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                             ))}
                         </div>
                         <label className="sm:w-56">
-                            <span className="sr-only">Rechercher dans le coffret</span>
-                            <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Nom ou note…" className="field-control min-h-10 py-2 text-sm" />
+                            <span className="sr-only">{t('Rechercher dans le coffret')}</span>
+                            <input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t('Nom ou note…')} className="field-control min-h-10 py-2 text-sm" />
                         </label>
                     </div>
 
                     {options.length === 0 ? (
-                        <EmptyState title="Aucun parfum disponible pour ce coffret">
-                            <p>Revenez bientôt : la sélection est en cours de réassort.</p>
+                        <EmptyState title={t('Aucun parfum disponible pour ce coffret')}>
+                            <p>{t('Revenez bientôt : la sélection est en cours de réassort.')}</p>
                         </EmptyState>
                     ) : visible.length === 0 ? (
-                        <p className="py-12 text-center text-muted">Aucun parfum ne correspond à ce filtre.</p>
+                        <p className="py-12 text-center text-muted">{t('Aucun parfum ne correspond à ce filtre.')}</p>
                     ) : (
                         <ul className="grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-6 xl:grid-cols-3">
                             {visible.map((option) => (
@@ -284,7 +285,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                     )}
                 </section>
 
-                <aside className="order-first lg:order-none" aria-label="Composition du coffret">
+                <aside className="order-first lg:order-none" aria-label={t('Composition du coffret')}>
                     <div className="rounded-card border border-line bg-raised p-6 lg:sticky lg:top-24">{panel}</div>
                 </aside>
             </div>
@@ -299,7 +300,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                         {full && quote && <p className="tabular-nums">{formatMoney(quote.price)}</p>}
                     </div>
                     <Button onClick={submit} loading={submitting} disabled={!canSubmit}>
-                        {editLine ? 'Mettre à jour' : 'Ajouter'}
+                        {editLine ? t('Mettre à jour') : t('Ajouter')}
                     </Button>
                 </div>
             </div>
@@ -317,7 +318,7 @@ function FixedPack({ pack }: { pack: Pack }) {
             await cartActions.addPack(pack.id, []);
             ui.open('cart');
         } catch (error) {
-            toast.error(error instanceof ApiError ? error.message : 'Le coffret n’a pas pu être ajouté.');
+            toast.error(error instanceof ApiError ? error.message : t('Le coffret n’a pas pu être ajouté.'));
         } finally {
             setAdding(false);
         }
@@ -325,18 +326,18 @@ function FixedPack({ pack }: { pack: Pack }) {
 
     return (
         <div className="container-page pt-8 sm:pt-12">
-            <Breadcrumbs items={[{ label: 'Coffrets', to: '/coffrets' }, { label: pack.name }]} />
+            <Breadcrumbs items={[{ label: t('Coffrets'), to: '/coffrets' }, { label: pack.name }]} />
             <article className="grid grid-cols-1 gap-12 pt-8 lg:grid-cols-2 lg:gap-20">
                 <div className="relative aspect-[4/5] overflow-hidden rounded-card bg-raised lg:sticky lg:top-24 lg:self-start">
                     {pack.image && <img src={pack.image} alt={pack.name} className="absolute inset-0 size-full object-cover" />}
                 </div>
                 <div className="flex flex-col gap-10 lg:py-6">
-                    <PackHeader pack={pack} kind="Coffret composé par la maison" />
+                    <PackHeader pack={pack} kind={t('Coffret composé par la maison')} />
 
                     {pack.contents && pack.contents.length > 0 && (
                         <section aria-labelledby="contents-title" className="flex flex-col gap-4">
                             <h2 id="contents-title" className="eyebrow">
-                                Dans l’écrin
+                                {t('Dans l’écrin')}
                             </h2>
                             <ul className="divide-y divide-line border-y border-line">
                                 {pack.contents.map((content, index) => (
@@ -350,7 +351,7 @@ function FixedPack({ pack }: { pack: Pack }) {
                                                     {content.product.name}
                                                 </Link>
                                             ) : (
-                                                <span className="font-display text-xl text-muted">Parfum indisponible</span>
+                                                <span className="font-display text-xl text-muted">{t('Parfum indisponible')}</span>
                                             )}
                                             <span className="text-xs text-muted">{content.variant?.label}</span>
                                         </span>
@@ -368,10 +369,10 @@ function FixedPack({ pack }: { pack: Pack }) {
                                 <span className="text-sm text-accent">{pack.pricing.label}</span>
                             </p>
                         ) : (
-                            <p className="text-muted">Ce coffret est momentanément indisponible.</p>
+                            <p className="text-muted">{t('Ce coffret est momentanément indisponible.')}</p>
                         )}
                         <Button size="lg" onClick={add} loading={adding} disabled={!available}>
-                            Ajouter au panier
+                            {t('Ajouter au panier')}
                         </Button>
                     </div>
                 </div>
@@ -395,7 +396,7 @@ export default function PackPage() {
 
     if (!data) {
         return (
-            <div className="container-page flex flex-col gap-6 pt-20" role="status" aria-label="Chargement du coffret">
+            <div className="container-page flex flex-col gap-6 pt-20" role="status" aria-label={t('Chargement du coffret')}>
                 <div className="skeleton h-14 w-1/2" />
                 <div className="skeleton h-6 w-1/3" />
                 <div className="skeleton mt-8 h-96 w-full" />

@@ -11,7 +11,7 @@
 
 @theme {
     /* The storefront sets its own text face in storefront.css; the admin keeps this one. */
-    --font-sans: var(--font-instrument-sans, 'Instrument Sans'), ui-sans-serif, system-ui, sans-serif;
+    --font-sans: var(--font-instrument-sans, 'Instrument Sans'), 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, sans-serif;
     --font-display: var(--font-fraunces, 'Fraunces'), Georgia, 'Times New Roman', serif;
 
     --text-2xs: 0.6875rem;

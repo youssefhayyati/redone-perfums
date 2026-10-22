@@ -44,12 +44,12 @@ enum OrderStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'En attente',
-            self::Confirmed => 'Confirmée',
-            self::Processing => 'En préparation',
-            self::Shipped => 'Expédiée',
-            self::Delivered => 'Livrée',
-            self::Cancelled => 'Annulée',
+            self::Pending => __('En attente'),
+            self::Confirmed => __('Confirmée'),
+            self::Processing => __('En préparation'),
+            self::Shipped => __('Expédiée'),
+            self::Delivered => __('Livrée'),
+            self::Cancelled => __('Annulée'),
         };
     }
 }

@@ -13,6 +13,7 @@ import { MotionProvider } from './motion/MotionProvider';
 import { cartActions } from './stores/cart';
 import { sessionActions } from './stores/session';
 import { ui } from './stores/ui';
+import { t } from './i18n';
 
 export function App() {
     const { pathname } = useLocation();
@@ -31,7 +32,7 @@ export function App() {
     return (
         <MotionProvider>
             <a href="#main" className="sr-only z-[80] bg-accent px-4 py-3 text-on-accent focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
-                Aller au contenu
+                {t('Aller au contenu')}
             </a>
             <div className="flex min-h-dvh flex-col">
                 <AnnouncementBar />

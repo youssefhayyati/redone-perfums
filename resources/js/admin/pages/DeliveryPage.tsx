@@ -8,7 +8,7 @@ import { Button, IconButton } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Dialog } from '../components/ui/Dialog';
 import { EmptyState, ErrorState, TableSkeleton } from '../components/ui/feedback';
-import { Field, MoneyInput, SelectInput, Switch, TextInput } from '../components/ui/form';
+import { arabicText, Field, MoneyInput, SelectInput, Switch, TextInput } from '../components/ui/form';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { SearchInput } from '../components/ui/SearchInput';
 import { DataTable, Td, Th } from '../components/ui/Table';
@@ -22,17 +22,20 @@ import { parseInteger } from './products/productForm';
 
 const DEFAULTS = { ville: '', zone: '' };
 
+const nullableText = (value: string): string | null => (value.trim() === '' ? null : value.trim());
+
 interface ZoneForm {
     name: string;
     fee: string;
     free_shipping_threshold: string;
     delivery_estimate: string;
+    delivery_estimate_ar: string;
     is_active: boolean;
     sort_order: string;
 }
 
 function ZoneDialog({ zone, open, onClose, onSaved }: { zone: DeliveryZone | null; open: boolean; onClose: () => void; onSaved: (zone: DeliveryZone) => void }) {
-    const [form, setForm] = useState<ZoneForm>({ name: '', fee: '', free_shipping_threshold: '', delivery_estimate: '', is_active: true, sort_order: '0' });
+    const [form, setForm] = useState<ZoneForm>({ name: '', fee: '', free_shipping_threshold: '', delivery_estimate: '', delivery_estimate_ar: '', is_active: true, sort_order: '0' });
     const [errors, setErrors] = useState<FieldErrors>({});
     const [busy, setBusy] = useState(false);
 
@@ -43,6 +46,7 @@ function ZoneDialog({ zone, open, onClose, onSaved }: { zone: DeliveryZone | nul
                 fee: zone ? toDirhamsInput(zone.fee) : '',
                 free_shipping_threshold: toDirhamsInput(zone?.free_shipping_threshold),
                 delivery_estimate: zone?.delivery_estimate ?? '',
+                delivery_estimate_ar: zone?.delivery_estimate_ar ?? '',
                 is_active: zone?.is_active ?? true,
                 sort_order: String(zone?.sort_order ?? 0),
             });
@@ -78,7 +82,8 @@ function ZoneDialog({ zone, open, onClose, onSaved }: { zone: DeliveryZone | nul
                 name: form.name.trim(),
                 fee: fee ?? 0,
                 free_shipping_threshold: threshold,
-                delivery_estimate: form.delivery_estimate.trim() === '' ? null : form.delivery_estimate.trim(),
+                delivery_estimate: nullableText(form.delivery_estimate),
+                delivery_estimate_ar: nullableText(form.delivery_estimate_ar),
                 is_active: form.is_active,
                 sort_order: parseInteger(form.sort_order) ?? 0,
             };
@@ -130,6 +135,11 @@ function ZoneDialog({ zone, open, onClose, onSaved }: { zone: DeliveryZone | nul
                 <Field label="Délai annoncé" optional error={errors.delivery_estimate} hint="Affiché au client tel quel ; laissé vide, aucun délai n’est promis.">
                     {(control) => <TextInput {...control} value={form.delivery_estimate} maxLength={120} placeholder="Ex. 24 à 48 h ouvrées" onChange={(event) => set('delivery_estimate', event.target.value)} />}
                 </Field>
+                <Field label="Délai annoncé en arabe" optional error={errors.delivery_estimate_ar} hint="Laissé vide, le délai français s’affiche sur la boutique en arabe.">
+                    {(control) => (
+                        <TextInput {...control} {...arabicText} value={form.delivery_estimate_ar} maxLength={120} placeholder="مثال: من 24 إلى 48 ساعة عمل" onChange={(event) => set('delivery_estimate_ar', event.target.value)} />
+                    )}
+                </Field>
                 <div className="flex flex-wrap items-end justify-between gap-4">
                     <Switch checked={form.is_active} onChange={(value) => set('is_active', value)} label="Zone active" description="Inactive, ses villes ne sont plus livrables." />
                     <Field label="Ordre" error={errors.sort_order}>
@@ -144,12 +154,14 @@ function ZoneDialog({ zone, open, onClose, onSaved }: { zone: DeliveryZone | nul
 interface CityForm {
     name: string;
     region: string;
+    name_ar: string;
+    region_ar: string;
     delivery_zone_id: string;
     is_active: boolean;
 }
 
 function CityDialog({ city, zones, open, onClose, onSaved }: { city: AdminCity | null; zones: DeliveryZone[]; open: boolean; onClose: () => void; onSaved: (city: AdminCity) => void }) {
-    const [form, setForm] = useState<CityForm>({ name: '', region: '', delivery_zone_id: '', is_active: true });
+    const [form, setForm] = useState<CityForm>({ name: '', region: '', name_ar: '', region_ar: '', delivery_zone_id: '', is_active: true });
     const [errors, setErrors] = useState<FieldErrors>({});
     const [busy, setBusy] = useState(false);
 
@@ -158,6 +170,8 @@ function CityDialog({ city, zones, open, onClose, onSaved }: { city: AdminCity |
             setForm({
                 name: city?.name ?? '',
                 region: city?.region ?? '',
+                name_ar: city?.name_ar ?? '',
+                region_ar: city?.region_ar ?? '',
                 delivery_zone_id: city?.delivery_zone_id ? String(city.delivery_zone_id) : '',
                 is_active: city?.is_active ?? true,
             });
@@ -177,7 +191,9 @@ function CityDialog({ city, zones, open, onClose, onSaved }: { city: AdminCity |
         try {
             const payload = {
                 name: form.name.trim(),
-                region: form.region.trim() === '' ? null : form.region.trim(),
+                region: nullableText(form.region),
+                name_ar: nullableText(form.name_ar),
+                region_ar: nullableText(form.region_ar),
                 delivery_zone_id: form.delivery_zone_id === '' ? null : Number(form.delivery_zone_id),
                 is_active: form.is_active,
             };
@@ -222,6 +238,12 @@ function CityDialog({ city, zones, open, onClose, onSaved }: { city: AdminCity |
                     <Field label="Région" optional error={errors.region}>
                         {(control) => <TextInput {...control} value={form.region} maxLength={120} onChange={(event) => setForm({ ...form, region: event.target.value })} />}
                     </Field>
+                    <Field label="Ville en arabe" optional error={errors.name_ar}>
+                        {(control) => <TextInput {...control} {...arabicText} value={form.name_ar} maxLength={120} placeholder={form.name} onChange={(event) => setForm({ ...form, name_ar: event.target.value })} />}
+                    </Field>
+                    <Field label="Région en arabe" optional error={errors.region_ar}>
+                        {(control) => <TextInput {...control} {...arabicText} value={form.region_ar} maxLength={120} placeholder={form.region} onChange={(event) => setForm({ ...form, region_ar: event.target.value })} />}
+                    </Field>
                 </div>
                 <Field label="Zone de livraison" error={errors.delivery_zone_id} hint="Sans zone, la ville n’est pas livrable.">
                     {(control) => (
@@ -256,7 +278,7 @@ export default function DeliveryPage() {
     const cities = useMemo(() => {
         const term = params.ville.trim().toLocaleLowerCase('fr').normalize('NFD').replace(/[̀-ͯ]/g, '');
         return (citiesQuery.data ?? []).filter((city) => {
-            const name = `${city.name} ${city.region ?? ''}`.toLocaleLowerCase('fr').normalize('NFD').replace(/[̀-ͯ]/g, '');
+            const name = `${city.name} ${city.region ?? ''} ${city.name_ar ?? ''}`.toLocaleLowerCase('fr').normalize('NFD').replace(/[̀-ͯ]/g, '');
             const zoneMatch = params.zone === '' || (params.zone === 'none' ? city.delivery_zone_id === null : String(city.delivery_zone_id) === params.zone);
 
             return zoneMatch && (term === '' || name.includes(term));
@@ -400,7 +422,14 @@ export default function DeliveryPage() {
 
                                     return (
                                         <tr key={city.id} className="transition-colors hover:bg-ink/[0.03]">
-                                            <Td className="font-medium text-ink">{city.name}</Td>
+                                            <Td>
+                                                <span className="block font-medium text-ink">{city.name}</span>
+                                                {city.name_ar && (
+                                                    <span lang="ar" dir="rtl" className="text-xs text-muted">
+                                                        {city.name_ar}
+                                                    </span>
+                                                )}
+                                            </Td>
                                             <Td hideBelow="sm" className="text-muted">
                                                 {city.region ?? '—'}
                                             </Td>

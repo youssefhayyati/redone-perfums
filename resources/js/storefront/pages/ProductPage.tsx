@@ -23,8 +23,9 @@ import { Reveal } from '../motion/Reveal';
 import { cartActions } from '../stores/cart';
 import { toast, ui } from '../stores/ui';
 import NotFoundPage from './NotFoundPage';
+import { t, tn } from '../i18n';
 
-const GENDER_LABELS: Record<NonNullable<Product['gender']>, string> = { feminin: 'Féminin', masculin: 'Masculin', mixte: 'Mixte' };
+const GENDER_LABELS: Record<NonNullable<Product['gender']>, string> = { feminin: t('Féminin'), masculin: t('Masculin'), mixte: t('Mixte') };
 
 /** The first variant that can be bought, otherwise the first one. */
 function defaultVariant(variants: Variant[]): Variant | undefined {
@@ -37,14 +38,14 @@ function StockNote({ variant }: { variant: Variant | undefined }) {
     }
 
     if (variant.availability === 'out_of_stock') {
-        return <p className="text-sm text-muted">Ce format est épuisé pour le moment.</p>;
+        return <p className="text-sm text-muted">{t('Ce format est épuisé pour le moment.')}</p>;
     }
 
     if (variant.availability === 'low_stock' && variant.stock_left !== null) {
         return (
             <p className="flex items-center gap-2 text-sm text-warning">
                 <span className="size-1.5 rounded-full bg-warning" aria-hidden="true" />
-                Plus que {variant.stock_left} flacon{variant.stock_left > 1 ? 's' : ''} disponible{variant.stock_left > 1 ? 's' : ''}
+                {t(variant.stock_left === 1 ? 'Plus qu’un flacon disponible' : 'Plus que {count} flacons disponibles', { count: variant.stock_left, items: tn(variant.stock_left, 'flacon') })}
             </p>
         );
     }
@@ -52,7 +53,7 @@ function StockNote({ variant }: { variant: Variant | undefined }) {
     return (
         <p className="flex items-center gap-2 text-sm text-muted">
             <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
-            En stock
+            {t('En stock')}
         </p>
     );
 }
@@ -77,7 +78,7 @@ function ProductView({ product }: { product: Product }) {
             await cartActions.addVariant(variant.id, quantity);
             ui.open('cart');
         } catch (error) {
-            toast.error(error instanceof ApiError ? error.message : 'Ce parfum n’a pas pu être ajouté au panier.');
+            toast.error(error instanceof ApiError ? error.message : t('Ce parfum n’a pas pu être ajouté au panier.'));
         } finally {
             setAdding(false);
         }
@@ -90,7 +91,7 @@ function ProductView({ product }: { product: Product }) {
             <div className="container-page pt-8 sm:pt-12">
                 <Breadcrumbs
                     items={[
-                        { label: 'Boutique', to: '/boutique' },
+                        { label: t('Boutique'), to: '/boutique' },
                         ...(product.family ? [{ label: product.family.name, to: `/boutique?famille=${product.family.slug}` }] : []),
                         { label: product.name },
                     ]}
@@ -137,11 +138,11 @@ function ProductView({ product }: { product: Product }) {
                             <QuantityStepper value={quantity} max={Math.max(1, maxQuantity)} onChange={setQuantity} disabled={soldOut} />
                             <Button size="lg" className="min-w-0 flex-1 px-4" onClick={addToCart} loading={adding} disabled={soldOut}>
                                 {soldOut ? (
-                                    'Épuisé'
+                                    t('Épuisé')
                                 ) : (
                                     <>
-                                        <span className="sm:hidden">Ajouter</span>
-                                        <span className="hidden sm:inline">Ajouter au panier</span>
+                                        <span className="sm:hidden">{t('Ajouter')}</span>
+                                        <span className="hidden sm:inline">{t('Ajouter au panier')}</span>
                                         <span aria-hidden="true">—</span>
                                         <span className="tabular-nums">{formatMoney((variant?.price ?? 0) * quantity)}</span>
                                     </>
@@ -164,7 +165,7 @@ function ProductView({ product }: { product: Product }) {
                     {product.description && (
                         <section className="flex flex-col gap-4" aria-labelledby="description-title">
                             <h2 id="description-title" className="eyebrow">
-                                Le parfum
+                                {t('Le parfum')}
                             </h2>
                             <p className="text-lg leading-relaxed text-muted">{product.description}</p>
                         </section>
@@ -173,7 +174,7 @@ function ProductView({ product }: { product: Product }) {
                     {hasNotes(product.notes) && (
                         <section className="flex flex-col gap-4" aria-labelledby="notes-title">
                             <h2 id="notes-title" className="eyebrow">
-                                Pyramide olfactive
+                                {t('Pyramide olfactive')}
                             </h2>
                             <NotesPyramid notes={product.notes} />
                         </section>
@@ -181,14 +182,14 @@ function ProductView({ product }: { product: Product }) {
 
                     {(product.longevity !== null || product.sillage !== null) && (
                         <dl className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                            <ScaleDots label="Tenue" value={product.longevity} kind="longevity" />
-                            <ScaleDots label="Sillage" value={product.sillage} kind="sillage" />
+                            <ScaleDots label={t('Tenue')} value={product.longevity} kind="longevity" />
+                            <ScaleDots label={t('Sillage')} value={product.sillage} kind="sillage" />
                         </dl>
                     )}
 
                     {product.collections.length > 0 && (
                         <div className="flex flex-wrap items-center gap-2">
-                            <span className="eyebrow mr-2">Collections</span>
+                            <span className="eyebrow me-2">{t('Collections')}</span>
                             {product.collections.map((collection) => (
                                 <Link key={collection.slug} to={`/collections/${collection.slug}`} className="rounded-full border border-line px-3.5 py-1.5 text-xs text-muted transition-colors hover:border-ink hover:text-ink">
                                     {collection.name}
@@ -204,7 +205,7 @@ function ProductView({ product }: { product: Product }) {
                     <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-8 text-center">
                         <span aria-hidden="true" className="h-12 w-px bg-accent" />
                         <h2 id="inspiration-title" className="eyebrow">
-                            L’inspiration
+                            {t('L’inspiration')}
                         </h2>
                         <p className="font-display text-display-sm leading-snug text-balance italic">{product.inspiration}</p>
                     </Reveal>
@@ -248,7 +249,7 @@ export default function ProductPage() {
             <ProductView key={product.id} product={product} />
             {data.related.length > 0 && (
                 <section className="container-page flex flex-col gap-12 pb-8" aria-labelledby="related-title">
-                    <SectionHeading id="related-title" eyebrow="Dans le même esprit" title="Vous aimerez aussi" />
+                    <SectionHeading id="related-title" eyebrow={t('Dans le même esprit')} title={t('Vous aimerez aussi')} />
                     <ProductGrid products={data.related} />
                 </section>
             )}

@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
+import { getLocale } from '@shared/locale';
 import { App } from './App';
 import { ErrorPage } from './pages/ErrorPage';
 
@@ -44,6 +45,7 @@ export const routes: RouteObject[] = [
     },
 ];
 
+/** Arabic pages live under /ar: internal links ("/boutique") stay in the page's language. */
 export function createRouter() {
-    return createBrowserRouter(routes);
+    return createBrowserRouter(routes, { basename: getLocale() === 'ar' ? '/ar' : '/' });
 }

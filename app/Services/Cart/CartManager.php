@@ -64,7 +64,7 @@ final class CartManager
         $variant->loadMissing('product');
 
         if (! $variant->isSellable()) {
-            throw ValidationException::withMessages(['variant_id' => 'Ce format n’est pas disponible.']);
+            throw ValidationException::withMessages(['variant_id' => __('Ce format n’est pas disponible.')]);
         }
 
         $item = $cart->items()
@@ -128,7 +128,7 @@ final class CartManager
     public function replaceSelections(Cart $cart, CartItem $item, array $selectionIds): void
     {
         if ($item->type !== CartItemType::Pack || $item->pack === null || ! $item->pack->isCustom()) {
-            throw ValidationException::withMessages(['selections' => 'Cet article ne se compose pas.']);
+            throw ValidationException::withMessages(['selections' => __('Cet article ne se compose pas.')]);
         }
 
         $variants = $this->packs->resolveSelection($item->pack, $selectionIds);
@@ -146,7 +146,7 @@ final class CartManager
         $coupon = Coupon::findByCode($code);
 
         if ($coupon === null) {
-            throw ValidationException::withMessages(['code' => 'Ce code n’existe pas.']);
+            throw ValidationException::withMessages(['code' => __('Ce code n’existe pas.')]);
         }
 
         $subtotal = $this->calculator->summarize($cart->fresh())->subtotal;
@@ -166,7 +166,7 @@ final class CartManager
     private function guardLineCount(Cart $cart): void
     {
         if ($cart->items()->count() >= self::MAX_LINES) {
-            throw ValidationException::withMessages(['cart' => 'Votre panier a atteint le nombre maximum d’articles.']);
+            throw ValidationException::withMessages(['cart' => __('Votre panier a atteint le nombre maximum d’articles.')]);
         }
     }
 

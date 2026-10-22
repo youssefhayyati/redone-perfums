@@ -4,7 +4,7 @@ import { Ban, Copy, CreditCard, Gift, Mail, MessageCircle, Pencil, Phone, Save, 
 import { cn, formatDateTime } from '@shared/format';
 import { formatMoney } from '@shared/money';
 import * as api from '../../api';
-import { OrderStatusBadge, PaymentStatusBadge } from '../../components/ui/Badge';
+import { Badge, OrderStatusBadge, PaymentStatusBadge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { ErrorState, Skeleton } from '../../components/ui/feedback';
 import { Field, TextArea } from '../../components/ui/form';
@@ -261,7 +261,9 @@ export default function OrderDetailPage() {
 
     const forward = order.allowed_transitions.filter((option) => option.value !== 'cancelled');
     const canCancel = order.allowed_transitions.some((option) => option.value === 'cancelled');
-    const whatsappMessage = `Bonjour ${order.customer_name.split(' ')[0]}, ici Myperfum au sujet de votre commande ${order.reference}.`;
+    const firstName = order.customer_name.split(' ')[0];
+    const whatsappMessage =
+        order.locale === 'ar' ? `مرحبًا ${firstName}، معك Myperfum بخصوص طلبك ${order.reference}.` : `Bonjour ${firstName}, ici Myperfum au sujet de votre commande ${order.reference}.`;
 
     const copyReference = async () => {
         try {
@@ -374,6 +376,11 @@ export default function OrderDetailPage() {
                                 <div className="min-w-0">
                                     <p className="font-medium text-ink">{order.customer_name}</p>
                                     <p className="text-sm text-muted tabular-nums">{order.phone}</p>
+                                    {order.locale === 'ar' && (
+                                        <Badge tone="accent" className="mt-1.5">
+                                            Commande passée en arabe
+                                        </Badge>
+                                    )}
                                     {order.email && (
                                         <a href={`mailto:${order.email}`} className="inline-flex items-center gap-1.5 break-all text-sm text-muted hover:text-ink">
                                             <Mail className="size-3.5 shrink-0" aria-hidden />

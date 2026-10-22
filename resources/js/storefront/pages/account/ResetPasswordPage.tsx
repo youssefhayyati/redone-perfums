@@ -6,6 +6,7 @@ import { Button, ButtonLink } from '../../components/ui/Button';
 import { FormAlert, TextField } from '../../components/ui/Field';
 import { useHead } from '../../hooks/useHead';
 import { AuthLayout, fieldError } from './AuthLayout';
+import { t } from '../../i18n';
 
 export default function ResetPasswordPage() {
     const [params] = useSearchParams();
@@ -16,7 +17,7 @@ export default function ResetPasswordPage() {
     const [pending, setPending] = useState(false);
     const [done, setDone] = useState<string | null>(null);
     const [error, setError] = useState<ApiError | null>(null);
-    useHead({ title: 'Nouveau mot de passe', noindex: true });
+    useHead({ title: t('Nouveau mot de passe'), noindex: true });
 
     async function submit(event: FormEvent) {
         event.preventDefault();
@@ -25,7 +26,7 @@ export default function ResetPasswordPage() {
         try {
             setDone((await api.resetPassword({ token, email, password, password_confirmation: confirmation })).message);
         } catch (failure) {
-            setError(failure instanceof ApiError ? failure : new ApiError(0, 'Le mot de passe n’a pas pu être modifié.'));
+            setError(failure instanceof ApiError ? failure : new ApiError(0, t('Le mot de passe n’a pas pu être modifié.')));
         } finally {
             setPending(false);
         }
@@ -33,38 +34,38 @@ export default function ResetPasswordPage() {
 
     if (!token) {
         return (
-            <AuthLayout eyebrow="Mon compte" title="Lien incomplet" intro="Ce lien de réinitialisation est incomplet. Demandez-en un nouveau.">
-                <ButtonLink to="/compte/mot-de-passe-oublie">Recevoir un nouveau lien</ButtonLink>
+            <AuthLayout eyebrow={t('Mon compte')} title={t('Lien incomplet')} intro={t('Ce lien de réinitialisation est incomplet. Demandez-en un nouveau.')}>
+                <ButtonLink to="/compte/mot-de-passe-oublie">{t('Recevoir un nouveau lien')}</ButtonLink>
             </AuthLayout>
         );
     }
 
     return (
-        <AuthLayout eyebrow="Mon compte" title="Choisir un nouveau mot de passe">
+        <AuthLayout eyebrow={t('Mon compte')} title={t('Choisir un nouveau mot de passe')}>
             {done ? (
                 <div className="flex flex-col gap-6">
                     <FormAlert tone="success" message={done} />
-                    <ButtonLink to="/compte/connexion">Se connecter</ButtonLink>
+                    <ButtonLink to="/compte/connexion">{t('Se connecter')}</ButtonLink>
                 </div>
             ) : (
                 <form onSubmit={submit} noValidate className="flex flex-col gap-6">
                     {error && (!error.isValidation || (!error.field('password') && error.field('email'))) && (
                         <FormAlert message={error.field('email') ?? error.message} />
                     )}
-                    <TextField label="E-mail" type="email" name="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+                    <TextField label={t('E-mail')} type="email" dir="ltr" name="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
                     <TextField
-                        label="Nouveau mot de passe"
+                        label={t('Nouveau mot de passe')}
                         type="password"
                         name="password"
                         autoComplete="new-password"
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        hint="Au moins 10 caractères, avec des lettres et des chiffres."
+                        hint={t('Au moins 10 caractères, avec des lettres et des chiffres.')}
                         error={fieldError(error?.errors, 'password')}
                         required
                     />
                     <TextField
-                        label="Confirmation"
+                        label={t('Confirmation')}
                         type="password"
                         name="password_confirmation"
                         autoComplete="new-password"
@@ -73,10 +74,10 @@ export default function ResetPasswordPage() {
                         required
                     />
                     <Button type="submit" size="lg" loading={pending}>
-                        Enregistrer
+                        {t('Enregistrer')}
                     </Button>
                     <Link to="/compte/mot-de-passe-oublie" className="text-center text-sm text-muted underline underline-offset-4">
-                        Demander un nouveau lien
+                        {t('Demander un nouveau lien')}
                     </Link>
                 </form>
             )}

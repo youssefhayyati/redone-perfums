@@ -1,12 +1,12 @@
 import { ShoppingBag } from 'lucide-react';
 import { formatMoney } from '@shared/money';
-import { plural } from '@shared/format';
 import { useCart } from '../../stores/cart';
 import { ui, useUi } from '../../stores/ui';
 import { ButtonLink } from '../ui/Button';
 import { Drawer } from '../ui/Drawer';
 import { Spinner } from '../ui/Spinner';
 import { CartLineItem } from './CartLineItem';
+import { t, tn } from '../../i18n';
 
 export function CartDrawer() {
     const open = useUi((state) => state.overlay === 'cart');
@@ -21,8 +21,8 @@ export function CartDrawer() {
             onClose={ui.close}
             title={
                 <>
-                    Votre panier
-                    {count > 0 && <span className="ml-3 align-middle font-sans text-xs tracking-[0.16em] text-muted uppercase">{plural(count, 'article')}</span>}
+                    {t('Votre panier')}
+                    {count > 0 && <span className="ms-3 align-middle font-sans text-xs tracking-[0.16em] text-muted uppercase">{tn(count, 'article')}</span>}
                 </>
             }
             footer={
@@ -30,7 +30,7 @@ export function CartDrawer() {
                     <div className="flex flex-col gap-4">
                         <dl className="flex flex-col gap-2 text-sm">
                             <div className="flex justify-between">
-                                <dt className="text-muted">Sous-total</dt>
+                                <dt className="text-muted">{t('Sous-total')}</dt>
                                 <dd className="tabular-nums">{formatMoney(cart.subtotal)}</dd>
                             </div>
                             {cart.discount_total > 0 && (
@@ -40,13 +40,13 @@ export function CartDrawer() {
                                 </div>
                             )}
                         </dl>
-                        <p className="text-xs text-muted">Frais de livraison calculés selon votre ville avant validation.</p>
+                        <p className="text-xs text-muted">{t('Frais de livraison calculés selon votre ville avant validation.')}</p>
                         <div className="grid grid-cols-2 gap-3">
                             <ButtonLink to="/panier" variant="secondary" onClick={ui.close}>
-                                Panier
+                                {t('Panier')}
                             </ButtonLink>
                             <ButtonLink to="/commande" onClick={ui.close} aria-disabled={!cart.is_checkout_ready || undefined}>
-                                Commander
+                                {t('Commander')}
                             </ButtonLink>
                         </div>
                     </div>
@@ -60,10 +60,10 @@ export function CartDrawer() {
             ) : empty ? (
                 <div className="flex flex-col items-center gap-5 px-6 py-20 text-center">
                     <ShoppingBag className="size-8 text-faint" strokeWidth={1} />
-                    <p className="font-display text-2xl">Votre panier est vide</p>
-                    <p className="max-w-xs text-sm text-muted">Laissez-vous guider par nos signatures, ou composez votre propre coffret.</p>
+                    <p className="font-display text-2xl">{t('Votre panier est vide')}</p>
+                    <p className="max-w-xs text-sm text-muted">{t('Laissez-vous guider par nos signatures, ou composez votre propre coffret.')}</p>
                     <ButtonLink to="/boutique" onClick={ui.close} variant="secondary">
-                        Découvrir la boutique
+                        {t('Découvrir la boutique')}
                     </ButtonLink>
                 </div>
             ) : (

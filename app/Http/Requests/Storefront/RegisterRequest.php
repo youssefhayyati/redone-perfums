@@ -24,9 +24,4 @@ class RegisterRequest extends FormRequest
             $this->merge(['email' => mb_strtolower(trim((string) $this->input('email')))]);
         }
     }
-
-    public function attributes(): array
-    {
-        return ['name' => 'nom', 'email' => 'e-mail', 'phone' => 'téléphone', 'password' => 'mot de passe'];
-    }
 }

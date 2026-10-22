@@ -11,7 +11,7 @@ class MoroccanPhoneNumber implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value) || ! MoroccanPhone::isValid($value)) {
-            $fail('Saisissez un numéro marocain valide (ex. 06 12 34 56 78).');
+            $fail(__('Saisissez un numéro marocain valide (ex. 06 12 34 56 78).'));
         }
     }
 }

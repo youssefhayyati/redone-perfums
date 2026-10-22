@@ -1,26 +1,26 @@
 @use('App\Support\MoroccanPhone')
 @use('Illuminate\Support\Str')
 <x-mail::message>
-# Merci, {{ Str::before($order->customer_name, ' ') }}.
+# {{ __('Merci, :name.', ['name' => Str::before($order->customer_name, ' ')]) }}
 
-Votre commande **{{ $order->reference }}** est bien enregistrée. Nous la préparons avec soin.
+{{ __('Votre commande **:reference** est bien enregistrée. Nous la préparons avec soin.', ['reference' => $order->reference]) }}
 
 @include('mail.orders.partials.summary')
 
-**Livraison**<br>
+**{{ __('Livraison') }}**<br>
 {{ $order->customer_name }}<br>
 {{ $order->address }}<br>
 {{ $order->city_name }}<br>
-{{ MoroccanPhone::format($order->phone) }}
+<span dir="ltr">{{ MoroccanPhone::format($order->phone) }}</span>
 
 <x-mail::button :url="$url">
-Suivre ma commande
+{{ __('Suivre ma commande') }}
 </x-mail::button>
 
 @if ($canReply)
-Une question ? Répondez simplement à cet e-mail.
+{{ __('Une question ? Répondez simplement à cet e-mail.') }}
 
 @endif
-À très vite,<br>
+{{ __('À très vite,') }}<br>
 {{ config('app.name') }}
 </x-mail::message>

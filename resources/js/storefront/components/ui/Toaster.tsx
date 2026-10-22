@@ -3,6 +3,7 @@ import { CircleAlert, CircleCheck, Info, X } from 'lucide-react';
 import { cn } from '@shared/format';
 import { dismissToast, useUi } from '../../stores/ui';
 import { EASE_LUXE } from '../../motion/easing';
+import { t } from '../../i18n';
 
 const icons = { success: CircleCheck, error: CircleAlert, info: Info };
 
@@ -28,7 +29,7 @@ export function Toaster() {
                         >
                             <Icon className={cn('mt-0.5 size-4 shrink-0', toast.tone === 'error' ? 'text-danger' : toast.tone === 'success' ? 'text-success' : 'text-accent')} strokeWidth={1.5} />
                             <p className="flex-1 text-ink">{toast.message}</p>
-                            <button type="button" onClick={() => dismissToast(toast.id)} className="-m-1 p-1 text-muted hover:text-ink" aria-label="Fermer la notification">
+                            <button type="button" onClick={() => dismissToast(toast.id)} className="-m-1 p-1 text-muted hover:text-ink" aria-label={t('Fermer la notification')}>
                                 <X className="size-4" strokeWidth={1.5} />
                             </button>
                         </motion.div>

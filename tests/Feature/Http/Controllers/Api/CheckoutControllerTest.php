@@ -491,6 +491,45 @@ class CheckoutControllerTest extends TestCase
         Notification::assertNothingSent();
     }
 
+    public function test_arabic_checkout_records_the_language_and_names_items_in_arabic(): void
+    {
+        $variant = ProductVariant::factory()
+            ->for(Product::factory()->published()->state(['name' => 'Ambre Nuit', 'name_ar' => 'ليلة العنبر']))
+            ->create(['price' => 45000, 'size_ml' => 50]);
+        $cart = $this->cartWith([[$variant, 1]]);
+        $city = City::factory()->for(DeliveryZone::factory()->state(['fee' => 3000]), 'zone')->named('Casablanca')->create(['name_ar' => 'الدار البيضاء']);
+
+        $response = $this->withCart($cart)->withHeader('X-Locale', 'ar')->postJson('/api/checkout', $this->payload($city));
+
+        $response->assertCreated()
+            ->assertJsonPath('order.items.0.name', 'ليلة العنبر')
+            ->assertJsonPath('order.items.0.variant_label', '50 مل')
+            ->assertJsonPath('order.status_label', 'قيد الانتظار');
+        $this->assertDatabaseHas('orders', ['reference' => $response->json('order.reference'), 'locale' => 'ar', 'city_name' => 'الدار البيضاء']);
+    }
+
+    public function test_arabic_checkout_confirms_in_arabic_while_the_store_alert_stays_in_french(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $this->withCart($cart)->withHeader('X-Locale', 'ar')->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemand(OrderConfirmation::class, fn (OrderConfirmation $notification) => $notification->locale === 'ar');
+        Notification::assertSentOnDemand(NewOrderAlert::class, fn (NewOrderAlert $notification) => $notification->locale === 'fr');
+    }
+
+    public function test_arabic_checkout_explains_missing_fields_in_arabic(): void
+    {
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+
+        $response = $this->withCart($cart)->withHeader('X-Locale', 'ar')->postJson('/api/checkout', $this->payload($this->deliverableCity(), ['phone' => '']));
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['phone' => 'حقل الهاتف مطلوب.']);
+    }
+
     public function test_confirmation_shows_the_order_to_the_holder_of_the_guest_token(): void
     {
         $order = $this->placeOrder();

@@ -45,9 +45,11 @@ final class ProductSearch
             $term = '%'.str_replace(['%', '_'], ['\%', '\_'], mb_substr($search, 0, 80)).'%';
             $query->where(fn (Builder $q) => $q
                 ->where('name', 'like', $term)
+                ->orWhere('name_ar', 'like', $term)
                 ->orWhere('tagline', 'like', $term)
-                ->orWhereHas('notes', fn ($n) => $n->where('name', 'like', $term))
-                ->orWhereHas('family', fn ($f) => $f->where('name', 'like', $term)));
+                ->orWhere('tagline_ar', 'like', $term)
+                ->orWhereHas('notes', fn ($n) => $n->where('name', 'like', $term)->orWhere('name_ar', 'like', $term))
+                ->orWhereHas('family', fn ($f) => $f->where('name', 'like', $term)->orWhere('name_ar', 'like', $term)));
         }
 
         if ($families = $this->slugList($request->query('family'))) {
@@ -96,14 +98,14 @@ final class ProductSearch
                 ->whereHas('products', fn ($q) => $q->published())
                 ->withCount(['products' => fn ($q) => $q->published()])
                 ->orderBy('sort_order')->orderBy('name')
-                ->get(['id', 'name', 'slug'])
-                ->map(fn ($f) => ['name' => $f->name, 'slug' => $f->slug, 'count' => $f->products_count]),
+                ->get(FragranceFamily::withTranslations(['id', 'name', 'slug']))
+                ->map(fn ($f) => ['name' => $f->translated('name'), 'slug' => $f->slug, 'count' => $f->products_count]),
             'collections' => Collection::query()
                 ->where('is_visible', true)
                 ->whereHas('products', fn ($q) => $q->published())
                 ->orderBy('sort_order')
-                ->get(['id', 'name', 'slug'])
-                ->map(fn ($c) => ['name' => $c->name, 'slug' => $c->slug]),
+                ->get(Collection::withTranslations(['id', 'name', 'slug']))
+                ->map(fn ($c) => ['name' => $c->translated('name'), 'slug' => $c->slug]),
             'sizes' => (clone $publishedVariants)->distinct()->orderBy('size_ml')->pluck('size_ml')->map(fn ($s) => (int) $s),
             'price' => [
                 'min' => (int) (clone $publishedVariants)->min('price'),

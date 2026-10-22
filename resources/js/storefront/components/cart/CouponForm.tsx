@@ -6,6 +6,7 @@ import { formatMoney } from '@shared/money';
 import { cartActions } from '../../stores/cart';
 import { toast } from '../../stores/ui';
 import { Button } from '../ui/Button';
+import { t } from '../../i18n';
 
 export function CouponForm({ cart }: { cart: Cart }) {
     const [code, setCode] = useState('');
@@ -24,7 +25,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
             await cartActions.applyCoupon(code.trim());
             setCode('');
         } catch (failure) {
-            setError(failure instanceof ApiError ? (failure.field('code') ?? failure.message) : 'Ce code n’a pas pu être appliqué.');
+            setError(failure instanceof ApiError ? (failure.field('code') ?? failure.message) : t('Ce code n’a pas pu être appliqué.'));
         } finally {
             setPending(false);
         }
@@ -34,7 +35,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
         try {
             await cartActions.removeCoupon();
         } catch (failure) {
-            toast.error(failure instanceof ApiError ? failure.message : 'Le code n’a pas pu être retiré.');
+            toast.error(failure instanceof ApiError ? failure.message : t('Le code n’a pas pu être retiré.'));
         }
     }
 
@@ -42,11 +43,11 @@ export function CouponForm({ cart }: { cart: Cart }) {
         return (
             <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-3 rounded-control border border-dashed border-line-strong px-4 py-3">
-                    <p className="text-sm">
+                    <p className="flex flex-wrap items-baseline gap-x-2 text-sm">
                         <span className="font-medium tracking-[0.12em] uppercase">{cart.coupon.code}</span>
-                        {cart.coupon.discount > 0 && <span className="ml-2 text-success">−{formatMoney(cart.coupon.discount)}</span>}
+                        {cart.coupon.discount > 0 && <span className="text-success">−{formatMoney(cart.coupon.discount)}</span>}
                     </p>
-                    <button type="button" onClick={remove} className="-m-1 p-1 text-muted hover:text-ink" aria-label={`Retirer le code ${cart.coupon.code}`}>
+                    <button type="button" onClick={remove} className="-m-1 p-1 text-muted hover:text-ink" aria-label={t('Retirer le code {code}', { code: cart.coupon.code })}>
                         <X className="size-4" strokeWidth={1.5} />
                     </button>
                 </div>
@@ -62,7 +63,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
     return (
         <form onSubmit={apply} className="flex flex-col gap-2" noValidate>
             <label htmlFor="coupon-code" className="eyebrow">
-                Code promotionnel
+                {t('Code promotionnel')}
             </label>
             <div className="flex gap-2">
                 <input
@@ -75,7 +76,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
                     aria-describedby={error ? 'coupon-error' : undefined}
                 />
                 <Button type="submit" variant="secondary" size="sm" className="h-11" loading={pending} disabled={!code.trim()}>
-                    Appliquer
+                    {t('Appliquer')}
                 </Button>
             </div>
             {error && (

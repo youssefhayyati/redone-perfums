@@ -5,6 +5,7 @@ import { formatMoney } from '@shared/money';
 import { cn } from '@shared/format';
 import { EASE_LUXE } from '../../motion/easing';
 import { ProductImage } from '../ui/ProductImage';
+import { t } from '../../i18n';
 
 export interface SlotItem {
     key: number;
@@ -22,14 +23,14 @@ interface PackSlotsProps {
 /** Numbered slots that fill in order; each new bottle settles into place. */
 export function PackSlots({ count, items, onRemove, compact = false }: PackSlotsProps) {
     return (
-        <ol className={cn('grid gap-3', compact ? 'grid-flow-col auto-cols-[minmax(4.5rem,1fr)] overflow-x-auto no-scrollbar' : count > 4 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-3')} aria-label="Votre sélection">
+        <ol className={cn('grid gap-3', compact ? 'grid-flow-col auto-cols-[minmax(4.5rem,1fr)] overflow-x-auto no-scrollbar' : count > 4 ? 'grid-cols-3' : 'grid-cols-3 sm:grid-cols-3')} aria-label={t('Votre sélection')}>
             {Array.from({ length: count }, (_, index) => {
                 const item = items[index];
 
                 return (
                     <li key={index} className={cn('relative flex flex-col gap-2', compact && 'min-w-[4.5rem]')}>
                         <div className={cn('relative aspect-[3/4] overflow-hidden rounded-2xl border transition-colors duration-500', item ? 'aura border-line' : 'border-dashed border-line-strong')}>
-                            <span className="absolute top-2 left-2 z-10 text-2xs text-faint tabular-nums">{String(index + 1).padStart(2, '0')}</span>
+                            <span className="absolute start-2 top-2 z-10 text-2xs text-faint tabular-nums">{String(index + 1).padStart(2, '0')}</span>
                             <AnimatePresence mode="popLayout">
                                 {item ? (
                                     <motion.div
@@ -44,15 +45,15 @@ export function PackSlots({ count, items, onRemove, compact = false }: PackSlots
                                         <button
                                             type="button"
                                             onClick={() => onRemove(item.key)}
-                                            className="absolute top-1.5 right-1.5 inline-flex size-7 items-center justify-center bg-canvas/80 text-muted backdrop-blur-sm transition-colors hover:text-ink"
-                                            aria-label={`Retirer ${item.option.name} ${item.variant.label}`}
+                                            className="absolute end-1.5 top-1.5 inline-flex size-7 items-center justify-center bg-canvas/80 text-muted backdrop-blur-sm transition-colors hover:text-ink"
+                                            aria-label={t('Retirer {name} {size}', { name: item.option.name, size: item.variant.label })}
                                         >
                                             <X className="size-3.5" strokeWidth={1.5} />
                                         </button>
                                     </motion.div>
                                 ) : (
                                     <motion.span key="empty" className="absolute inset-0 flex items-center justify-center text-xs text-faint" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                        À choisir
+                                        {t('À choisir')}
                                     </motion.span>
                                 )}
                             </AnimatePresence>
@@ -67,7 +68,7 @@ export function PackSlots({ count, items, onRemove, compact = false }: PackSlots
                                         </p>
                                     </>
                                 ) : (
-                                    <p className="text-faint">Flacon {index + 1}</p>
+                                    <p className="text-faint">{t('Flacon {index}', { index: index + 1 })}</p>
                                 )}
                             </div>
                         )}

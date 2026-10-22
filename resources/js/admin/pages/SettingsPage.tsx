@@ -3,7 +3,7 @@ import { ApiError } from '@shared/http';
 import * as api from '../api';
 import { ErrorState, Skeleton } from '../components/ui/feedback';
 import { UnsavedChangesDialog } from '../components/ui/fields';
-import { Field, SelectInput, Switch, TextArea, TextInput } from '../components/ui/form';
+import { arabicText, Field, SelectInput, Switch, TextArea, TextInput } from '../components/ui/form';
 import { FormBar } from '../components/ui/FormBar';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { toast } from '../components/ui/toast';
@@ -21,10 +21,25 @@ const HINTS: Record<string, string> = {
     'store.meta_description': 'Environ 150 caractères.',
 };
 
-function SettingInput({ field, value, products, error, onChange }: { field: SettingField; value: string | boolean; products: SettingsPayload['products']; error?: string; onChange: (value: string | boolean) => void }) {
+/** Arabic copy is stored beside its French setting, under the same key with "_ar". */
+const isArabicSetting = (key: string): boolean => key.endsWith('_ar');
+
+interface SettingInputProps {
+    field: SettingField;
+    value: string | boolean;
+    /** For an Arabic setting: the French text shown when it is left blank. */
+    french?: string;
+    products: SettingsPayload['products'];
+    error?: string;
+    onChange: (value: string | boolean) => void;
+}
+
+function SettingInput({ field, value, french, products, error, onChange }: SettingInputProps) {
     if (field.type === 'boolean') {
         return <Switch checked={Boolean(value)} onChange={onChange} label={field.label} description={HINTS[field.key]} />;
     }
+
+    const copy = isArabicSetting(field.key) ? { ...arabicText, placeholder: french || undefined } : {};
 
     return (
         <Field label={field.label} error={error} hint={HINTS[field.key]} counter={field.type === 'text' ? { value: String(value).length, max: 2000 } : undefined}>
@@ -40,7 +55,7 @@ function SettingInput({ field, value, products, error, onChange }: { field: Sett
                         {value !== '' && !products.some((product) => String(product.id) === value) && <option value={String(value)}>Produit #{String(value)} (non publié)</option>}
                     </SelectInput>
                 ) : field.type === 'text' ? (
-                    <TextArea {...control} rows={3} maxLength={2000} value={String(value)} onChange={(event) => onChange(event.target.value)} />
+                    <TextArea {...control} {...copy} rows={3} maxLength={2000} value={String(value)} onChange={(event) => onChange(event.target.value)} />
                 ) : (
                     <TextInput
                         {...control}
@@ -49,6 +64,7 @@ function SettingInput({ field, value, products, error, onChange }: { field: Sett
                         maxLength={255}
                         value={String(value)}
                         placeholder={field.type === 'url' ? 'https://' : undefined}
+                        {...copy}
                         onChange={(event) => onChange(event.target.value)}
                     />
                 )
@@ -106,7 +122,10 @@ function SettingsEditor({ initial }: { initial: SettingsPayload }) {
 
     return (
         <form id="settings-form" onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-6">
-            <PageHeader title="Réglages" description="Informations et textes de la boutique. Les modifications sont visibles immédiatement." />
+            <PageHeader
+                title="Réglages"
+                description="Informations et textes de la boutique, visibles immédiatement. Laissé vide, un champ « (arabe) » reprend le texte français sur la boutique en arabe."
+            />
             <div className="grid items-start gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
                 <nav aria-label="Sections des réglages" className="sticky top-20 hidden lg:block">
                     <ul className="flex flex-col gap-0.5 border-l border-line">
@@ -133,6 +152,7 @@ function SettingsEditor({ initial }: { initial: SettingsPayload }) {
                                                 <SettingInput
                                                     field={field}
                                                     value={draft[field.key] ?? ''}
+                                                    french={isArabicSetting(field.key) ? String(draft[field.key.slice(0, -3)] ?? '') : undefined}
                                                     products={payload.products}
                                                     error={errors[field.key]}
                                                     onChange={(value) => setDraft((current) => ({ ...current, [field.key]: value }))}

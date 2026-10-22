@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { ErrorState, Skeleton } from '../../components/ui/feedback';
 import { ColorField, UnsavedChangesDialog } from '../../components/ui/fields';
-import { AffixInput, Field, Switch, TextArea, TextInput } from '../../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, Switch, TextArea, TextInput } from '../../components/ui/form';
 import { FormBar } from '../../components/ui/FormBar';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { ImageField, ProductPicker } from '../../components/ui/pickers';
@@ -26,6 +26,9 @@ interface CollectionForm {
     slug: string;
     tagline: string;
     description: string;
+    name_ar: string;
+    tagline_ar: string;
+    description_ar: string;
     image_path: string | null;
     image_url: string | null;
     accent_color: string;
@@ -41,6 +44,9 @@ function toForm(collection: AdminCollection | null): CollectionForm {
         slug: collection?.slug ?? '',
         tagline: collection?.tagline ?? '',
         description: collection?.description ?? '',
+        name_ar: collection?.name_ar ?? '',
+        tagline_ar: collection?.tagline_ar ?? '',
+        description_ar: collection?.description_ar ?? '',
         image_path: collection?.image_path ?? null,
         image_url: collection?.image_url ?? null,
         accent_color: collection?.accent_color ?? '',
@@ -59,6 +65,9 @@ function toPayload(form: CollectionForm): CollectionPayload {
         slug: form.slug.trim(),
         tagline: text(form.tagline),
         description: text(form.description),
+        name_ar: text(form.name_ar),
+        tagline_ar: text(form.tagline_ar),
+        description_ar: text(form.description_ar),
         image_path: form.image_path,
         accent_color: form.accent_color === '' ? null : form.accent_color.toLowerCase(),
         is_visible: form.is_visible,
@@ -170,6 +179,20 @@ function CollectionEditor({ initial, options }: { initial: AdminCollection | nul
                             </Field>
                             <Field label="Description" optional error={errors.description} counter={{ value: form.description.length, max: 3000 }}>
                                 {(control) => <TextArea {...control} rows={5} maxLength={3000} value={form.description} onChange={(event) => set('description', event.target.value)} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel title="Version arabe" description={ARABIC_PANEL_HINT}>
+                        <div className="flex flex-col gap-4">
+                            <Field label="Nom" optional error={errors.name_ar}>
+                                {(control) => <TextInput {...control} {...arabicText} value={form.name_ar} maxLength={120} placeholder={form.name} onChange={(event) => set('name_ar', event.target.value)} />}
+                            </Field>
+                            <Field label="Accroche" optional error={errors.tagline_ar} counter={{ value: form.tagline_ar.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...arabicText} value={form.tagline_ar} maxLength={255} placeholder={form.tagline} onChange={(event) => set('tagline_ar', event.target.value)} />}
+                            </Field>
+                            <Field label="Description" optional error={errors.description_ar} counter={{ value: form.description_ar.length, max: 3000 }}>
+                                {(control) => <TextArea {...control} {...arabicText} rows={5} maxLength={3000} value={form.description_ar} onChange={(event) => set('description_ar', event.target.value)} />}
                             </Field>
                         </div>
                     </Panel>

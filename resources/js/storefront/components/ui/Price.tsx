@@ -1,5 +1,6 @@
 import { formatMoney } from '@shared/money';
 import { cn } from '@shared/format';
+import { t } from '../../i18n';
 
 interface PriceProps {
     amount: number | null;
@@ -18,11 +19,11 @@ export function Price({ amount, compareAt, from = false, className }: PriceProps
 
     return (
         <span className={cn('inline-flex flex-wrap items-baseline gap-x-2 tabular-nums', className)}>
-            {from && <span className="text-muted">À partir de</span>}
+            {from && <span className="text-muted">{t('À partir de')}</span>}
             <span>{formatMoney(amount)}</span>
             {discounted && (
                 <s className="text-[0.85em] text-muted decoration-1">
-                    <span className="sr-only">au lieu de </span>
+                    <span className="sr-only">{t('au lieu de ')}</span>
                     {formatMoney(compareAt)}
                 </s>
             )}

@@ -6,6 +6,7 @@ use App\Models\Collection;
 use App\Models\Pack;
 use App\Models\Page;
 use App\Models\Product;
+use App\Support\Locale;
 use Illuminate\Http\Response;
 
 /**
@@ -34,7 +35,8 @@ class SeoController extends Controller
     }
 
     /**
-     * Every page the storefront serves with a 200, by the same rules as SpaController.
+     * Every page the storefront serves with a 200, by the same rules as SpaController,
+     * in French and under /ar in Arabic, each linked to its other language.
      */
     public function sitemap(): Response
     {
@@ -52,7 +54,7 @@ class SeoController extends Controller
                 ->map(fn (Page $page) => ['path' => '/pages/'.$page->slug, 'updated_at' => $page->updated_at]));
 
         return response()
-            ->view('seo.sitemap', ['entries' => $entries])
+            ->view('seo.sitemap', ['entries' => $entries, 'locales' => Locale::SUPPORTED])
             ->header('Content-Type', 'application/xml; charset=UTF-8');
     }
 }

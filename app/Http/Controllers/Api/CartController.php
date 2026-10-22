@@ -124,7 +124,7 @@ class CartController extends Controller
     private function existingCart(Request $request): Cart
     {
         $cart = $this->carts->find($request->header('X-Cart-Token'));
-        abort_if($cart === null, 404, 'Panier introuvable.');
+        abort_if($cart === null, 404, __('Panier introuvable.'));
 
         return $cart;
     }

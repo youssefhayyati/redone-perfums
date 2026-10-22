@@ -5,11 +5,12 @@ import { cn } from '@shared/format';
 import { Badge } from '../ui/States';
 import { Price } from '../ui/Price';
 import { ProductImage } from '../ui/ProductImage';
+import { t } from '../../i18n';
 
 export const BADGE_LABELS: Record<ProductBadge, string> = {
-    new: 'Nouveau',
-    bestseller: 'Best-seller',
-    limited: 'Édition limitée',
+    new: t('Nouveau'),
+    bestseller: t('Best-seller'),
+    limited: t('Édition limitée'),
 };
 
 export function auraStyle(color: string | null | undefined): CSSProperties | undefined {
@@ -48,9 +49,9 @@ export function ProductCard({ product, priority = false, sizes = '(min-width: 80
                         className="absolute inset-0 size-full scale-[1.02] p-[4%] opacity-0 transition-[opacity,scale] duration-700 ease-luxe group-hover:scale-100 group-hover:opacity-100"
                     />
                 )}
-                <div className="absolute top-3.5 left-3.5 flex flex-col items-start gap-1.5">
+                <div className="absolute start-3.5 top-3.5 flex flex-col items-start gap-1.5">
                     {product.badge && <Badge>{BADGE_LABELS[product.badge]}</Badge>}
-                    {!product.in_stock && <Badge className="text-muted">Épuisé</Badge>}
+                    {!product.in_stock && <Badge className="text-muted">{t('Épuisé')}</Badge>}
                 </div>
             </Link>
 
@@ -65,7 +66,7 @@ export function ProductCard({ product, priority = false, sizes = '(min-width: 80
                 <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 pt-1 text-sm">
                     <Price amount={product.price_from} compareAt={discounted} from={product.has_price_range} />
                     {product.variants.length > 0 && (
-                        <span className="text-2xs tracking-[0.12em] text-faint uppercase">{product.variants.map((variant) => variant.size_ml).join(' · ')} ml</span>
+                        <span className="text-2xs tracking-[0.12em] text-faint uppercase">{t('{sizes} ml', { sizes: product.variants.map((variant) => variant.size_ml).join(' · ') })}</span>
                     )}
                 </div>
             </div>
