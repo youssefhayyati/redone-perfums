@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
+import { motion } from 'framer-motion';
 import { Menu, Search, ShoppingBag, User } from 'lucide-react';
 import { cn } from '@shared/format';
 import { useConfig } from '../../config';
@@ -15,6 +16,9 @@ import { t, tn } from '../../i18n';
 export function Header() {
     const config = useConfig();
     const count = useCart((state) => state.cart?.items_count ?? 0);
+    // A new visitor has no cart until the first article: "loaded" is the end of the first fetch.
+    const cartLoaded = useCart((state) => !state.loading);
+    const bump = useCartBump(count, cartLoaded);
     const { pathname } = useLocation();
     const [scrolled, setScrolled] = useState(false);
     const overHero = pathname === '/' && !scrolled;
@@ -69,15 +73,47 @@ export function Header() {
                         <User className="size-[1.15rem]" strokeWidth={1.25} />
                     </NavLink>
                     <IconButton label={count > 0 ? t('Ouvrir le panier, {items}', { items: tn(count, 'article') }) : t('Ouvrir le panier')} onClick={() => ui.open('cart')}>
-                        <ShoppingBag className="size-[1.15rem]" strokeWidth={1.25} />
+                        <motion.span
+                            key={bump}
+                            className="inline-flex"
+                            animate={bump > 0 ? { scale: [1, 1.28, 0.9, 1.06, 1], rotate: [0, -12, 9, -3, 0] } : undefined}
+                            transition={{ duration: 0.7, ease: 'easeOut' }}
+                        >
+                            <ShoppingBag className="size-[1.15rem]" strokeWidth={1.25} />
+                        </motion.span>
                         {count > 0 && (
-                            <span aria-hidden="true" className="absolute top-1.5 right-1 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[0.625rem] leading-4 font-semibold text-on-accent tabular-nums">
+                            <motion.span
+                                key={count}
+                                aria-hidden="true"
+                                initial={{ scale: 0.4 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: 'spring', stiffness: 520, damping: 16 }}
+                                className="absolute end-1 top-1.5 flex min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[0.625rem] leading-4 font-semibold text-on-accent tabular-nums"
+                            >
                                 {count}
-                            </span>
+                            </motion.span>
                         )}
                     </IconButton>
                 </div>
             </div>
         </header>
     );
+}
+
+/** Grows each time articles are added once the cart has been fetched, so the bag can bounce. */
+function useCartBump(count: number, loaded: boolean): number {
+    const [bump, setBump] = useState(0);
+    const previous = useRef<number | null>(null);
+
+    useEffect(() => {
+        if (!loaded) {
+            return;
+        }
+        if (previous.current !== null && count > previous.current) {
+            setBump((value) => value + 1);
+        }
+        previous.current = count;
+    }, [count, loaded]);
+
+    return bump;
 }

@@ -10,6 +10,7 @@ import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
 import { EASE_LUXE } from '../motion/easing';
+import { RevealWords } from '../motion/Reveal';
 import { useSession } from '../stores/session';
 import { t, tNodes } from '../i18n';
 
@@ -60,7 +61,7 @@ export default function ConfirmationPage() {
             <header className="flex flex-col items-center gap-6 text-center">
                 <Seal />
                 <p className="eyebrow">{t('Commande enregistrée')}</p>
-                <h1 className="font-display text-display-lg text-balance">{t('Merci, {name}.', { name: firstName })}</h1>
+                <RevealWords as="h1" text={t('Merci, {name}.', { name: firstName })} className="font-display text-display-lg font-normal text-balance" delay={0.3} />
                 <p className="max-w-lg text-muted">
                     {tNodes('Votre commande {reference} a bien été reçue.', { reference: <span className="text-ink tabular-nums">{order.reference}</span> })}
                     {order.payment_method === 'cod' && <> {t('Vous réglerez {amount} à la livraison.', { amount: formatMoney(order.total) })}</>}

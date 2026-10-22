@@ -1,5 +1,7 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
 import { formatMoney } from '@shared/money';
+import { EASE_LUXE } from '../../motion/easing';
 import { useCart } from '../../stores/cart';
 import { ui, useUi } from '../../stores/ui';
 import { ButtonLink } from '../ui/Button';
@@ -35,7 +37,7 @@ export function CartDrawer() {
                             </div>
                             {cart.discount_total > 0 && (
                                 <div className="flex justify-between text-success">
-                                    <dt>Code {cart.coupon?.code}</dt>
+                                    <dt>{t('Code {code}', { code: cart.coupon?.code ?? '' })}</dt>
                                     <dd className="tabular-nums">−{formatMoney(cart.discount_total)}</dd>
                                 </div>
                             )}
@@ -53,26 +55,37 @@ export function CartDrawer() {
                 ) : undefined
             }
         >
-            {loading && !cart ? (
-                <div className="flex justify-center py-20 text-muted">
-                    <Spinner className="size-6" />
-                </div>
-            ) : empty ? (
-                <div className="flex flex-col items-center gap-5 px-6 py-20 text-center">
-                    <ShoppingBag className="size-8 text-faint" strokeWidth={1} />
-                    <p className="font-display text-2xl">{t('Votre panier est vide')}</p>
-                    <p className="max-w-xs text-sm text-muted">{t('Laissez-vous guider par nos signatures, ou composez votre propre coffret.')}</p>
-                    <ButtonLink to="/boutique" onClick={ui.close} variant="secondary">
-                        {t('Découvrir la boutique')}
-                    </ButtonLink>
-                </div>
-            ) : (
-                <ul className="divide-y divide-line px-6">
-                    {cart.lines.map((line) => (
-                        <CartLineItem key={line.id} line={line} maxQuantity={cart.max_quantity} compact />
-                    ))}
-                </ul>
-            )}
+            {/* The last line slides out and the list fades before the empty state arrives. */}
+            <AnimatePresence mode="wait" initial={false}>
+                {loading && !cart ? (
+                    <div key="loading" className="flex justify-center py-20 text-muted">
+                        <Spinner className="size-6" />
+                    </div>
+                ) : empty ? (
+                    <motion.div
+                        key="empty"
+                        className="flex flex-col items-center gap-5 px-6 py-20 text-center"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, ease: EASE_LUXE }}
+                    >
+                        <ShoppingBag className="size-8 text-faint" strokeWidth={1} />
+                        <p className="font-display text-2xl">{t('Votre panier est vide')}</p>
+                        <p className="max-w-xs text-sm text-muted">{t('Laissez-vous guider par nos signatures, ou composez votre propre coffret.')}</p>
+                        <ButtonLink to="/boutique" onClick={ui.close} variant="secondary">
+                            {t('Découvrir la boutique')}
+                        </ButtonLink>
+                    </motion.div>
+                ) : (
+                    <motion.ul key="lines" className="relative divide-y divide-line px-6" exit={{ opacity: 0, transition: { duration: 0.35, delay: 0.1 } }}>
+                        <AnimatePresence mode="popLayout">
+                            {cart.lines.map((line, index) => (
+                                <CartLineItem key={line.id} line={line} maxQuantity={cart.max_quantity} index={index} compact />
+                            ))}
+                        </AnimatePresence>
+                    </motion.ul>
+                )}
+            </AnimatePresence>
         </Drawer>
     );
 }

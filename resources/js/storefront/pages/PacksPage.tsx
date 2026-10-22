@@ -7,7 +7,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
-import { RevealGroup, RevealItem } from '../motion/Reveal';
+import { MediaSettle, RevealGroup, RevealItem, UnveilFrame } from '../motion/Reveal';
 import { t, tn } from '../i18n';
 
 function PackCard({ pack }: { pack: Pack }) {
@@ -15,16 +15,22 @@ function PackCard({ pack }: { pack: Pack }) {
 
     return (
         <article className="group flex flex-col gap-6">
-            <Link to={`/coffrets/${pack.slug}`} tabIndex={-1} aria-hidden="true" className="relative block aspect-[4/5] overflow-hidden rounded-card bg-raised">
-                {pack.image && <img src={pack.image} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-luxe group-hover:scale-[1.04]" />}
-                <span className="absolute start-4 top-4 bg-canvas/85 px-2.5 py-1 text-2xs tracking-[0.18em] text-ink uppercase backdrop-blur-sm">
-                    {pack.type === 'custom' ? t('À composer') : t('Composé par la maison')}
-                </span>
-            </Link>
+            <UnveilFrame>
+                <Link to={`/coffrets/${pack.slug}`} tabIndex={-1} aria-hidden="true" data-tilt className="relative block aspect-[4/5] overflow-hidden rounded-card bg-raised">
+                    {pack.image && (
+                        <MediaSettle className="absolute inset-0">
+                            <img src={pack.image} alt="" loading="lazy" className="size-full object-cover transition-transform duration-[1200ms] ease-luxe group-hover:scale-[1.06]" />
+                        </MediaSettle>
+                    )}
+                    <span className="absolute start-4 top-4 bg-canvas/85 px-2.5 py-1 text-2xs tracking-[0.18em] text-ink uppercase backdrop-blur-sm">
+                        {pack.type === 'custom' ? t('À composer') : t('Composé par la maison')}
+                    </span>
+                </Link>
+            </UnveilFrame>
             <div className="flex flex-col gap-3">
                 <p className="eyebrow">
                     {tn(pack.bottle_count, 'flacon')}
-                    {pack.allowed_sizes?.length ? ` · ${pack.allowed_sizes.join(' / ')} ml` : ''}
+                    {pack.allowed_sizes?.length ? ` · ${t('{sizes} ml', { sizes: pack.allowed_sizes.join(' / ') })}` : ''}
                 </p>
                 <h2 className="font-display text-3xl leading-tight">
                     <Link to={`/coffrets/${pack.slug}`} className="transition-colors hover:text-accent">
@@ -74,7 +80,7 @@ export default function PacksPage() {
                 ) : data.data.length === 0 ? (
                     <EmptyState title={t('Aucun coffret pour le moment')} />
                 ) : (
-                    <RevealGroup as="ul" className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:grid-cols-3">
+                    <RevealGroup as="ul" className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:grid-cols-3" step={0.12}>
                         {data.data.map((pack) => (
                             <RevealItem as="li" key={pack.id}>
                                 <PackCard pack={pack} />

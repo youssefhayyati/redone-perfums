@@ -20,7 +20,7 @@ export function PackOptionCard({ option, chosen, full, allowDuplicates, onPick }
 
     return (
         <article className={cn('flex flex-col gap-4', taken && 'opacity-60')}>
-            <div className="aura relative aspect-[4/5] overflow-hidden" style={auraStyle(option.accent_color)}>
+            <div data-tilt="soft" className="aura relative aspect-[4/5] overflow-hidden" style={auraStyle(option.accent_color)}>
                 <ProductImage image={option.image} alt="" sizes="(min-width: 64rem) 18vw, 45vw" className="absolute inset-0 size-full p-[5%]" />
                 {chosen.length > 0 && (
                     <span className="absolute start-3 top-3 bg-accent px-2 py-1 text-2xs tracking-[0.16em] text-on-accent uppercase">{allowDuplicates && chosen.length > 1 ? t('Choisi ×{count}', { count: chosen.length }) : t('Choisi')}</span>

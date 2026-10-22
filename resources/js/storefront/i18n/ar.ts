@@ -67,6 +67,7 @@ export const ar = {
     "Choisissez votre ville": "اختر مدينتك",
     "Choisissez votre ville de livraison.": "اختر مدينة التوصيل.",
     "Code promotionnel": "رمز التخفيض",
+    "Code {code}": "الرمز {code}",
     "Coffret composé par la maison": "علبة اختارتها الدار",
     "Coffret indisponible": "علبة غير متوفرة",
     "Coffret à composer": "علبة تركّبها بنفسك",

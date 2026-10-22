@@ -6,7 +6,7 @@ import { ButtonLink } from '../components/ui/Button';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
-import { Reveal } from '../motion/Reveal';
+import { Parallax, Reveal, RevealWords } from '../motion/Reveal';
 import NotFoundPage from './NotFoundPage';
 import { t, tn } from '../i18n';
 
@@ -30,7 +30,9 @@ export default function CollectionPage() {
         <>
             <section className="grain relative overflow-hidden border-b border-line">
                 {collection?.image && (
-                    <img src={collection.image} alt="" className="absolute inset-0 -z-10 size-full object-cover opacity-30 dark:opacity-40" />
+                    <Parallax distance={70} className="absolute inset-0 -z-10">
+                        <img src={collection.image} alt="" className="size-full object-cover opacity-30 dark:opacity-40" />
+                    </Parallax>
                 )}
                 <div
                     aria-hidden="true"
@@ -41,7 +43,7 @@ export default function CollectionPage() {
                     <Breadcrumbs items={[{ label: t('Collections'), to: '/collections' }, { label: collection?.name ?? '…' }]} />
                     {collection ? (
                         <Reveal className="flex max-w-3xl flex-col gap-5">
-                            <h1 className="font-display text-display-xl">{collection.name}</h1>
+                            <RevealWords as="h1" text={collection.name} className="font-display text-display-xl font-normal" />
                             {collection.tagline && <p className="font-display text-2xl text-muted italic">{collection.tagline}</p>}
                             {collection.description && <p className="max-w-xl text-muted">{collection.description}</p>}
                             <p className="eyebrow pt-2">{tn(products.length, 'parfum')}</p>

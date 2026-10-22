@@ -16,6 +16,7 @@ import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
 import { EASE_LUXE } from '../motion/easing';
+import { RevealWords } from '../motion/Reveal';
 import { cartActions, useCart } from '../stores/cart';
 import { toast, ui } from '../stores/ui';
 import NotFoundPage from './NotFoundPage';
@@ -27,7 +28,7 @@ function PackHeader({ pack, kind }: { pack: Pack; kind: string }) {
     return (
         <header className="flex max-w-3xl flex-col gap-5">
             <p className="eyebrow">{kind}</p>
-            <h1 className="font-display text-display-lg">{pack.name}</h1>
+            <RevealWords as="h1" text={pack.name} className="font-display text-display-lg font-normal" />
             {pack.tagline && <p className="font-display text-2xl text-muted italic">{pack.tagline}</p>}
             {pack.description && <p className="max-w-xl text-muted">{pack.description}</p>}
             <ul className="flex flex-wrap gap-2 pt-1">

@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { AnimatePresence, motion, useReducedMotionConfig } from 'framer-motion';
 import type { ImageAsset } from '@shared/types';
 import { cn } from '@shared/format';
+import { EASE_LUXE } from '../../motion/easing';
 import { LightSweep } from '../../motion/LightSweep';
 import { ProductImage } from '../ui/ProductImage';
 import { auraStyle } from './ProductCard';
@@ -9,6 +11,7 @@ import { t } from '../../i18n';
 export function Gallery({ images, name, accent }: { images: ImageAsset[]; name: string; accent: string | null }) {
     const [active, setActive] = useState(0);
     const current = images[active] ?? images[0] ?? null;
+    const reduced = useReducedMotionConfig();
 
     return (
         <div className="flex flex-col gap-3">
@@ -22,11 +25,29 @@ export function Gallery({ images, name, accent }: { images: ImageAsset[]; name: 
                 ))}
             </div>
 
-            {/* Desktop: stage + thumbnails */}
-            <div className="aura relative hidden aspect-[4/5] overflow-hidden md:block" style={auraStyle(accent)}>
-                <ProductImage key={current?.id ?? 'placeholder'} image={current} alt={name} priority sizes="(min-width: 80rem) 45vw, 50vw" className="absolute inset-0 size-full p-[9%]" />
+            {/* Desktop: a stage that opens on arrival, turns slightly towards the pointer and cross-fades between images. */}
+            <motion.div
+                data-tilt="soft"
+                className="aura relative hidden aspect-[4/5] overflow-hidden md:block"
+                style={auraStyle(accent)}
+                initial={reduced ? false : { clipPath: 'inset(100% 0% 0% 0%)' }}
+                animate={{ clipPath: 'inset(0% 0% 0% 0%)', transitionEnd: { clipPath: 'none' } }}
+                transition={{ duration: 1.2, ease: EASE_LUXE }}
+            >
+                <AnimatePresence initial={false}>
+                    <motion.div
+                        key={current?.id ?? 'placeholder'}
+                        className="absolute inset-0"
+                        initial={{ opacity: 0, scale: 1.05 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.7, ease: EASE_LUXE }}
+                    >
+                        <ProductImage image={current} alt={name} priority sizes="(min-width: 80rem) 45vw, 50vw" className="absolute inset-0 size-full p-[9%]" />
+                    </motion.div>
+                </AnimatePresence>
                 <LightSweep />
-            </div>
+            </motion.div>
             {images.length > 1 && (
                 <div className="hidden gap-3 md:flex" role="tablist" aria-label={t('Choisir une image')}>
                     {images.map((image, index) => (

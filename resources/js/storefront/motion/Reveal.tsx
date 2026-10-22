@@ -1,7 +1,7 @@
-import { Fragment, type ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { Fragment, useRef, type ReactNode } from 'react';
+import { motion, useReducedMotionConfig, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@shared/format';
-import { EASE_LUXE, fadeUp, stagger } from './easing';
+import { EASE_LUXE, fadeUp, settle, stagger, unveil } from './easing';
 
 const elements = {
     div: motion.div,
@@ -55,22 +55,67 @@ export function RevealGroup({ as = 'div', className, step = 0.08, delay = 0, chi
     );
 }
 
-export function RevealItem({ as = 'div', className, children }: Omit<RevealProps, 'delay' | 'y'>) {
+/**
+ * One step of a RevealGroup. `rise` fades it up; `unveil` opens it from the bottom like a
+ * curtain, for images (put the picture in a <MediaSettle>). Reduced motion: a fade.
+ */
+export function RevealItem({ as = 'div', className, variant = 'rise', children }: Omit<RevealProps, 'delay' | 'y'> & { variant?: 'rise' | 'unveil' }) {
     const Element = elements[as];
+    const reduced = useReducedMotionConfig();
 
     return (
-        <Element className={className} variants={fadeUp}>
+        <Element className={className} variants={variant === 'unveil' && !reduced ? unveil : fadeUp}>
             {children}
         </Element>
     );
 }
 
-/** A hairline that draws itself from the left once scrolled into view. Grows to fill a flex row. */
+/** A picture frame inside a rising RevealItem (a card with text under it): only the frame opens like a curtain. */
+export function UnveilFrame({ className, children }: { className?: string; children: ReactNode }) {
+    const reduced = useReducedMotionConfig();
+
+    return (
+        <motion.div className={className} variants={reduced ? undefined : unveil}>
+            {children}
+        </motion.div>
+    );
+}
+
+/** The picture inside an unveiled item: it settles from a slight zoom as the mask opens. */
+export function MediaSettle({ className, children }: { className?: string; children: ReactNode }) {
+    return (
+        <motion.div className={className} variants={settle}>
+            {children}
+        </motion.div>
+    );
+}
+
+/**
+ * A layer that drifts against the scroll, `distance` px each way, while its box crosses
+ * the viewport: backgrounds feel deeper than the page. The class must position the box
+ * (absolute or relative); the drifting layer overflows it by the distance, hidden.
+ */
+export function Parallax({ distance = 60, className, children }: { distance?: number; className?: string; children: ReactNode }) {
+    const box = useRef<HTMLDivElement>(null);
+    const reduced = useReducedMotionConfig();
+    const { scrollYProgress } = useScroll({ target: box, offset: ['start end', 'end start'] });
+    const y = useTransform(scrollYProgress, [0, 1], [-distance, distance]);
+
+    return (
+        <div ref={box} className={cn('overflow-hidden', className)}>
+            <motion.div className="absolute inset-x-0" style={{ top: -distance, bottom: -distance, y: reduced ? 0 : y }}>
+                {children}
+            </motion.div>
+        </div>
+    );
+}
+
+/** A hairline that draws itself from the reading start once scrolled into view. Grows to fill a flex row. */
 export function RevealRule({ className }: { className?: string }) {
     return (
         <motion.span
             aria-hidden="true"
-            className={cn('h-px flex-1 origin-left bg-line', className)}
+            className={cn('h-px flex-1 origin-left bg-line rtl:origin-right', className)}
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             viewport={viewport}

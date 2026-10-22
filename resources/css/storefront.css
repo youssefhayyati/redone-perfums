@@ -10,6 +10,26 @@
     --font-display: 'Fraunces', 'Amiri', Georgia, 'Times New Roman', serif;
 }
 
+/* Smooth scroll (Lenis, see motion/smoothScroll.ts): the page keeps its native scroll. */
+@layer base {
+    html.lenis,
+    html.lenis body {
+        height: auto;
+    }
+
+    .lenis.lenis-stopped {
+        overflow: clip;
+    }
+
+    .lenis [data-lenis-prevent] {
+        overscroll-behavior: contain;
+    }
+
+    .lenis.lenis-smooth iframe {
+        pointer-events: none;
+    }
+}
+
 @layer components {
     .container-page {
         width: 100%;
@@ -345,12 +365,15 @@
         isolation: isolate;
         overflow: hidden;
         border-radius: 9999px;
+        /* Magnetic pull, set by motion/pointerEffects.ts while the pointer is over it. */
+        translate: var(--magnet-x, 0px) var(--magnet-y, 0px);
         transition:
             color 0.4s var(--ease-luxe) 0.08s,
             border-color 0.4s var(--ease-luxe),
             background-color 0.3s ease,
             opacity 0.3s ease,
-            scale 0.2s ease;
+            scale 0.2s ease,
+            translate 0.7s var(--ease-spring);
 
         &::before {
             content: '';
@@ -374,6 +397,9 @@
         position: relative;
         display: inline-flex;
         overflow: hidden;
+        /* The label follows the pull a little further, for depth. */
+        translate: calc(var(--magnet-x, 0px) * 0.35) calc(var(--magnet-y, 0px) * 0.35);
+        transition: translate 0.7s var(--ease-spring);
         /* Spans carry the same padding, so glyphs and icons are never clipped. */
         margin-block: -0.3em;
 
@@ -408,6 +434,51 @@
         .btn:hover .btn-label > span + span,
         .btn:focus-visible .btn-label > span + span {
             transform: translateY(0);
+        }
+
+        /* Follows the pointer closely; springs back slowly once it leaves. */
+        .btn[data-pointer-active] {
+            transition-duration: 0.4s, 0.4s, 0.3s, 0.3s, 0.2s, 0.35s;
+        }
+
+        .btn[data-pointer-active] .btn-label {
+            transition-duration: 0.35s;
+        }
+    }
+
+    /*
+     * Cards that turn towards the pointer and catch a glint of light (angles and glint
+     * position from motion/pointerEffects.ts). Must not carry a Framer transform itself.
+     */
+    [data-tilt] {
+        transform: perspective(70rem) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) translateY(var(--tilt-lift, 0px));
+        transition: transform 0.9s var(--ease-luxe);
+
+        &::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            border-radius: inherit;
+            pointer-events: none;
+            background: radial-gradient(circle at var(--glint-x, 50%) var(--glint-y, 0%), rgb(255 255 255 / 0.28), transparent 55%);
+            mix-blend-mode: soft-light;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        &[data-pointer-active] {
+            --tilt-lift: -0.375rem;
+            transition-duration: 0.35s;
+            will-change: transform;
+
+            &::after {
+                opacity: 1;
+            }
+        }
+
+        &[data-tilt='soft'][data-pointer-active] {
+            --tilt-lift: 0px;
         }
     }
 }

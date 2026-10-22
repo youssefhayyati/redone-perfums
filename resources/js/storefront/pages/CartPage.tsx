@@ -1,3 +1,4 @@
+import { AnimatePresence } from 'framer-motion';
 import { TriangleAlert } from 'lucide-react';
 import { CartLineItem } from '../components/cart/CartLineItem';
 import { CitySelect } from '../components/cart/CitySelect';
@@ -51,10 +52,12 @@ export default function CartPage() {
                             {t('Certains articles demandent votre attention avant de commander.')}
                         </p>
                     )}
-                    <ul className="divide-y divide-line">
-                        {cart.lines.map((line) => (
-                            <CartLineItem key={line.id} line={line} maxQuantity={cart.max_quantity} />
-                        ))}
+                    <ul className="relative divide-y divide-line">
+                        <AnimatePresence mode="popLayout">
+                            {cart.lines.map((line, index) => (
+                                <CartLineItem key={line.id} line={line} maxQuantity={cart.max_quantity} index={index} />
+                            ))}
+                        </AnimatePresence>
                     </ul>
                 </section>
 

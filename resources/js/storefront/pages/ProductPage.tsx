@@ -19,7 +19,7 @@ import { ErrorState, SectionHeading } from '../components/ui/States';
 import { useConfig } from '../config';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
-import { Reveal } from '../motion/Reveal';
+import { Reveal, RevealWords } from '../motion/Reveal';
 import { cartActions } from '../stores/cart';
 import { toast, ui } from '../stores/ui';
 import NotFoundPage from './NotFoundPage';
@@ -113,7 +113,7 @@ function ProductView({ product }: { product: Product }) {
                             )}
                             {product.badge && <span className="rounded-full border border-accent/50 px-2.5 py-0.5 text-2xs tracking-[0.18em] text-accent uppercase">{BADGE_LABELS[product.badge]}</span>}
                         </div>
-                        <h1 className="font-display text-display-lg">{product.name}</h1>
+                        <RevealWords as="h1" text={product.name} className="font-display text-display-lg font-normal" />
                         {facts && <p className="text-sm text-muted">{facts}</p>}
                         {product.tagline && <p className="font-display text-2xl text-muted italic">{product.tagline}</p>}
                     </header>

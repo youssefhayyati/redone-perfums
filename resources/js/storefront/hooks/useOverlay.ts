@@ -1,4 +1,5 @@
 import { useEffect, useRef, type RefObject } from 'react';
+import { pauseSmoothScroll, resumeSmoothScroll } from '../motion/smoothScroll';
 
 const FOCUSABLE =
     'a[href], area[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -15,6 +16,7 @@ function lockScroll(): () => void {
         if (gap > 0) {
             root.style.paddingRight = `${gap}px`;
         }
+        pauseSmoothScroll();
     }
     locks++;
 
@@ -23,6 +25,7 @@ function lockScroll(): () => void {
         if (locks === 0) {
             root.style.overflow = '';
             root.style.paddingRight = '';
+            resumeSmoothScroll();
         }
     };
 }

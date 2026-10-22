@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useState, type Ref } from 'react';
 import { Link } from 'react-router';
+import { motion, useReducedMotionConfig } from 'framer-motion';
 import { TriangleAlert, X } from 'lucide-react';
 import type { CartLine } from '@shared/types';
 import { ApiError } from '@shared/http';
 import { cn } from '@shared/format';
+import { isRtl } from '@shared/locale';
+import { EASE_LUXE } from '../../motion/easing';
 import { cartActions } from '../../stores/cart';
 import { toast } from '../../stores/ui';
 import { Price } from '../ui/Price';
@@ -15,6 +18,10 @@ interface CartLineItemProps {
     line: CartLine;
     maxQuantity: number;
     compact?: boolean;
+    /** Position in the list: lines slide in one after another. */
+    index?: number;
+    /** Given by AnimatePresence, which measures the line as it leaves. */
+    ref?: Ref<HTMLLIElement>;
 }
 
 function lineLink(line: CartLine): string | null {
@@ -25,8 +32,14 @@ function lineLink(line: CartLine): string | null {
     return line.pack ? `/coffrets/${line.pack.slug}` : null;
 }
 
-export function CartLineItem({ line, maxQuantity, compact = false }: CartLineItemProps) {
+/**
+ * A cart line. It slides in from the panel's edge, slides back out when removed while the
+ * lines below glide up (inside an AnimatePresence with mode="popLayout").
+ */
+export function CartLineItem({ line, maxQuantity, compact = false, index = 0, ref }: CartLineItemProps) {
     const [pending, setPending] = useState(false);
+    const reduced = useReducedMotionConfig();
+    const fromEdge = isRtl() ? -32 : 32;
     const link = lineLink(line);
     const title = line.type === 'product' ? (line.product?.name ?? t('Article indisponible')) : (line.pack?.name ?? t('Coffret indisponible'));
     const image = line.type === 'product' ? line.product?.image : line.selections[0]?.image;
@@ -44,7 +57,15 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
     }
 
     return (
-        <li className={cn('flex gap-4 py-5', pending && 'opacity-60 transition-opacity')}>
+        <motion.li
+            ref={ref}
+            layout={!reduced}
+            initial={{ opacity: 0, x: fromEdge }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: fromEdge, transition: { duration: 0.35, ease: 'easeIn' } }}
+            transition={{ duration: 0.7, ease: EASE_LUXE, delay: Math.min(index, 6) * 0.06, layout: { duration: 0.5, ease: EASE_LUXE } }}
+            className={cn('flex gap-4 py-5 *:transition-opacity', pending && '*:opacity-60')}
+        >
             <div className={cn('aura shrink-0 overflow-hidden', compact ? 'h-24 w-20' : 'h-32 w-26 sm:h-36 sm:w-28')}>
                 {packImage ? (
                     <img src={packImage} alt="" className="size-full object-cover" loading="lazy" />
@@ -124,6 +145,6 @@ export function CartLineItem({ line, maxQuantity, compact = false }: CartLineIte
                     )}
                 </div>
             </div>
-        </li>
+        </motion.li>
     );
 }

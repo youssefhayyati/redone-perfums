@@ -96,13 +96,22 @@ every admin route; the admin SPA hides what the API would refuse anyway.
 
 ## Motion principles
 
-Framer Motion only for sequences (hero entrance, editorial reveals, parallax, light
-sweep, pack composition, drawers). CSS transitions for hovers. A single `MotionProvider`
-(`resources/js/storefront/motion`) sets `MotionConfig`: transform and layout animations
-follow `prefers-reduced-motion` and are always off on low-power devices (Save-Data, two
-cores or less, little memory), leaving only opacity fades.
-Reveals go through `Reveal` / `RevealGroup`, and transformed wrappers are kept away from
-sticky and fixed elements. No scroll hijacking, no custom cursor.
+Framer Motion only for sequences (hero entrance, editorial reveals, image unveils,
+parallax, light sweep, page curtain, grid reshuffles, cart lines, drawers). CSS
+transitions for hovers. A single `MotionProvider` (`resources/js/storefront/motion`) sets
+`MotionConfig`: transform and layout animations follow `prefers-reduced-motion` and are
+always off on low-power devices (Save-Data, two cores or less, little memory), leaving
+only opacity fades.
+Reveals go through `Reveal` / `RevealGroup` / `RevealWords` / `Parallax`, and transformed
+wrappers are kept away from sticky and fixed elements (the page transition only fades
+the page; its curtain is a separate layer under the header).
+With full motion only, `MotionProvider` also starts:
+- smooth wheel scrolling (Lenis, `smoothScroll.ts`): the native scroll position is kept,
+  touch stays native, overlays pause it while they lock the page;
+- pointer effects (`pointerEffects.ts`), delegated from the document and drawn in CSS:
+  `.btn` is magnetic, `[data-tilt]` cards turn towards the pointer with a glint. An element
+  with `data-tilt` must not carry a Framer transform itself.
+No scroll-jacking (snapping, pinned scroll-driven scenes), no custom cursor.
 
 ## Build order
 

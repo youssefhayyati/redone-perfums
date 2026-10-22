@@ -30,7 +30,7 @@ export function ProductCard({ product, priority = false, sizes = '(min-width: 80
 
     return (
         <article className={cn('group relative flex flex-col gap-4', className)}>
-            <Link to={href} tabIndex={-1} aria-hidden="true" className="aura relative block aspect-[4/5] overflow-hidden" style={auraStyle(product.accent_color)}>
+            <Link to={href} tabIndex={-1} aria-hidden="true" data-tilt className="aura relative block aspect-[4/5] overflow-hidden" style={auraStyle(product.accent_color)}>
                 <ProductImage
                     image={product.image}
                     alt=""
