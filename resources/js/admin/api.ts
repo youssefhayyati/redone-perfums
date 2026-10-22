@@ -28,6 +28,8 @@ import type {
     MemberUpdate,
     NewMemberPayload,
     NoteTranslation,
+    AdminProcessStep,
+    ProcessStepPayload,
     OrderList,
     OrderSlips,
     OrderStatus,
@@ -209,8 +211,19 @@ export const packs = {
     remove: (id: number) => destroy(`/packs/${id}`),
 };
 
+/** Where an uploaded image goes; each folder has its own permission on the server. */
+export type UploadFolder = 'collections' | 'packs' | 'lab';
+
+export const processSteps = {
+    list: (signal?: AbortSignal) => get<Data<AdminProcessStep[]>>('/process-steps', undefined, signal).then(unwrap),
+    create: (payload: ProcessStepPayload) => post<Data<AdminProcessStep>>('/process-steps', payload).then(unwrap),
+    update: (id: number, payload: ProcessStepPayload) => put<Data<AdminProcessStep>>(`/process-steps/${id}`, payload).then(unwrap),
+    reorder: (ids: number[]) => put<Data<AdminProcessStep[]>>('/process-steps/order', { ids }).then(unwrap),
+    remove: (id: number) => destroy(`/process-steps/${id}`),
+};
+
 export const uploads = {
-    image: (file: File, folder: 'collections' | 'packs') =>
+    image: (file: File, folder: UploadFolder) =>
         post<{ path: string; url: string }>('/uploads', imageForm(file, { folder })),
 };
 

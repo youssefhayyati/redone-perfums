@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { Mail, MapPin, MessageCircle, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 import { directionsUrl } from '@shared/maps';
 import { askConsent } from '../../analytics';
 import { formatMoroccanPhone } from '@shared/phone';
 import { useConfig } from '../../config';
+import { WhatsAppIcon } from '../ui/WhatsAppIcon';
 import { NewsletterForm } from './NewsletterForm';
 import { SocialIcon } from './SocialIcon';
 import { t } from '../../i18n';
@@ -68,7 +69,7 @@ export function Footer() {
                             <li><a href={`tel:${contact.phone.replace(/\s/g, '')}`} className={`${linkClass} inline-flex items-center gap-2`}><Phone className="size-3.5" strokeWidth={1.5} /><span dir="ltr">{formatMoroccanPhone(contact.phone)}</span></a></li>
                         )}
                         {whatsappDigits && (
-                            <li><a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-2`}><MessageCircle className="size-3.5" strokeWidth={1.5} />WhatsApp</a></li>
+                            <li><a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className={`${linkClass} inline-flex items-center gap-2`}><WhatsAppIcon className="size-3.5" strokeWidth={1.5} />WhatsApp</a></li>
                         )}
                         {contact.address &&
                             (location ? (

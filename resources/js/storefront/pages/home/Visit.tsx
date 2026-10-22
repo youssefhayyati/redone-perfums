@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
-import { ArrowUpRight, MessageCircle, Phone } from 'lucide-react';
+import { ArrowUpRight, Phone } from 'lucide-react';
 import { getLocale } from '@shared/locale';
 import { directionsUrl, mapEmbedUrl } from '@shared/maps';
 import { formatMoroccanPhone } from '@shared/phone';
 import type { StoreLocation, StorefrontConfig } from '@shared/types';
 import { ButtonLabel, buttonClasses } from '../../components/ui/Button';
+import { WhatsAppIcon } from '../../components/ui/WhatsAppIcon';
 import { Reveal, RevealGroup, RevealItem } from '../../motion/Reveal';
 import { ChapterHeader } from './ChapterHeader';
 import { t } from '../../i18n';
@@ -72,7 +73,7 @@ export function Visit({ index, location, contact }: VisitProps) {
                         {whatsappDigits && (
                             <a href={`https://wa.me/${whatsappDigits}`} target="_blank" rel="noopener noreferrer" className={buttonClasses('secondary')}>
                                 <ButtonLabel>
-                                    <MessageCircle className="size-4" strokeWidth={1.5} />
+                                    <WhatsAppIcon className="size-4" strokeWidth={1.5} />
                                     WhatsApp
                                 </ButtonLabel>
                                 <span className="sr-only">{t('(nouvel onglet)')}</span>

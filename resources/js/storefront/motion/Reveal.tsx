@@ -127,6 +127,7 @@ export function RevealRule({ className }: { className?: string }) {
 const textElements = {
     h1: motion.h1,
     h2: motion.h2,
+    h3: motion.h3,
     p: motion.p,
 };
 

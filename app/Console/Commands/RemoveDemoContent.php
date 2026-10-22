@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\Note;
 use App\Models\Order;
 use App\Models\Pack;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Services\Settings\StoreSettings;
 use Illuminate\Console\Attributes\Description;
@@ -31,6 +32,7 @@ class RemoveDemoContent extends Command
             'Produits' => Product::withTrashed()->where('is_demo', true)->count(),
             'Collections' => Collection::query()->where('is_demo', true)->count(),
             'Coffrets' => Pack::query()->where('is_demo', true)->count(),
+            'Étapes du laboratoire (photos d’exemple)' => ProcessStep::query()->where('is_demo', true)->count(),
         ];
         if ($this->option('orders')) {
             $counts['Commandes'] = Order::query()->count();
@@ -57,6 +59,8 @@ class RemoveDemoContent extends Command
             // Variants, photos, notes and collection links go with each product.
             Product::withTrashed()->where('is_demo', true)->get()->each->forceDelete();
             Note::query()->doesntHave('products')->delete();
+            // Steps whose stock photo was never replaced by one of the store's lab.
+            ProcessStep::query()->where('is_demo', true)->delete();
 
             if ($this->option('orders')) {
                 Order::query()->delete();

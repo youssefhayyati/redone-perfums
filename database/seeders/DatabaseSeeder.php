@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             DeliverySeeder::class,
             PageSeeder::class,
             DemoCatalogSeeder::class,
+            LabSeeder::class,
             ArabicContentSeeder::class,
         ]);
     }

@@ -17,8 +17,8 @@ import { Button } from '../components/ui/Button';
 import { Price } from '../components/ui/Price';
 import { QuantityStepper } from '../components/ui/QuantityStepper';
 import { ErrorState, SectionHeading } from '../components/ui/States';
-import { SocialIcon } from '../components/layout/SocialIcon';
 import { whatsappHref } from '../components/layout/WhatsAppButton';
+import { WhatsAppIcon } from '../components/ui/WhatsAppIcon';
 import { useConfig } from '../config';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -166,7 +166,7 @@ function ProductView({ product }: { product: Product }) {
                                 rel="noopener noreferrer"
                                 className="group inline-flex items-center gap-2.5 self-start text-sm text-muted transition-colors hover:text-ink"
                             >
-                                <SocialIcon network="whatsapp" className="size-4 text-[#25D366]" />
+                                <WhatsAppIcon className="size-4 shrink-0 text-accent" strokeWidth={1.5} />
                                 <span className="link-draw">{t('Une question sur ce parfum ? Écrivez-nous sur WhatsApp')}</span>
                                 <span className="sr-only">{t('(nouvel onglet)')}</span>
                             </a>

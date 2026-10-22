@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { ArrowDown, ArrowUp, ImagePlus, Plus, Search, Trash2, X } from 'lucide-react';
 import { cn } from '@shared/format';
 import * as api from '../../api';
+import type { UploadFolder } from '../../api';
 import { moveItem } from '../../lib/arrays';
 import { errorText, toFieldErrors } from '../../lib/errors';
 import { PRODUCT_STATUS_LABELS } from '../../lib/status';
@@ -21,7 +22,7 @@ export function ImageField({
     error,
     label,
 }: {
-    folder: 'collections' | 'packs';
+    folder: UploadFolder;
     path: string | null;
     url: string | null;
     onChange: (image: { path: string | null; url: string | null }) => void;

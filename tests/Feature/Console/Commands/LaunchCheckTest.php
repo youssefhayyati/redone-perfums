@@ -6,6 +6,7 @@ use App\Console\Commands\LaunchCheck;
 use App\Models\City;
 use App\Models\DeliveryZone;
 use App\Models\Page;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Settings\StoreSettings;
@@ -60,6 +61,16 @@ class LaunchCheckTest extends TestCase
 
         $this->artisan('app:launch-check')
             ->expectsOutputToContain('* * * * * php artisan schedule:run')
+            ->assertFailed();
+    }
+
+    public function test_stock_photos_left_in_the_lab_section_must_be_replaced(): void
+    {
+        $this->readyStore();
+        ProcessStep::factory()->demo()->create();
+
+        $this->artisan('app:launch-check')
+            ->expectsOutputToContain('remplacez les photos d’exemple')
             ->assertFailed();
     }
 

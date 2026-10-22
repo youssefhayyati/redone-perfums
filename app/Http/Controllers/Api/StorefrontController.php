@@ -9,6 +9,7 @@ use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Collection;
 use App\Models\Pack;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Services\Settings\StorefrontConfig;
 use App\Services\Settings\StoreSettings;
@@ -60,6 +61,8 @@ class StorefrontController extends Controller
             ->with('items.variant.product.images')
             ->orderBy('sort_order')->limit(4)->get();
 
+        $steps = ProcessStep::query()->told()->get(ProcessStep::withTranslations(['id', 'title', 'body', 'detail', 'image_path', 'image_credit']));
+
         return response()->json([
             'hero' => [
                 'eyebrow' => $this->settings->localized('home.hero_eyebrow'),
@@ -75,6 +78,18 @@ class StorefrontController extends Controller
             ] : null,
             'collections' => CollectionResource::collection($collections),
             'packs' => PackResource::collection($packs),
+            'lab' => $steps->isEmpty() ? null : [
+                'title' => $this->settings->localized('lab.title'),
+                'intro' => $this->settings->localized('lab.intro'),
+                'steps' => $steps->map(fn (ProcessStep $step) => [
+                    'id' => $step->id,
+                    'title' => $step->translated('title'),
+                    'body' => $step->translated('body'),
+                    'detail' => $step->translated('detail'),
+                    'image' => $step->imageUrl(),
+                    'credit' => $step->image_credit,
+                ]),
+            ],
         ]);
     }
 }

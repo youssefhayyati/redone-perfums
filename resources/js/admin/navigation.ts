@@ -1,6 +1,7 @@
 import {
     Boxes,
     FileText,
+    FlaskConical,
     Gift,
     LayoutDashboard,
     LayoutGrid,
@@ -63,6 +64,7 @@ export const NAVIGATION: NavSection[] = [
             { to: '/codes-promo', label: 'Codes promo', icon: TicketPercent, permission: 'manage-promotions' },
             { to: '/newsletter', label: 'Newsletter', icon: Mail, permission: 'manage-content' },
             { to: '/pages', label: 'Pages', icon: FileText, permission: 'manage-content' },
+            { to: '/laboratoire', label: 'Laboratoire', icon: FlaskConical, permission: 'manage-content' },
         ],
     },
     {

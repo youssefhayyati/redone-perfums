@@ -44,6 +44,7 @@ const NOUNS = {
     famille: { fr: ['famille', 'familles'], ar: { one: 'عائلة واحدة', two: 'عائلتان', few: '{n} عائلات', many: '{n} عائلة', other: '{n} عائلة' } },
     univers: { fr: ['univers', 'univers'], ar: { one: 'عالم واحد', two: 'عالمان', few: '{n} عوالم', many: '{n} عالمًا', other: '{n} عالم' } },
     résultat: { fr: ['résultat', 'résultats'], ar: { one: 'نتيجة واحدة', two: 'نتيجتان', few: '{n} نتائج', many: '{n} نتيجة', other: '{n} نتيجة' } },
+    étape: { fr: ['étape', 'étapes'], ar: { one: 'مرحلة واحدة', two: 'مرحلتان', few: '{n} مراحل', many: '{n} مرحلة', other: '{n} مرحلة' } },
 } satisfies Record<string, { fr: [string, string]; ar: ArabicForms }>;
 
 export type CountedNoun = keyof typeof NOUNS;

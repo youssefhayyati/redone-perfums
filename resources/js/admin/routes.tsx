@@ -52,6 +52,7 @@ export const routes: RouteObject[] = [
 
                     guarded('manage-promotions', 'codes-promo', () => import('./pages/CouponsPage')),
                     guarded('manage-content', 'pages', () => import('./pages/ContentPagesPage')),
+                    guarded('manage-content', 'laboratoire', () => import('./pages/LabPage')),
                     guarded('manage-content', 'newsletter', () => import('./pages/NewsletterPage')),
 
                     guarded('manage-settings', 'livraison', () => import('./pages/DeliveryPage')),

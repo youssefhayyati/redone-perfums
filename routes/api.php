@@ -114,9 +114,10 @@ Route::prefix('admin')->group(function () {
             Route::get('inventory', [Admin\InventoryController::class, 'index']);
             Route::get('inventory/{variant}/movements', [Admin\InventoryController::class, 'movements']);
             Route::post('inventory/{variant}/adjust', [Admin\InventoryController::class, 'adjust']);
-
-            Route::post('uploads', [Admin\UploadController::class, 'store'])->middleware('throttle:uploads');
         });
+
+        // Each upload folder checks its own permission (see UploadController::FOLDERS).
+        Route::post('uploads', [Admin\UploadController::class, 'store'])->middleware('throttle:uploads');
 
         Route::middleware('can:manage-orders')->group(function () {
             Route::get('orders', [Admin\OrderController::class, 'index']);
@@ -140,6 +141,11 @@ Route::prefix('admin')->group(function () {
 
         Route::middleware('can:manage-content')->group(function () {
             Route::apiResource('pages', Admin\PageController::class)->except('show');
+            Route::get('process-steps', [Admin\ProcessStepController::class, 'index']);
+            Route::post('process-steps', [Admin\ProcessStepController::class, 'store']);
+            Route::put('process-steps/order', [Admin\ProcessStepController::class, 'reorder']);
+            Route::put('process-steps/{processStep}', [Admin\ProcessStepController::class, 'update']);
+            Route::delete('process-steps/{processStep}', [Admin\ProcessStepController::class, 'destroy']);
             Route::get('newsletter', [Admin\NewsletterController::class, 'index']);
         });
 

@@ -75,6 +75,31 @@ class UploadControllerTest extends TestCase
         Storage::disk('public')->assertDirectoryEmpty('/');
     }
 
+    public function test_lab_photos_can_be_uploaded_by_whoever_edits_the_content(): void
+    {
+        Storage::fake('public');
+
+        $response = $this->actingAs($this->manager())->post('/api/admin/uploads', [
+            'image' => UploadedFile::fake()->image('labo.jpg', 1200, 1500),
+            'folder' => 'lab',
+        ], ['Accept' => 'application/json']);
+
+        $response->assertCreated();
+        $this->assertStringStartsWith('uploads/lab/', $response->json('path'));
+    }
+
+    public function test_support_staff_cannot_upload_any_photo_with_403(): void
+    {
+        Storage::fake('public');
+
+        foreach (['collections', 'lab'] as $folder) {
+            $this->actingAs(User::factory()->support()->create())->post('/api/admin/uploads', [
+                'image' => UploadedFile::fake()->image('labo.jpg', 800, 600),
+                'folder' => $folder,
+            ], ['Accept' => 'application/json'])->assertForbidden();
+        }
+    }
+
     private function manager(): User
     {
         return User::factory()->manager()->create();

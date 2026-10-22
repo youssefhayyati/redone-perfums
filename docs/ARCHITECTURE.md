@@ -51,6 +51,7 @@ Order 1─* OrderItem 1─* OrderItemSelection   (all with price/name snapshots)
 ProductVariant 1─* InventoryMovement         (sale, cancellation, manual adjustment)
 DeliveryZone 1─* City
 Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / legal)
+ProcessStep (homepage "Le laboratoire": how a perfume is made, one lab photo per step)
 ```
 
 ## Key services (`app/Services`)
@@ -68,6 +69,9 @@ Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / lega
   `SendLowStockAlert` warns the orders inbox when an order takes a format down to its
   threshold. `Orders\OrderExport` writes the filtered list as CSV for Excel; the admin
   prints A5 delivery slips from the same filters (`/admin/commandes/bons`).
+- Lab steps ship with freely licensed stock photos (Wikimedia Commons, credited on each
+  step, `is_demo`) until the store uploads its own from Admin → Laboratoire; uploading a
+  photo clears the flag and the stock credit.
 - Console: `app:remove-demo-content` clears the `is_demo` catalogue before launch;
   `app:launch-check` lists what production still needs (mail, queue worker, cron —
   proven by a scheduler heartbeat —, https, content). `.env.production.example` holds the

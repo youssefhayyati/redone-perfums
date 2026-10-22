@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\DeliveryZone;
 use App\Models\Pack;
 use App\Models\Page;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Services\Settings\StoreSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -163,6 +164,38 @@ class StorefrontControllerTest extends TestCase
             ->assertJsonPath('announcement.text', 'شحن مجاني هذا الأسبوع')
             ->assertJsonPath('payment_methods.0.label', 'الدفع عند الاستلام')
             ->assertJsonPath('benefits.0.text', 'التوصيل إلى 3 مدن، وتُحتسب رسوم التوصيل حسب مدينتك قبل تأكيد الطلب.');
+    }
+
+    public function test_home_tells_the_visible_lab_steps_in_order_with_their_photo_and_credit(): void
+    {
+        ProcessStep::factory()->create(['title' => 'La macération', 'sort_order' => 1, 'image_credit' => 'Photo : D. Jarvis, CC BY-SA 2.0']);
+        ProcessStep::factory()->create(['title' => 'La matière', 'sort_order' => 0]);
+        ProcessStep::factory()->hidden()->create(['title' => 'Brouillon', 'sort_order' => 2]);
+
+        $this->getJson('/api/home')
+            ->assertOk()
+            ->assertJsonPath('lab.title', 'De la fleur au flacon')
+            ->assertJsonPath('lab.steps.*.title', ['La matière', 'La macération'])
+            ->assertJsonPath('lab.steps.0.image', asset('images/lab/demo-orgue.webp'))
+            ->assertJsonPath('lab.steps.1.credit', 'Photo : D. Jarvis, CC BY-SA 2.0');
+    }
+
+    public function test_home_has_no_lab_section_without_visible_steps(): void
+    {
+        ProcessStep::factory()->hidden()->create();
+
+        $this->getJson('/api/home')->assertOk()->assertJsonPath('lab', null);
+    }
+
+    public function test_arabic_home_tells_the_lab_in_arabic(): void
+    {
+        ProcessStep::factory()->create(['title' => 'La matière', 'title_ar' => 'المادة', 'body' => 'Les fleurs.', 'body_ar' => 'الزهور.']);
+
+        $this->withHeader('X-Locale', 'ar')->getJson('/api/home')
+            ->assertOk()
+            ->assertJsonPath('lab.title', 'من الزهرة إلى القارورة')
+            ->assertJsonPath('lab.steps.0.title', 'المادة')
+            ->assertJsonPath('lab.steps.0.body', 'الزهور.');
     }
 
     public function test_arabic_home_uses_the_arabic_hero_texts(): void

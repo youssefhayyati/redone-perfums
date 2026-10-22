@@ -7,6 +7,7 @@ import { useQuery } from '../hooks/useQuery';
 import { Closing } from './home/Closing';
 import { CollectionIndex } from './home/CollectionIndex';
 import { Hero } from './home/Hero';
+import { Lab } from './home/Lab';
 import { NotesMarquee } from './home/NotesMarquee';
 import { PacksTeaser } from './home/PacksTeaser';
 import { Signatures } from './home/Signatures';
@@ -14,7 +15,7 @@ import { Story } from './home/Story';
 import { Visit } from './home/Visit';
 import { t } from '../i18n';
 
-type Chapter = 'featured' | 'story' | 'collections' | 'packs' | 'visit';
+type Chapter = 'featured' | 'story' | 'lab' | 'collections' | 'packs' | 'visit';
 
 export default function HomePage() {
     const config = useConfig();
@@ -30,7 +31,7 @@ export default function HomePage() {
     const hasPacks = Boolean(data && data.packs.length > 0);
 
     // Chapters are numbered in page order, skipping those the store has nothing to show for.
-    const chapters = (['featured', data?.story && 'story', hasCollections && 'collections', hasPacks && 'packs', config.location && 'visit'] as const).filter((chapter): chapter is Chapter => Boolean(chapter));
+    const chapters = (['featured', data?.story && 'story', data?.lab && 'lab', hasCollections && 'collections', hasPacks && 'packs', config.location && 'visit'] as const).filter((chapter): chapter is Chapter => Boolean(chapter));
     const numberOf = (chapter: Chapter) => String(chapters.indexOf(chapter) + 1).padStart(2, '0');
 
     return (
@@ -42,6 +43,8 @@ export default function HomePage() {
             <Signatures index={numberOf('featured')} products={data?.featured} />
 
             {data?.story && <Story index={numberOf('story')} story={data.story} />}
+
+            {data?.lab && <Lab index={numberOf('lab')} lab={data.lab} />}
 
             {data && hasCollections && <CollectionIndex index={numberOf('collections')} collections={data.collections} />}
 

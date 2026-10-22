@@ -8,6 +8,7 @@ use App\Models\Note;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Pack;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Services\Settings\StoreSettings;
@@ -26,6 +27,8 @@ class RemoveDemoContentTest extends TestCase
         $real = Product::factory()->create(['name' => 'Ambre Royal']);
         $real->notes()->attach(Note::findOrCreateByName('Ciste'), ['layer' => 'base']);
         $realCollection = Collection::factory()->create();
+        ProcessStep::factory()->demo()->create();
+        $ownStep = ProcessStep::factory()->create(['image_path' => 'uploads/lab/abc123.webp']);
 
         $this->artisan('app:remove-demo-content', ['--force' => true])->assertSuccessful();
 
@@ -33,6 +36,7 @@ class RemoveDemoContentTest extends TestCase
         $this->assertSame([$realCollection->id], Collection::query()->pluck('id')->all());
         $this->assertSame(0, Pack::query()->count());
         $this->assertSame(['Ciste'], Note::query()->pluck('name')->all());
+        $this->assertSame([$ownStep->id], ProcessStep::query()->pluck('id')->all());
         $this->assertSame(0, ProductVariant::query()->whereNotIn('product_id', [$real->id])->count());
     }
 

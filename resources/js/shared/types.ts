@@ -305,8 +305,20 @@ export interface StorefrontConfig {
     has_packs: boolean;
 }
 
+/** One step of making a perfume, told in the homepage's "Le laboratoire" section. */
+export interface LabStep {
+    id: number;
+    title: string;
+    body: string;
+    detail: string | null;
+    image: string | null;
+    /** Author and licence of a photo the store did not take. */
+    credit: string | null;
+}
+
 export interface HomePayload {
     hero: { eyebrow: string | null; title: string | null; subtitle: string | null };
+    lab: { title: string | null; intro: string | null; steps: LabStep[] } | null;
     featured: ProductCard[];
     story: { eyebrow: string | null; title: string; body: string | null; product: Product } | null;
     collections: Collection[];

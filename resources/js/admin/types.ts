@@ -129,6 +129,27 @@ export interface AdminOrderEvent {
     created_at: string;
 }
 
+/** A step of the homepage's "Le laboratoire" section. */
+export interface AdminProcessStep {
+    id: number;
+    title: string;
+    title_ar: string | null;
+    body: string;
+    body_ar: string | null;
+    detail: string | null;
+    detail_ar: string | null;
+    image_path: string | null;
+    image_url: string | null;
+    /** Author and licence of a photo the store did not take. */
+    image_credit: string | null;
+    sort_order: number;
+    is_visible: boolean;
+    /** Still illustrated by a stock photo. */
+    is_demo: boolean;
+}
+
+export type ProcessStepPayload = Pick<AdminProcessStep, 'title' | 'title_ar' | 'body' | 'body_ar' | 'detail' | 'detail_ar' | 'image_path' | 'image_credit' | 'is_visible'>;
+
 /** Orders to print delivery slips for, with what the slip's header needs. */
 export interface OrderSlips {
     data: AdminOrder[];

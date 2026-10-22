@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Enums\UserRole;
 use App\Models\City;
 use App\Models\Page;
+use App\Models\ProcessStep;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Settings\StoreSettings;
@@ -39,6 +40,7 @@ class LaunchCheck extends Command
             ['Pages légales publiées', Page::query()->whereIn('slug', ['conditions-generales-de-vente', 'confidentialite'])->where('is_published', true)->count() === 2, 'Pages : publiez les conditions générales de vente et la confidentialité.'],
             ['Barre d’annonce', ! $settings->bool('announcement.enabled') || $settings->get('announcement.text') !== StoreSettings::schema()['announcement.text']['default'], 'Réglages, rubrique Barre d’annonce : elle dit encore que le catalogue est fictif.'],
             ['Livraison', City::query()->deliverable()->exists(), 'Livraison : au moins une ville active dans une zone active.'],
+            ['Photos du laboratoire', ! ProcessStep::query()->where('is_visible', true)->where('is_demo', true)->exists(), 'Contenu, rubrique Laboratoire : remplacez les photos d’exemple par celles de votre laboratoire.'],
             ['Compte administrateur', User::query()->where('role', UserRole::Admin)->where('is_active', true)->exists(), 'php artisan app:create-admin'],
             ['Photos publiées', is_link(public_path('storage')) || is_dir(public_path('storage')), 'php artisan storage:link'],
         ];

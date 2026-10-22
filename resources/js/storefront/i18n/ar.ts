@@ -107,6 +107,7 @@ export const ar = {
     "Créez un compte pour retrouver vos prochaines commandes en un instant.": "أنشئ حسابًا لتجد طلباتك القادمة في لحظة.",
     "Dans le même esprit": "بالروح نفسها",
     "Dans l’écrin": "داخل العلبة",
+    "De la fleur au flacon": "من الزهرة إلى القارورة",
     "Demander un nouveau lien": "طلب رابط جديد",
     "Des univers à explorer": "عوالم للاكتشاف",
     "Diminuer la quantité": "إنقاص الكمية",
@@ -171,6 +172,7 @@ export const ar = {
     "Le code n’a pas pu être retiré.": "تعذّرت إزالة الرمز.",
     "Le coffret n’a pas pu être ajouté.": "تعذّرت إضافة العلبة.",
     "Le guide arrive bientôt": "الدليل قادم قريبًا",
+    "Le laboratoire": "المختبر",
     "Le lien est peut-être ancien.": "ربما الرابط قديم.",
     "Le livreur vous appelle à ce numéro.": "سيتصل بك عامل التوصيل على هذا الرقم.",
     "Le mot de passe n’a pas pu être modifié.": "تعذّر تغيير كلمة المرور.",
@@ -366,5 +368,6 @@ export const ar = {
     "Élargissez votre recherche ou explorez une autre famille olfactive.": "وسّع بحثك أو استكشف عائلة عطرية أخرى.",
     "Épuisé": "نفد",
     "Étage, code d’accès, horaires préférés…": "الطابق، رمز الدخول، الأوقات المفضّلة…",
+    "Étape {n}": "المرحلة {n}",
     "évaporé": "تبخّر",
 } as const;
