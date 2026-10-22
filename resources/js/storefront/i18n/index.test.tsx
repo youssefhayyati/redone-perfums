@@ -15,6 +15,12 @@ describe('t', () => {
         expect(t('Bonjour, {name}', { name: 'Salma' })).toBe('مرحبًا، Salma');
     });
 
+    it('returns the English translation on English pages', () => {
+        setLocale('en');
+        expect(t('Bonjour, {name}', { name: 'Salma' })).toBe('Hello, Salma');
+        expect(t('Ajouter au panier')).toBe('Add to cart');
+    });
+
     it('leaves a placeholder without a value as written', () => {
         expect(t('Ajouter {name} {size} à la sélection', { name: 'Oud' })).toBe('Ajouter Oud {size} à la sélection');
     });
@@ -37,6 +43,16 @@ describe('tn', () => {
     });
 
     it.each([
+        [0, '0 perfumes'],
+        [1, '1 perfume'],
+        [2, '2 perfumes'],
+    ])('uses the English singular only for 1 (%i)', (count, expected) => {
+        setLocale('en');
+        expect(tn(count, 'parfum')).toBe(expected);
+        expect(tn(count, 'coffret')).toBe(expected.replace('perfume', 'gift set'));
+    });
+
+    it.each([
         [1, 'عطر واحد'],
         [2, 'عطران'],
         [3, '3 عطور'],
@@ -52,9 +68,11 @@ describe('tn', () => {
 });
 
 describe('localizedPath', () => {
-    it('prefixes Arabic paths with /ar', () => {
+    it('prefixes Arabic paths with /ar and English ones with /en', () => {
         expect(localizedPath('/boutique', 'ar')).toBe('/ar/boutique');
         expect(localizedPath('/', 'ar')).toBe('/ar');
+        expect(localizedPath('/boutique', 'en')).toBe('/en/boutique');
+        expect(localizedPath('/', 'en')).toBe('/en');
         expect(localizedPath('/boutique', 'fr')).toBe('/boutique');
     });
 });

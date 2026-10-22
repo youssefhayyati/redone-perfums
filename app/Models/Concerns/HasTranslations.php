@@ -5,8 +5,9 @@ namespace App\Models\Concerns;
 use App\Support\Locale;
 
 /**
- * Columns with an Arabic sibling (`name` / `name_ar`). The French original is the
- * reference; the Arabic version is used on Arabic requests whenever it is filled.
+ * Columns with an Arabic and an English sibling (`name` / `name_ar` / `name_en`). The
+ * French original is the reference; a translation is used on requests in its language
+ * whenever it is filled.
  */
 trait HasTranslations
 {
@@ -15,11 +16,13 @@ trait HasTranslations
      */
     public function translated(string $attribute): mixed
     {
-        if (Locale::isArabic()) {
-            $arabic = $this->getAttribute($attribute.'_ar');
+        $locale = Locale::translation();
 
-            if ($arabic !== null && $arabic !== '') {
-                return $arabic;
+        if ($locale !== null) {
+            $translation = $this->getAttribute($attribute.'_'.$locale);
+
+            if ($translation !== null && $translation !== '') {
+                return $translation;
             }
         }
 
@@ -39,7 +42,9 @@ trait HasTranslations
 
         foreach (static::TRANSLATABLE as $translatable) {
             if (in_array($translatable, $attributes, true)) {
-                $columns[] = $translatable.'_ar';
+                foreach (Locale::TRANSLATED as $locale) {
+                    $columns[] = $translatable.'_'.$locale;
+                }
             }
         }
 

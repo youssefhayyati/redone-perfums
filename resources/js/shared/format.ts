@@ -1,13 +1,16 @@
 import { getLocale, type Locale } from './locale';
 
 /**
- * Display helpers. Dates are shown in the store's timezone, in French or in Arabic
- * with the Western digits used in Morocco.
+ * Display helpers. Dates are shown in the store's timezone, in French, in English or
+ * in Arabic with the Western digits used in Morocco.
  */
 
 const TIME_ZONE = 'Africa/Casablanca';
 
-const INTL_LOCALES: Record<Locale, string> = { fr: 'fr-FR', ar: 'ar-MA-u-nu-latn' };
+const INTL_LOCALES: Record<Locale, string> = { fr: 'fr-FR', ar: 'ar-MA-u-nu-latn', en: 'en-GB' };
+
+/** The word between a date and its time: "21 oct. 2026 à 14:05". */
+const AT_TIME: Record<Locale, string> = { fr: 'à', ar: 'على الساعة', en: 'at' };
 
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -45,7 +48,7 @@ export function formatDateTime(iso: string | null | undefined): string {
 
     const date = new Date(iso);
 
-    return `${dateFormat('short').format(date)} ${getLocale() === 'ar' ? 'على الساعة' : 'à'} ${dateFormat('time').format(date)}`;
+    return `${dateFormat('short').format(date)} ${AT_TIME[getLocale()]} ${dateFormat('time').format(date)}`;
 }
 
 /** French plural: 0 and 1 take the singular. `plural(2, 'flacon')` → "2 flacons". */

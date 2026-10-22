@@ -217,6 +217,17 @@ class ProductControllerTest extends TestCase
         $this->assertSame(['nuit-d-ambre'], $this->slugs($response));
     }
 
+    public function test_index_search_finds_a_product_by_its_english_tagline(): void
+    {
+        ProductVariant::factory()->for(Product::factory()->published()->state(['slug' => 'nuit-d-ambre', 'tagline_en' => 'A luminous amber']))->create();
+        ProductVariant::factory()->for(Product::factory()->published()->state(['slug' => 'oud-minuit', 'tagline_en' => 'Precious wood']))->create();
+
+        $response = $this->withHeader('X-Locale', 'en')->getJson('/api/products?q=luminous');
+
+        $response->assertOk();
+        $this->assertSame(['nuit-d-ambre'], $this->slugs($response));
+    }
+
     public function test_facets_only_reflect_the_published_catalog(): void
     {
         $woody = FragranceFamily::factory()->named('Boisé')->create(['sort_order' => 1]);

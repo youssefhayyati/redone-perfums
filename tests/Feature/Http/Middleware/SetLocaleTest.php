@@ -24,10 +24,34 @@ class SetLocaleTest extends TestCase
             ->assertJsonPath('data.variants.0.label', '50 مل');
     }
 
-    #[TestWith(['X-Locale', 'en'])]
+    public function test_english_storefront_requests_receive_the_english_version(): void
+    {
+        $this->bilingualProduct(['name_en' => 'Amber Night', 'tagline_en' => 'A luminous amber that lingers until dawn.']);
+
+        $response = $this->withHeader('X-Locale', 'en')->getJson('/api/products/nuit-d-ambre');
+
+        $response->assertOk()
+            ->assertJsonPath('data.name', 'Amber Night')
+            ->assertJsonPath('data.tagline', 'A luminous amber that lingers until dawn.')
+            ->assertJsonPath('data.variants.0.label', '50 ml');
+    }
+
+    public function test_english_requests_fall_back_to_french_where_no_english_text_is_written(): void
+    {
+        $this->bilingualProduct(['name_en' => 'Amber Night']);
+
+        $response = $this->withHeader('X-Locale', 'en')->getJson('/api/products/nuit-d-ambre');
+
+        $response->assertOk()
+            ->assertJsonPath('data.name', 'Amber Night')
+            ->assertJsonPath('data.tagline', 'Un ambre lumineux qui s’étire jusqu’à l’aube.');
+    }
+
+    #[TestWith(['X-Locale', 'de'])]
     #[TestWith(['X-Locale', 'fr'])]
     #[TestWith(['Accept-Language', 'ar'])]
-    public function test_requests_without_an_arabic_x_locale_stay_in_french(string $header, string $value): void
+    #[TestWith(['Accept-Language', 'en'])]
+    public function test_requests_without_a_storefront_x_locale_stay_in_french(string $header, string $value): void
     {
         $this->bilingualProduct();
 

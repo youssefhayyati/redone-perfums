@@ -48,6 +48,30 @@ class PasswordResetControllerTest extends TestCase
         $this->assertStringContainsString('/ar/compte/reinitialiser?token=', $notification->toMail($user)->actionUrl);
     }
 
+    public function test_forgot_password_from_the_english_storefront_links_to_the_english_page(): void
+    {
+        $user = User::factory()->create(['email' => 'salma@example.com']);
+        Notification::fake();
+
+        $response = $this->withHeader('X-Locale', 'en')->postJson('/api/auth/forgot-password', ['email' => 'salma@example.com']);
+
+        $response->assertOk()
+            ->assertExactJson(['message' => 'If an account exists for this address, a reset link has just been sent to it.']);
+        $notification = Notification::sent($user, ResetPassword::class)->sole();
+        $this->assertStringContainsString('/en/compte/reinitialiser?token=', $notification->toMail($user)->actionUrl);
+    }
+
+    public function test_english_forgot_password_never_reveals_whether_an_account_exists(): void
+    {
+        Notification::fake();
+
+        $response = $this->withHeader('X-Locale', 'en')->postJson('/api/auth/forgot-password', ['email' => 'inconnu@example.com']);
+
+        $response->assertOk()
+            ->assertExactJson(['message' => 'If an account exists for this address, a reset link has just been sent to it.']);
+        Notification::assertNothingSent();
+    }
+
     public function test_forgot_password_gives_the_same_answer_for_an_unknown_address_and_sends_nothing(): void
     {
         User::factory()->create(['email' => 'salma@example.com']);

@@ -6,7 +6,8 @@ const STORE = 'Myperfum';
 
 /** "930 DH" or "930 درهم": the customer's currency word, the same digits. */
 function amount(centimes: number, locale: MessageOrder['locale']): string {
-    const value = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: centimes % 100 === 0 ? 0 : 2 }).format(centimes / 100);
+    // English customers read "1,250"; French and Arabic ones "1 250", as on their storefront.
+    const value = new Intl.NumberFormat(locale === 'en' ? 'en-GB' : 'fr-FR', { maximumFractionDigits: centimes % 100 === 0 ? 0 : 2 }).format(centimes / 100);
 
     return `${value} ${locale === 'ar' ? 'درهم' : 'DH'}`;
 }
@@ -38,6 +39,26 @@ export function whatsappMessage(order: MessageOrder): string {
                 return `${hello} شكرًا على طلبك ${order.reference}! هل أعجبتك العطور؟`;
             default:
                 return `${hello} تم إلغاء طلبك ${order.reference}. لا تتردد في مراسلتنا لأي سؤال.`;
+        }
+    }
+
+    if (order.locale === 'en') {
+        const hello = `Hello ${name}, this is ${STORE}.`;
+        switch (order.status) {
+            case 'pending':
+                return `${hello} We have received your order ${order.reference} (${total}, delivery to ${order.city}). Could you confirm it for us?`;
+            case 'confirmed':
+            case 'processing':
+                return `${hello} Your order ${order.reference} is confirmed: we are preparing your parcel.`;
+            case 'shipped':
+                return [
+                    `${hello} Your order ${order.reference} is on its way${order.carrier ? ` with ${order.carrier}` : ''}${order.tracking_number ? ` (tracking: ${order.tracking_number})` : ''}.`,
+                    cashDue ? `Please have ${total} ready in cash for the delivery.` : '',
+                ].filter(Boolean).join(' ');
+            case 'delivered':
+                return `${hello} Thank you for your order ${order.reference}! Are you enjoying your perfumes?`;
+            default:
+                return `${hello} Your order ${order.reference} has been cancelled. Feel free to write to us with any question.`;
         }
     }
 

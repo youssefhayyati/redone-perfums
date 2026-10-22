@@ -42,6 +42,19 @@ class NoteControllerTest extends TestCase
         $this->assertSame('Vanille', $note->fresh()->name);
     }
 
+    public function test_update_saves_the_english_name_without_touching_the_arabic_one(): void
+    {
+        $note = Note::create(['name' => 'Bergamote', 'slug' => 'bergamote', 'name_ar' => 'برغموت']);
+
+        $response = $this->actingAs($this->manager())->putJson("/api/admin/notes/{$note->id}", ['name_en' => 'Bergamot']);
+
+        $response->assertOk()
+            ->assertJsonPath('data.name_en', 'Bergamot')
+            ->assertJsonPath('data.name_ar', 'برغموت');
+        $this->assertSame('Bergamot', $note->fresh()->name_en);
+        $this->assertSame('برغموت', $note->fresh()->name_ar);
+    }
+
     private function manager(): User
     {
         return User::factory()->manager()->create();

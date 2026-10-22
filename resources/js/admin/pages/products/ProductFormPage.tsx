@@ -9,7 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { ErrorState, Skeleton } from '../../components/ui/feedback';
 import { ChipToggleGroup, ColorField, UnsavedChangesDialog } from '../../components/ui/fields';
-import { ARABIC_PANEL_HINT, arabicText, Field, Fieldset, ScaleInput, SelectInput, Switch, TextArea, TextInput, AffixInput } from '../../components/ui/form';
+import { ARABIC_PANEL_HINT, arabicText, ENGLISH_PANEL_HINT, englishText, Field, Fieldset, ScaleInput, SelectInput, Switch, TextArea, TextInput, AffixInput } from '../../components/ui/form';
 import { FormBar } from '../../components/ui/FormBar';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { TagInput } from '../../components/ui/TagInput';
@@ -40,6 +40,7 @@ const NOTE_LAYERS: Array<{ layer: NoteLayer; label: string; hint: string }> = [
 
 const CONCENTRATIONS = ['Eau de parfum', 'Extrait de parfum', 'Eau de toilette', 'Huile parfumée'];
 const CONCENTRATIONS_AR = ['ماء عطر', 'خلاصة عطر', 'ماء تواليت', 'زيت عطري'];
+const CONCENTRATIONS_EN = ['Eau de Parfum', 'Extrait de Parfum', 'Eau de Toilette', 'Perfume oil'];
 
 type TextKey =
     | 'name'
@@ -58,7 +59,14 @@ type TextKey =
     | 'inspiration_ar'
     | 'concentration_ar'
     | 'meta_title_ar'
-    | 'meta_description_ar';
+    | 'meta_description_ar'
+    | 'name_en'
+    | 'tagline_en'
+    | 'description_en'
+    | 'inspiration_en'
+    | 'concentration_en'
+    | 'meta_title_en'
+    | 'meta_description_en';
 
 function ProductEditor({ initial, options }: { initial: AdminProduct | null; options: CatalogOptions }) {
     const navigate = useNavigate();
@@ -259,6 +267,41 @@ function ProductEditor({ initial, options }: { initial: AdminProduct | null; opt
                             </Field>
                             <Field label="Description SEO" optional error={errors.meta_description_ar} counter={{ value: form.meta_description_ar.length, max: 320 }}>
                                 {(control) => <TextArea {...control} {...text('meta_description_ar')} {...arabicText} rows={3} maxLength={320} placeholder={form.meta_description || form.tagline_ar || form.tagline} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel title="Version anglaise" description={ENGLISH_PANEL_HINT}>
+                        <div className="flex flex-col gap-4">
+                            <Field label="Nom" optional error={errors.name_en} hint="Laissé vide, le nom français s’affiche, comme le font les maisons de parfum à l’étranger.">
+                                {(control) => <TextInput {...control} {...text('name_en')} {...englishText} maxLength={120} autoComplete="off" placeholder={form.name} />}
+                            </Field>
+                            <Field label="Accroche" optional error={errors.tagline_en} counter={{ value: form.tagline_en.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...text('tagline_en')} {...englishText} maxLength={255} placeholder={form.tagline} />}
+                            </Field>
+                            <Field label="Description" optional error={errors.description_en} counter={{ value: form.description_en.length, max: 5000 }}>
+                                {(control) => <TextArea {...control} {...text('description_en')} {...englishText} rows={6} maxLength={5000} />}
+                            </Field>
+                            <Field label="Inspiration" optional error={errors.inspiration_en} counter={{ value: form.inspiration_en.length, max: 5000 }}>
+                                {(control) => <TextArea {...control} {...text('inspiration_en')} {...englishText} rows={4} maxLength={5000} />}
+                            </Field>
+                            <Field label="Concentration" optional error={errors.concentration_en}>
+                                {(control) => (
+                                    <>
+                                        <TextInput {...control} {...text('concentration_en')} {...englishText} list="concentrations-en" maxLength={60} placeholder={form.concentration} />
+                                        <datalist id="concentrations-en">
+                                            {CONCENTRATIONS_EN.map((value) => (
+                                                <option key={value} value={value} />
+                                            ))}
+                                        </datalist>
+                                    </>
+                                )}
+                            </Field>
+                            <Field label="Titre SEO" optional error={errors.meta_title_en} counter={{ value: form.meta_title_en.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...text('meta_title_en')} {...englishText} maxLength={255} placeholder={form.meta_title || form.name_en || form.name} />}
+                            </Field>
+                            <Field label="Description SEO" optional error={errors.meta_description_en} counter={{ value: form.meta_description_en.length, max: 320 }}>
+                                {(control) => <TextArea {...control} {...text('meta_description_en')} {...englishText} rows={3} maxLength={320} placeholder={form.meta_description || form.tagline_en || form.tagline} />}
                             </Field>
                         </div>
                     </Panel>

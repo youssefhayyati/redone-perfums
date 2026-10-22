@@ -380,9 +380,9 @@ export default function OrderDetailPage() {
                                 <div className="min-w-0">
                                     <p className="font-medium text-ink">{order.customer_name}</p>
                                     <p className="text-sm text-muted tabular-nums">{order.phone}</p>
-                                    {order.locale === 'ar' && (
+                                    {order.locale !== 'fr' && (
                                         <Badge tone="accent" className="mt-1.5">
-                                            Commande passée en arabe
+                                            {order.locale === 'ar' ? 'Commande passée en arabe' : 'Commande passée en anglais'}
                                         </Badge>
                                     )}
                                     {order.email && (

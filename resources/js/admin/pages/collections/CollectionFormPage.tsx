@@ -8,7 +8,7 @@ import { Button } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { ErrorState, Skeleton } from '../../components/ui/feedback';
 import { ColorField, UnsavedChangesDialog } from '../../components/ui/fields';
-import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, Switch, TextArea, TextInput } from '../../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, ENGLISH_PANEL_HINT, englishText, Field, Switch, TextArea, TextInput } from '../../components/ui/form';
 import { FormBar } from '../../components/ui/FormBar';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { ImageField, ProductPicker } from '../../components/ui/pickers';
@@ -27,8 +27,11 @@ interface CollectionForm {
     tagline: string;
     description: string;
     name_ar: string;
+    name_en: string;
     tagline_ar: string;
+    tagline_en: string;
     description_ar: string;
+    description_en: string;
     image_path: string | null;
     image_url: string | null;
     accent_color: string;
@@ -45,8 +48,11 @@ function toForm(collection: AdminCollection | null): CollectionForm {
         tagline: collection?.tagline ?? '',
         description: collection?.description ?? '',
         name_ar: collection?.name_ar ?? '',
+        name_en: collection?.name_en ?? '',
         tagline_ar: collection?.tagline_ar ?? '',
+        tagline_en: collection?.tagline_en ?? '',
         description_ar: collection?.description_ar ?? '',
+        description_en: collection?.description_en ?? '',
         image_path: collection?.image_path ?? null,
         image_url: collection?.image_url ?? null,
         accent_color: collection?.accent_color ?? '',
@@ -66,8 +72,11 @@ function toPayload(form: CollectionForm): CollectionPayload {
         tagline: text(form.tagline),
         description: text(form.description),
         name_ar: text(form.name_ar),
+        name_en: text(form.name_en),
         tagline_ar: text(form.tagline_ar),
+        tagline_en: text(form.tagline_en),
         description_ar: text(form.description_ar),
+        description_en: text(form.description_en),
         image_path: form.image_path,
         accent_color: form.accent_color === '' ? null : form.accent_color.toLowerCase(),
         is_visible: form.is_visible,
@@ -193,6 +202,20 @@ function CollectionEditor({ initial, options }: { initial: AdminCollection | nul
                             </Field>
                             <Field label="Description" optional error={errors.description_ar} counter={{ value: form.description_ar.length, max: 3000 }}>
                                 {(control) => <TextArea {...control} {...arabicText} rows={5} maxLength={3000} value={form.description_ar} onChange={(event) => set('description_ar', event.target.value)} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel title="Version anglaise" description={ENGLISH_PANEL_HINT}>
+                        <div className="flex flex-col gap-4">
+                            <Field label="Nom" optional error={errors.name_en}>
+                                {(control) => <TextInput {...control} {...englishText} value={form.name_en} maxLength={120} placeholder={form.name} onChange={(event) => set('name_en', event.target.value)} />}
+                            </Field>
+                            <Field label="Accroche" optional error={errors.tagline_en} counter={{ value: form.tagline_en.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...englishText} value={form.tagline_en} maxLength={255} placeholder={form.tagline} onChange={(event) => set('tagline_en', event.target.value)} />}
+                            </Field>
+                            <Field label="Description" optional error={errors.description_en} counter={{ value: form.description_en.length, max: 3000 }}>
+                                {(control) => <TextArea {...control} {...englishText} rows={5} maxLength={3000} value={form.description_en} onChange={(event) => set('description_en', event.target.value)} />}
                             </Field>
                         </div>
                     </Panel>

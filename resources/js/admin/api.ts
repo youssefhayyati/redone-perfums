@@ -185,7 +185,7 @@ export const products = {
 export const notes = {
     search: (search: string, signal?: AbortSignal) => get<Data<string[]>>('/notes', { search }, signal).then(unwrap),
     translations: (signal?: AbortSignal) => get<Data<NoteTranslation[]>>('/notes/translations', undefined, signal).then(unwrap),
-    translate: (id: number, nameAr: string | null) => put<Data<Omit<NoteTranslation, 'products_count'>>>(`/notes/${id}`, { name_ar: nameAr }).then(unwrap),
+    translate: (id: number, names: Partial<Pick<NoteTranslation, 'name_ar' | 'name_en'>>) => put<Data<Omit<NoteTranslation, 'products_count'>>>(`/notes/${id}`, names).then(unwrap),
 };
 
 export const families = {

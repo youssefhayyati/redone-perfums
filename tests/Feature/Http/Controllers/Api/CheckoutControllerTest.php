@@ -561,6 +561,45 @@ class CheckoutControllerTest extends TestCase
             ->assertJsonValidationErrors(['phone' => 'حقل الهاتف مطلوب.']);
     }
 
+    public function test_english_checkout_records_the_language_and_names_items_in_english(): void
+    {
+        $variant = ProductVariant::factory()
+            ->for(Product::factory()->published()->state(['name' => 'Ambre Nuit', 'name_en' => 'Amber Night']))
+            ->create(['price' => 45000, 'size_ml' => 50]);
+        $cart = $this->cartWith([[$variant, 1]]);
+        $city = City::factory()->for(DeliveryZone::factory()->state(['fee' => 3000]), 'zone')->named('Tanger')->create(['name_en' => 'Tangier']);
+
+        $response = $this->withCart($cart)->withHeader('X-Locale', 'en')->postJson('/api/checkout', $this->payload($city));
+
+        $response->assertCreated()
+            ->assertJsonPath('order.items.0.name', 'Amber Night')
+            ->assertJsonPath('order.items.0.variant_label', '50 ml')
+            ->assertJsonPath('order.status_label', 'Pending');
+        $this->assertDatabaseHas('orders', ['reference' => $response->json('order.reference'), 'locale' => 'en', 'city_name' => 'Tangier']);
+    }
+
+    public function test_english_checkout_confirms_in_english_while_the_store_alert_stays_in_french(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $this->withCart($cart)->withHeader('X-Locale', 'en')->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemand(OrderConfirmation::class, fn (OrderConfirmation $notification) => $notification->locale === 'en');
+        Notification::assertSentOnDemand(NewOrderAlert::class, fn (NewOrderAlert $notification) => $notification->locale === 'fr');
+    }
+
+    public function test_english_checkout_explains_missing_fields_in_english(): void
+    {
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+
+        $response = $this->withCart($cart)->withHeader('X-Locale', 'en')->postJson('/api/checkout', $this->payload($this->deliverableCity(), ['phone' => '']));
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors(['phone' => 'The phone number field is required.']);
+    }
+
     public function test_confirmation_shows_the_order_to_the_holder_of_the_guest_token(): void
     {
         $order = $this->placeOrder();

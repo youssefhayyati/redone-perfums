@@ -18,12 +18,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'allowed_sizes', 'eligibility', 'allow_duplicates', 'pricing_type', 'price',
     'discount_value', 'is_active', 'sort_order',
     'name_ar', 'tagline_ar', 'description_ar',
+    'name_en', 'tagline_en', 'description_en',
 ])]
 class Pack extends Model
 {
     use HasFactory, HasTranslations;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['name', 'tagline', 'description'];
 
     protected function casts(): array

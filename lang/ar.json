@@ -1,4 +1,5 @@
 {
+    " : ": ": ",
     "(and :count more error)": "(وخطأ آخر)",
     "(and :count more errors)": "(و:count أخطاء أخرى)",
     ", ": "، ",
@@ -24,6 +25,7 @@
     "Ce mode de paiement n’est pas disponible.": "طريقة الدفع هذه غير متاحة.",
     "Ce panier a déjà été commandé.": "سبق تقديم طلب بهذه السلة.",
     "Cet article ne se compose pas.": "لا يمكن تركيب هذا المنتج.",
+    "Cette boutique nécessite JavaScript pour fonctionner.": "يحتاج هذا المتجر إلى JavaScript ليعمل.",
     "Chaque parfum ne peut être choisi qu’une fois dans ce coffret.": "لا يمكن اختيار كل عطر إلا مرة واحدة في هذه العلبة.",
     "Coffret « :pack » : :reason": "علبة «:pack»: :reason",
     "Coffret « :pack » : un des parfums n’est plus disponible.": "علبة «:pack»: أحد العطور لم يعد متوفرًا.",

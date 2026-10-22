@@ -46,10 +46,12 @@ final class ProductSearch
             $query->where(fn (Builder $q) => $q
                 ->where('name', 'like', $term)
                 ->orWhere('name_ar', 'like', $term)
+                ->orWhere('name_en', 'like', $term)
                 ->orWhere('tagline', 'like', $term)
                 ->orWhere('tagline_ar', 'like', $term)
-                ->orWhereHas('notes', fn ($n) => $n->where('name', 'like', $term)->orWhere('name_ar', 'like', $term))
-                ->orWhereHas('family', fn ($f) => $f->where('name', 'like', $term)->orWhere('name_ar', 'like', $term)));
+                ->orWhere('tagline_en', 'like', $term)
+                ->orWhereHas('notes', fn ($n) => $n->where('name', 'like', $term)->orWhere('name_ar', 'like', $term)->orWhere('name_en', 'like', $term))
+                ->orWhereHas('family', fn ($f) => $f->where('name', 'like', $term)->orWhere('name_ar', 'like', $term)->orWhere('name_en', 'like', $term)));
         }
 
         if ($families = $this->slugList($request->query('family'))) {

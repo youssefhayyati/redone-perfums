@@ -74,6 +74,21 @@ class OrderStatusUpdateTest extends TestCase
         $this->assertStringContainsString('/ar/commande/confirmation/RP-261021-AMBRE2', $html);
     }
 
+    public function test_english_order_hears_about_its_shipment_in_english(): void
+    {
+        $order = $this->order(['locale' => 'en', 'carrier' => 'Amana', 'tracking_number' => 'AM123']);
+
+        App::setLocale('en');
+        $mail = (new OrderStatusUpdate($order, OrderStatus::Shipped))->locale('en')->toMail(new AnonymousNotifiable);
+        $html = (string) $mail->render();
+
+        $this->assertSame('Your order RP-261021-AMBRE2 is on its way', $mail->subject);
+        $this->assertStringContainsString('dir="ltr"', $html);
+        $this->assertMatchesRegularExpression('#<strong[^>]*>930\x{00A0}DH</strong>#u', $html);
+        $this->assertMatchesRegularExpression('#<strong[^>]*>Carrier</strong>: Amana#u', $html);
+        $this->assertStringContainsString('/en/commande/confirmation/RP-261021-AMBRE2', $html);
+    }
+
     /**
      * A cash-on-delivery order of 930 DH.
      *

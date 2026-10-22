@@ -43,6 +43,19 @@ describe('formatPriceFrom', () => {
     });
 });
 
+describe('on English pages', () => {
+    it('groups thousands with a comma and uses a decimal point, like the e-mails', () => {
+        setLocale('en');
+        expect(formatMoney(125000)).toBe(`1,250${nbsp}DH`);
+        expect(formatMoney(125050)).toBe(`1,250.50${nbsp}DH`);
+    });
+
+    it('prefixes "From" when the product has several prices', () => {
+        setLocale('en');
+        expect(formatPriceFrom(45000, true)).toBe(`From 450${nbsp}DH`);
+    });
+});
+
 describe('parseDirhams', () => {
     it.each([
         ['450', 45000],

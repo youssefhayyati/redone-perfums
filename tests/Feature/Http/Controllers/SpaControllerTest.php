@@ -320,7 +320,51 @@ class SpaControllerTest extends TestCase
             ->assertSee('<html lang="fr" dir="ltr"', false)
             ->assertSee('hreflang="fr" href="'.config('app.url').'/boutique"', false)
             ->assertSee('hreflang="ar" href="'.config('app.url').'/ar/boutique"', false)
+            ->assertSee('hreflang="en" href="'.config('app.url').'/en/boutique"', false)
             ->assertSee('hreflang="x-default" href="'.config('app.url').'/boutique"', false);
+    }
+
+    public function test_english_pages_render_left_to_right_with_english_metadata(): void
+    {
+        $product = Product::factory()->published()->create(['name' => 'Aurore', 'slug' => 'aurore', 'name_en' => 'Dawn', 'tagline_en' => 'Amber and orange blossom']);
+        ProductVariant::factory()->for($product)->create();
+
+        $response = $this->get('/en/parfums/aurore');
+
+        $response->assertOk()
+            ->assertSee('<html lang="en" dir="ltr"', false)
+            ->assertSee('<title>Dawn — Myperfum</title>', false)
+            ->assertSee('<meta property="og:locale" content="en_GB">', false)
+            ->assertSee('<meta property="og:locale:alternate" content="fr_MA">', false)
+            ->assertSee('<meta property="og:locale:alternate" content="ar_MA">', false);
+        $this->assertSame('Amber and orange blossom', $response->viewData('meta')['description']);
+        $this->assertSame('Dawn', $this->jsonLd($response)['name']);
+    }
+
+    public function test_english_pages_keep_the_french_text_where_no_english_is_written(): void
+    {
+        $product = Product::factory()->published()->create(['name' => 'Nuit d’Ambre', 'slug' => 'nuit-d-ambre', 'name_en' => null]);
+        ProductVariant::factory()->for($product)->create();
+
+        $this->get('/en/parfums/nuit-d-ambre')
+            ->assertOk()
+            ->assertSee('<title>Nuit d’Ambre — Myperfum</title>', false);
+    }
+
+    public function test_english_home_page_renders_with_200(): void
+    {
+        $response = $this->get('/en');
+
+        $response->assertOk()
+            ->assertSee('<html lang="en" dir="ltr"', false)
+            ->assertSee('<title>Myperfum — Perfume house</title>', false);
+    }
+
+    public function test_unknown_english_path_returns_404_and_is_not_indexed(): void
+    {
+        $this->get('/en/page-qui-n-existe-pas')
+            ->assertNotFound()
+            ->assertSee('noindex', false);
     }
 
     public function test_arabic_home_page_renders_with_200(): void

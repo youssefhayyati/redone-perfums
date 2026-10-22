@@ -17,13 +17,14 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable([
     'title', 'body', 'detail', 'image_path', 'image_credit', 'sort_order', 'is_visible',
     'title_ar', 'body_ar', 'detail_ar',
+    'title_en', 'body_en', 'detail_en',
 ])]
 class ProcessStep extends Model
 {
     /** @use HasFactory<ProcessStepFactory> */
     use HasFactory, HasTranslations;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['title', 'body', 'detail'];
 
     /** @var array<string, mixed> */

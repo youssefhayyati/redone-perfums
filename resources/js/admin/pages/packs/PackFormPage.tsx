@@ -10,7 +10,7 @@ import { Button, IconButton } from '../../components/ui/Button';
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 import { ErrorState, InlineAlert, Skeleton } from '../../components/ui/feedback';
 import { ChipToggleGroup, UnsavedChangesDialog } from '../../components/ui/fields';
-import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, FieldError, Fieldset, MoneyInput, RadioCards, SelectInput, Switch, TextArea, TextInput } from '../../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, ENGLISH_PANEL_HINT, englishText, Field, FieldError, Fieldset, MoneyInput, RadioCards, SelectInput, Switch, TextArea, TextInput } from '../../components/ui/form';
 import { FormBar } from '../../components/ui/FormBar';
 import { PageHeader, Panel } from '../../components/ui/Panel';
 import { ImageField, ProductPicker } from '../../components/ui/pickers';
@@ -240,6 +240,20 @@ function PackEditor({ initial, options }: { initial: AdminPack | null; options: 
                             </Field>
                             <Field label="Description" optional error={errors.description_ar} counter={{ value: form.description_ar.length, max: 3000 }}>
                                 {(control) => <TextArea {...control} {...arabicText} rows={4} maxLength={3000} value={form.description_ar} onChange={(event) => set('description_ar', event.target.value)} />}
+                            </Field>
+                        </div>
+                    </Panel>
+
+                    <Panel title="Version anglaise" description={ENGLISH_PANEL_HINT}>
+                        <div className="flex flex-col gap-4">
+                            <Field label="Nom" optional error={errors.name_en}>
+                                {(control) => <TextInput {...control} {...englishText} value={form.name_en} maxLength={120} placeholder={form.name} onChange={(event) => set('name_en', event.target.value)} />}
+                            </Field>
+                            <Field label="Accroche" optional error={errors.tagline_en} counter={{ value: form.tagline_en.length, max: 255 }}>
+                                {(control) => <TextInput {...control} {...englishText} value={form.tagline_en} maxLength={255} placeholder={form.tagline} onChange={(event) => set('tagline_en', event.target.value)} />}
+                            </Field>
+                            <Field label="Description" optional error={errors.description_en} counter={{ value: form.description_en.length, max: 3000 }}>
+                                {(control) => <TextArea {...control} {...englishText} rows={4} maxLength={3000} value={form.description_en} onChange={(event) => set('description_en', event.target.value)} />}
                             </Field>
                         </div>
                     </Panel>

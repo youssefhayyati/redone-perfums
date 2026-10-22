@@ -8,7 +8,7 @@ import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Dialog } from '../components/ui/Dialog';
 import { EmptyState, ErrorState, Spinner, TableSkeleton } from '../components/ui/feedback';
 import { FilterTabs } from '../components/ui/FilterTabs';
-import { AffixInput, arabicText, Field, TextArea, TextInput } from '../components/ui/form';
+import { AffixInput, arabicText, englishText, Field, TextArea, TextInput } from '../components/ui/form';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { DataTable, Td, Th } from '../components/ui/Table';
 import { toast } from '../components/ui/toast';
@@ -24,14 +24,16 @@ interface FamilyForm {
     slug: string;
     description: string;
     name_ar: string;
+    name_en: string;
     description_ar: string;
+    description_en: string;
     sort_order: string;
 }
 
 const nullableText = (value: string): string | null => (value.trim() === '' ? null : value.trim());
 
 function FamilyDialog({ family, open, onClose, onSaved }: { family: Family | null; open: boolean; onClose: () => void; onSaved: (family: Family) => void }) {
-    const [form, setForm] = useState<FamilyForm>({ name: '', slug: '', description: '', name_ar: '', description_ar: '', sort_order: '0' });
+    const [form, setForm] = useState<FamilyForm>({ name: '', slug: '', description: '', name_ar: '', description_ar: '', name_en: '', description_en: '', sort_order: '0' });
     const [errors, setErrors] = useState<FieldErrors>({});
     const [busy, setBusy] = useState(false);
 
@@ -42,7 +44,9 @@ function FamilyDialog({ family, open, onClose, onSaved }: { family: Family | nul
                 slug: family?.slug ?? '',
                 description: family?.description ?? '',
                 name_ar: family?.name_ar ?? '',
+                name_en: family?.name_en ?? '',
                 description_ar: family?.description_ar ?? '',
+                description_en: family?.description_en ?? '',
                 sort_order: String(family?.sort_order ?? 0),
             });
             setErrors({});
@@ -64,7 +68,9 @@ function FamilyDialog({ family, open, onClose, onSaved }: { family: Family | nul
                 slug: form.slug.trim(),
                 description: nullableText(form.description),
                 name_ar: nullableText(form.name_ar),
+                name_en: nullableText(form.name_en),
                 description_ar: nullableText(form.description_ar),
+                description_en: nullableText(form.description_en),
                 sort_order: Number.parseInt(form.sort_order, 10) || 0,
             };
             const saved = family ? await api.families.update(family.id, payload) : await api.families.create(payload);
@@ -126,6 +132,12 @@ function FamilyDialog({ family, open, onClose, onSaved }: { family: Family | nul
                 <Field label="Description en arabe" optional error={errors.description_ar} counter={{ value: form.description_ar.length, max: 2000 }}>
                     {(control) => <TextArea {...control} {...arabicText} rows={3} maxLength={2000} value={form.description_ar} onChange={(event) => setForm({ ...form, description_ar: event.target.value })} />}
                 </Field>
+                <Field label="Nom en anglais" optional error={errors.name_en} hint="Laissé vide, le nom français s’affiche sur la boutique en anglais.">
+                    {(control) => <TextInput {...control} {...englishText} value={form.name_en} maxLength={80} placeholder={form.name} onChange={(event) => setForm({ ...form, name_en: event.target.value })} />}
+                </Field>
+                <Field label="Description en anglais" optional error={errors.description_en} counter={{ value: form.description_en.length, max: 2000 }}>
+                    {(control) => <TextArea {...control} {...englishText} rows={3} maxLength={2000} value={form.description_en} onChange={(event) => setForm({ ...form, description_en: event.target.value })} />}
+                </Field>
                 <Field label="Ordre d’affichage" error={errors.sort_order}>
                     {(control) => <AffixInput {...control} inputMode="numeric" wrapperClassName="w-28" value={form.sort_order} onChange={(event) => setForm({ ...form, sort_order: event.target.value })} />}
                 </Field>
@@ -134,27 +146,34 @@ function FamilyDialog({ family, open, onClose, onSaved }: { family: Family | nul
     );
 }
 
-/** Arabic name of one note, saved when the field is left. */
-function NoteNameField({ note, onSaved }: { note: NoteTranslation; onSaved: (note: NoteTranslation) => void }) {
-    const [value, setValue] = useState(note.name_ar ?? '');
+/** The two languages a note is named in besides French. */
+const NOTE_LANGUAGES = {
+    ar: { field: 'name_ar', label: 'Nom arabe', input: arabicText },
+    en: { field: 'name_en', label: 'Nom anglais', input: englishText },
+} as const;
+
+/** The Arabic or English name of one note, saved when the field is left. */
+function NoteNameField({ note, language, onSaved }: { note: NoteTranslation; language: keyof typeof NOTE_LANGUAGES; onSaved: (note: NoteTranslation) => void }) {
+    const { field, label, input } = NOTE_LANGUAGES[language];
+    const [value, setValue] = useState(note[field] ?? '');
     const [status, setStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
     const [error, setError] = useState<string | null>(null);
 
     async function save() {
         const next = value.trim();
-        if (next === (note.name_ar ?? '')) {
+        if (next === (note[field] ?? '')) {
             return;
         }
         setStatus('saving');
         setError(null);
         try {
-            const saved = await api.notes.translate(note.id, next === '' ? null : next);
-            setValue(saved.name_ar ?? '');
+            const saved = await api.notes.translate(note.id, { [field]: next === '' ? null : next });
+            setValue(saved[field] ?? '');
             onSaved({ ...note, ...saved });
             setStatus('saved');
         } catch (failure) {
             setStatus('idle');
-            setError(firstError(toFieldErrors(failure), 'name_ar') ?? errorText(failure));
+            setError(firstError(toFieldErrors(failure), field) ?? errorText(failure));
         }
     }
 
@@ -162,10 +181,10 @@ function NoteNameField({ note, onSaved }: { note: NoteTranslation; onSaved: (not
         <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
                 <TextInput
-                    {...arabicText}
+                    {...input}
                     value={value}
                     maxLength={120}
-                    aria-label={`Nom arabe de « ${note.name} »`}
+                    aria-label={`${label} de « ${note.name} »`}
                     aria-invalid={error ? true : undefined}
                     placeholder="—"
                     onChange={(event) => {
@@ -204,17 +223,22 @@ function NoteTranslations() {
     /** Notes listed under "À traduire", fixed when the tab is chosen so a row stays put once translated. */
     const [shownIds, setShownIds] = useState<Set<number> | null>(null);
     const notes = query.data ?? [];
-    const missing = notes.filter((note) => !note.name_ar).length;
+    const untranslated = (note: NoteTranslation) => !note.name_ar || !note.name_en;
+    const missing = notes.filter(untranslated).length;
     const visible = shownIds === null ? notes : notes.filter((note) => shownIds.has(note.id));
 
     const replace = (note: NoteTranslation) => query.setData((current) => current?.map((item) => (item.id === note.id ? note : item)));
 
     return (
-        <Panel title="Notes olfactives en arabe" description="Les notes naissent des pyramides des produits ; leur nom arabe s’enregistre dès que vous quittez le champ." padded={false}>
+        <Panel
+            title="Notes olfactives en arabe et en anglais"
+            description="Les notes naissent des pyramides des produits ; chaque nom s’enregistre dès que vous quittez le champ. Laissé vide, le nom français s’affiche."
+            padded={false}
+        >
             {query.error && !query.data ? (
                 <ErrorState error={query.error} onRetry={query.reload} />
             ) : !query.data ? (
-                <TableSkeleton rows={4} columns={3} />
+                <TableSkeleton rows={4} columns={4} />
             ) : notes.length === 0 ? (
                 <EmptyState icon={Layers} title="Aucune note" description="Ajoutez des notes à la pyramide d’un produit pour les traduire ici." />
             ) : (
@@ -223,7 +247,7 @@ function NoteTranslations() {
                         <FilterTabs
                             label="Filtrer les notes"
                             value={shownIds === null ? 'all' : 'missing'}
-                            onChange={(filter) => setShownIds(filter === 'all' ? null : new Set(notes.filter((note) => !note.name_ar).map((note) => note.id)))}
+                            onChange={(filter) => setShownIds(filter === 'all' ? null : new Set(notes.filter(untranslated).map((note) => note.id)))}
                             tabs={[
                                 { value: 'all', label: 'Toutes', count: notes.length },
                                 { value: 'missing', label: 'À traduire', count: missing },
@@ -231,13 +255,14 @@ function NoteTranslations() {
                         />
                     </div>
                     {visible.length === 0 ? (
-                        <EmptyState icon={Check} title="Tout est traduit" description="Chaque note a son nom en arabe." />
+                        <EmptyState icon={Check} title="Tout est traduit" description="Chaque note a son nom en arabe et en anglais." />
                     ) : (
-                        <DataTable caption="Noms arabes des notes olfactives">
+                        <DataTable caption="Noms arabes et anglais des notes olfactives">
                             <thead>
                                 <tr>
                                     <Th>Note</Th>
                                     <Th>Nom en arabe</Th>
+                                    <Th>Nom en anglais</Th>
                                     <Th hideBelow="sm" align="right">
                                         Parfums
                                     </Th>
@@ -247,8 +272,11 @@ function NoteTranslations() {
                                 {visible.map((note) => (
                                     <tr key={note.id}>
                                         <Td className="font-medium text-ink">{note.name}</Td>
-                                        <Td className="w-1/2 min-w-48">
-                                            <NoteNameField note={note} onSaved={replace} />
+                                        <Td className="w-1/3 min-w-40">
+                                            <NoteNameField note={note} language="ar" onSaved={replace} />
+                                        </Td>
+                                        <Td className="w-1/3 min-w-40">
+                                            <NoteNameField note={note} language="en" onSaved={replace} />
                                         </Td>
                                         <Td hideBelow="sm" align="right" className="tabular-nums text-muted">
                                             {note.products_count}

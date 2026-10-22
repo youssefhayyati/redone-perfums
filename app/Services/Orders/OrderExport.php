@@ -4,6 +4,7 @@ namespace App\Services\Orders;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Support\Locale;
 use App\Support\MoroccanPhone;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -67,7 +68,11 @@ final class OrderExport
             $order->coupon_code ?? '',
             $order->carrier ?? '',
             $order->tracking_number ?? '',
-            $order->locale === 'ar' ? 'Arabe' : 'Français',
+            match ($order->locale) {
+                Locale::ARABIC => 'Arabe',
+                Locale::ENGLISH => 'Anglais',
+                default => 'Français',
+            },
         ];
     }
 

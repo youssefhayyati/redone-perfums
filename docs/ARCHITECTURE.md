@@ -85,24 +85,30 @@ ProcessStep (homepage "Le laboratoire": how a perfume is made, one lab photo per
 
 ## Languages
 
-The storefront speaks French (`/…`) and Modern Standard Arabic (`/ar/…`, right to left);
-the admin stays French and edits both.
+The storefront speaks French (`/…`), Modern Standard Arabic (`/ar/…`, right to left)
+and British English (`/en/…`); the admin stays French and edits all three.
+`App\Support\Locale` lists the languages; French is the original, the others fall back
+to it field by field.
 
-- **Content**: translatable columns have an `_ar` sibling (`name_ar`, `tagline_ar`…),
+- **Content**: translatable columns have `_ar` and `_en` siblings (`name_ar`, `name_en`…),
   listed in each model's `TRANSLATABLE`. `HasTranslations::translated()` returns the
-  Arabic text when the app locale is Arabic and it is filled, the French one otherwise.
-  Settings follow the same rule with `{key}_ar` keys and `StoreSettings::localized()`.
+  text in the app locale when it is filled, the French one otherwise. Settings follow
+  the same rule with `{key}_ar` / `{key}_en` keys and `StoreSettings::localized()`.
+  Perfume names stay French in English unless the store writes one.
 - **API**: the storefront sends `X-Locale` (never `Accept-Language`, so admin calls stay
   French); `SetLocale` applies it. Server messages are written in French and translated
-  by `lang/ar.json` (and `lang/ar/*.php` for validation).
-- **Pages**: `SpaController` reads the `/ar` prefix and sets `<html lang dir>`, the
-  translated meta and hreflang alternates; the sitemap lists both languages.
+  by `lang/ar.json` and `lang/en.json` (and `lang/{ar,en}/*.php` for validation). The
+  fallback locale is French, so `lang/en.json` also carries Laravel's own strings.
+- **Pages**: `SpaController` reads the `/ar` or `/en` prefix and sets `<html lang dir>`,
+  the translated meta and hreflang alternates; the sitemap lists every language.
 - **Storefront copy**: written in French in the components and wrapped in `t()`,
   `tNodes()` (placeholders filled by elements) or `tn()` (counted nouns, Arabic's six
-  plural forms); `resources/js/storefront/i18n/ar.ts` must translate every message, which
-  the types enforce. Layout uses logical utilities (`ms-`, `ps-`, `start-`) and `rtl:`.
-- **Orders**: `orders.locale` records the customer's language; their confirmation is
-  sent in it, while the store's alert is always French.
+  plural forms); `resources/js/storefront/i18n/ar.ts` and `en.ts` must translate every
+  message, which the types enforce. Layout uses logical utilities (`ms-`, `ps-`,
+  `start-`) and `rtl:`. Money is "1 250 DH" in French, "1 250 درهم" in Arabic and
+  "1,250 DH" in English, the same in pages and e-mails.
+- **Orders**: `orders.locale` records the customer's language; their e-mails (and the
+  admin's WhatsApp messages) are written in it, while the store's alert is always French.
 
 ## Roles
 

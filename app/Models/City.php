@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['delivery_zone_id', 'name', 'region', 'is_active', 'sort_order', 'name_ar', 'region_ar'])]
+#[Fillable(['delivery_zone_id', 'name', 'region', 'is_active', 'sort_order', 'name_ar', 'region_ar', 'name_en', 'region_en'])]
 class City extends Model
 {
     use HasFactory, HasTranslations;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['name', 'region'];
 
     protected function casts(): array

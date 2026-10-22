@@ -20,12 +20,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'concentration', 'gender', 'longevity', 'sillage', 'status', 'is_featured', 'badge',
     'accent_color', 'sort_order', 'meta_title', 'meta_description', 'published_at',
     'name_ar', 'tagline_ar', 'description_ar', 'inspiration_ar', 'concentration_ar', 'meta_title_ar', 'meta_description_ar',
+    'name_en', 'tagline_en', 'description_en', 'inspiration_en', 'concentration_en', 'meta_title_en', 'meta_description_en',
 ])]
 class Product extends Model
 {
     use HasFactory, HasTranslations, SoftDeletes;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['name', 'tagline', 'description', 'inspiration', 'concentration', 'meta_title', 'meta_description'];
 
     public const BADGES = ['new', 'bestseller', 'limited'];

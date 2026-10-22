@@ -4,7 +4,7 @@ import { coordinatesFromMapsLink, mapEmbedUrl, parseGeoPoint } from '@shared/map
 import * as api from '../api';
 import { ErrorState, Skeleton } from '../components/ui/feedback';
 import { UnsavedChangesDialog } from '../components/ui/fields';
-import { arabicText, Field, SelectInput, Switch, TextArea, TextInput } from '../components/ui/form';
+import { arabicText, englishText, Field, SelectInput, Switch, TextArea, TextInput } from '../components/ui/form';
 import { FormBar } from '../components/ui/FormBar';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { toast } from '../components/ui/toast';
@@ -42,13 +42,14 @@ function MapPreview({ coordinates, zoom }: { coordinates: string; zoom: string }
     );
 }
 
-/** Arabic copy is stored beside its French setting, under the same key with "_ar". */
+/** Arabic and English copy is stored beside its French setting, under the same key with "_ar" or "_en". */
 const isArabicSetting = (key: string): boolean => key.endsWith('_ar');
+const isTranslatedSetting = (key: string): boolean => isArabicSetting(key) || key.endsWith('_en');
 
 interface SettingInputProps {
     field: SettingField;
     value: string | boolean;
-    /** For an Arabic setting: the French text shown when it is left blank. */
+    /** For an Arabic or English setting: the French text shown when it is left blank. */
     french?: string;
     products: SettingsPayload['products'];
     error?: string;
@@ -60,7 +61,7 @@ function SettingInput({ field, value, french, products, error, onChange }: Setti
         return <Switch checked={Boolean(value)} onChange={onChange} label={field.label} description={HINTS[field.key]} />;
     }
 
-    const copy = isArabicSetting(field.key) ? { ...arabicText, placeholder: french || undefined } : {};
+    const copy = isTranslatedSetting(field.key) ? { ...(isArabicSetting(field.key) ? arabicText : englishText), placeholder: french || undefined } : {};
 
     return (
         <Field label={field.label} error={error} hint={HINTS[field.key]} counter={field.type === 'text' ? { value: String(value).length, max: 2000 } : undefined}>
@@ -145,7 +146,7 @@ function SettingsEditor({ initial }: { initial: SettingsPayload }) {
         <form id="settings-form" onSubmit={(event) => void submit(event)} noValidate className="flex flex-col gap-6">
             <PageHeader
                 title="Réglages"
-                description="Informations et textes de la boutique, visibles immédiatement. Laissé vide, un champ « (arabe) » reprend le texte français sur la boutique en arabe."
+                description="Informations et textes de la boutique, visibles immédiatement. Laissé vide, un champ « (arabe) » ou « (anglais) » reprend le texte français sur la boutique dans cette langue."
             />
             <div className="grid items-start gap-6 lg:grid-cols-[13rem_minmax(0,1fr)]">
                 <nav aria-label="Sections des réglages" className="sticky top-20 hidden lg:block">
@@ -173,7 +174,7 @@ function SettingsEditor({ initial }: { initial: SettingsPayload }) {
                                                 <SettingInput
                                                     field={field}
                                                     value={draft[field.key] ?? ''}
-                                                    french={isArabicSetting(field.key) ? String(draft[field.key.slice(0, -3)] ?? '') : undefined}
+                                                    french={isTranslatedSetting(field.key) ? String(draft[field.key.slice(0, -3)] ?? '') : undefined}
                                                     products={payload.products}
                                                     error={errors[field.key]}
                                                     onChange={(value) =>

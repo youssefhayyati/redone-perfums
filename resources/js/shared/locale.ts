@@ -1,12 +1,21 @@
 /**
  * The language of the current page, taken from `<html lang>`, which the server sets
- * from the URL (`/ar/…` is Arabic). The admin's pages are French, so it stays French.
+ * from the URL (`/ar/…` is Arabic, `/en/…` English). The admin's pages are French, so
+ * it stays French.
  */
-export type Locale = 'fr' | 'ar';
+export type Locale = 'fr' | 'ar' | 'en';
 
-/** "ar" when the document is Arabic, "fr" otherwise. */
+export const LOCALES: readonly Locale[] = ['fr', 'ar', 'en'];
+
+function isLocale(value: string): value is Locale {
+    return (LOCALES as readonly string[]).includes(value);
+}
+
+/** The document's language when it is one of the storefront's, "fr" otherwise. */
 export function documentLocale(): Locale {
-    return typeof document !== 'undefined' && document.documentElement.lang === 'ar' ? 'ar' : 'fr';
+    const lang = typeof document !== 'undefined' ? document.documentElement.lang : '';
+
+    return isLocale(lang) ? lang : 'fr';
 }
 
 // Read when this module first loads, before any component or module-level label.

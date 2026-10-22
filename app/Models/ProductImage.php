@@ -54,8 +54,8 @@ class ProductImage extends Model
             'id' => $this->id,
             'url' => $this->url(),
             'srcset' => $this->srcset(),
-            // Alt texts are written in French; Arabic pages fall back to the translated product name.
-            'alt' => Locale::isArabic() ? null : $this->alt,
+            // Alt texts are written in French; Arabic and English pages fall back to the translated product name.
+            'alt' => Locale::translation() === null ? $this->alt : null,
             'width' => $this->width,
             'height' => $this->height,
         ];

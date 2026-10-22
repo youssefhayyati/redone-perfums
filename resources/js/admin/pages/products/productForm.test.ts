@@ -29,6 +29,13 @@ const product: AdminProduct = {
     concentration_ar: 'ماء عطر',
     meta_title_ar: null,
     meta_description_ar: null,
+    name_en: null,
+    tagline_en: 'A luminous amber that lingers until dawn.',
+    description_en: null,
+    inspiration_en: null,
+    concentration_en: 'Eau de Parfum',
+    meta_title_en: null,
+    meta_description_en: null,
     published_at: '2026-10-01T09:00:00+01:00',
     sales_count: 12,
     deleted_at: null,
@@ -78,6 +85,17 @@ describe('productFormToPayload', () => {
         expect(payload.name_ar).toBeNull();
         expect(payload.tagline_ar).toBe('عنبر وفانيليا');
         expect(payload.description_ar).toBeNull();
+    });
+
+    it('round-trips the English copy and sends blank English fields as null', () => {
+        const form = productToForm(product);
+        expect(form.tagline_en).toBe('A luminous amber that lingers until dawn.');
+        form.description_en = '  ';
+        form.name_en = ' Amber Night ';
+        const { payload } = productFormToPayload(form);
+        expect(payload.name_en).toBe('Amber Night');
+        expect(payload.concentration_en).toBe('Eau de Parfum');
+        expect(payload.description_en).toBeNull();
     });
 
     it('converts typed dirhams to centimes and nullifies empty optionals', () => {

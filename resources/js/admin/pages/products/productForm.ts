@@ -43,12 +43,19 @@ export interface ProductForm {
     meta_description: string;
     /** Arabic storefront copy; left blank, the French text is shown. */
     name_ar: string;
+    name_en: string;
     tagline_ar: string;
+    tagline_en: string;
     description_ar: string;
+    description_en: string;
     inspiration_ar: string;
+    inspiration_en: string;
     concentration_ar: string;
+    concentration_en: string;
     meta_title_ar: string;
+    meta_title_en: string;
     meta_description_ar: string;
+    meta_description_en: string;
     sort_order: string;
     notes: NotesByLayer;
     variants: VariantRow[];
@@ -106,12 +113,19 @@ export function emptyProductForm(): ProductForm {
         meta_title: '',
         meta_description: '',
         name_ar: '',
+        name_en: '',
         tagline_ar: '',
+        tagline_en: '',
         description_ar: '',
+        description_en: '',
         inspiration_ar: '',
+        inspiration_en: '',
         concentration_ar: '',
+        concentration_en: '',
         meta_title_ar: '',
+        meta_title_en: '',
         meta_description_ar: '',
+        meta_description_en: '',
         sort_order: '0',
         notes: { top: [], heart: [], base: [] },
         variants: [newVariantRow({ key: 'variant-new-1' })],
@@ -139,12 +153,19 @@ export function productToForm(product: AdminProduct): ProductForm {
         meta_title: product.meta_title ?? '',
         meta_description: product.meta_description ?? '',
         name_ar: product.name_ar ?? '',
+        name_en: product.name_en ?? '',
         tagline_ar: product.tagline_ar ?? '',
+        tagline_en: product.tagline_en ?? '',
         description_ar: product.description_ar ?? '',
+        description_en: product.description_en ?? '',
         inspiration_ar: product.inspiration_ar ?? '',
+        inspiration_en: product.inspiration_en ?? '',
         concentration_ar: product.concentration_ar ?? '',
+        concentration_en: product.concentration_en ?? '',
         meta_title_ar: product.meta_title_ar ?? '',
+        meta_title_en: product.meta_title_en ?? '',
         meta_description_ar: product.meta_description_ar ?? '',
+        meta_description_en: product.meta_description_en ?? '',
         sort_order: String(product.sort_order ?? 0),
         notes: {
             top: product.notes?.top ?? [],
@@ -272,12 +293,19 @@ export function productFormToPayload(form: ProductForm): { payload: ProductPaylo
         meta_title: nullableText(form.meta_title),
         meta_description: nullableText(form.meta_description),
         name_ar: nullableText(form.name_ar),
+        name_en: nullableText(form.name_en),
         tagline_ar: nullableText(form.tagline_ar),
+        tagline_en: nullableText(form.tagline_en),
         description_ar: nullableText(form.description_ar),
+        description_en: nullableText(form.description_en),
         inspiration_ar: nullableText(form.inspiration_ar),
+        inspiration_en: nullableText(form.inspiration_en),
         concentration_ar: nullableText(form.concentration_ar),
+        concentration_en: nullableText(form.concentration_en),
         meta_title_ar: nullableText(form.meta_title_ar),
+        meta_title_en: nullableText(form.meta_title_en),
         meta_description_ar: nullableText(form.meta_description_ar),
+        meta_description_en: nullableText(form.meta_description_en),
         sort_order: parseInteger(form.sort_order) ?? 0,
         notes: { top: uniqueNotes(form.notes.top), heart: uniqueNotes(form.notes.heart), base: uniqueNotes(form.notes.base) },
         variants,

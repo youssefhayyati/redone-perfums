@@ -166,6 +166,33 @@ class StorefrontControllerTest extends TestCase
             ->assertJsonPath('benefits.0.text', 'التوصيل إلى 3 مدن، وتُحتسب رسوم التوصيل حسب مدينتك قبل تأكيد الطلب.');
     }
 
+    public function test_english_config_speaks_english(): void
+    {
+        City::factory()->count(3)->for(DeliveryZone::factory(), 'zone')->create();
+        app(StoreSettings::class)->put(['announcement.text_en' => 'Free delivery this week', 'contact.hours' => 'Du lundi au samedi']);
+
+        $response = $this->withHeader('X-Locale', 'en')->getJson('/api/storefront');
+
+        $response->assertOk()
+            ->assertJsonPath('store.descriptor', 'Perfume house')
+            ->assertJsonPath('announcement.text', 'Free delivery this week')
+            ->assertJsonPath('contact.hours', 'Du lundi au samedi')
+            ->assertJsonPath('payment_methods.0.label', 'Cash on delivery')
+            ->assertJsonPath('benefits.0.text', 'Delivery to 3 cities, with the fee for your city shown before you confirm.');
+    }
+
+    public function test_english_home_uses_the_english_hero_and_lab_texts(): void
+    {
+        ProcessStep::factory()->create(['title' => 'La matière', 'title_en' => 'The material', 'body' => 'Les fleurs.', 'body_en' => null]);
+
+        $this->withHeader('X-Locale', 'en')->getJson('/api/home')
+            ->assertOk()
+            ->assertJsonPath('hero.title', 'The hour when perfume reveals itself.')
+            ->assertJsonPath('lab.title', 'From flower to bottle')
+            ->assertJsonPath('lab.steps.0.title', 'The material')
+            ->assertJsonPath('lab.steps.0.body', 'Les fleurs.');
+    }
+
     public function test_home_tells_the_visible_lab_steps_in_order_with_their_photo_and_credit(): void
     {
         ProcessStep::factory()->create(['title' => 'La macération', 'sort_order' => 1, 'image_credit' => 'Photo : D. Jarvis, CC BY-SA 2.0']);

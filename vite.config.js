@@ -59,7 +59,8 @@ export default defineConfig({
     },
     server: {
         watch: {
-            ignored: ['**/storage/framework/views/**'],
+            // Never source files; keeping them out matters when the watcher polls (Docker on Windows).
+            ignored: ['**/storage/**', '**/vendor/**'],
         },
     },
 });

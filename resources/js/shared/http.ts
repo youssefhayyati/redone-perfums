@@ -71,6 +71,16 @@ const FALLBACK_MESSAGES: Record<Locale, Record<number, string>> = {
         500: 'حدث خطأ. حاول مرة أخرى بعد لحظة.',
         400: 'تعذّر إتمام الطلب.',
     },
+    en: {
+        0: 'Unable to connect. Check your network and try again.',
+        401: 'Please log in to continue.',
+        403: 'You are not allowed to do this.',
+        404: 'Content not found.',
+        419: 'Your session has expired. Please reload the page.',
+        429: 'Too many attempts. Please wait a moment before trying again.',
+        500: 'Something went wrong. Please try again in a moment.',
+        400: 'The request could not be completed.',
+    },
 };
 
 /** Framework defaults that are English or expose internals; replaced by our own wording. */

@@ -15,10 +15,10 @@
 
 @if ($order->carrier || $order->tracking_number)
 @if ($order->carrier)
-**{{ __('Transporteur') }}** : {{ $order->carrier }}<br>
+**{{ __('Transporteur') }}**{{ __(' : ') }}{{ $order->carrier }}<br>
 @endif
 @if ($order->tracking_number)
-**{{ __('Numéro de suivi') }}** : <span dir="ltr">{{ $order->tracking_number }}</span>
+**{{ __('Numéro de suivi') }}**{{ __(' : ') }}<span dir="ltr">{{ $order->tracking_number }}</span>
 @endif
 
 @endif

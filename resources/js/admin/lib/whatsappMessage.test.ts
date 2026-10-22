@@ -29,6 +29,11 @@ describe('whatsappMessage', () => {
         expect(whatsappMessage({ ...order, status: 'shipped', payment_status: 'paid' })).not.toContain('Prévoyez');
     });
 
+    it('writes to an English customer in English, with English digit grouping', () => {
+        expect(whatsappMessage({ ...order, locale: 'en', status: 'confirmed' })).toBe('Hello Salma, this is Myperfum. Your order RP-261021-AMBRE2 is confirmed: we are preparing your parcel.');
+        expect(whatsappMessage({ ...order, locale: 'en', status: 'shipped', total: 125000 })).toContain('Please have 1,250 DH ready in cash');
+    });
+
     it('writes to an Arabic customer in Arabic', () => {
         expect(whatsappMessage({ ...order, locale: 'ar', status: 'confirmed' })).toBe('مرحبًا Salma، معك Myperfum. تم تأكيد طلبك RP-261021-AMBRE2، ونحن نجهّز طردك.');
         expect(whatsappMessage({ ...order, locale: 'ar' })).toContain('930 درهم');

@@ -13,12 +13,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
     'name', 'slug', 'tagline', 'description', 'image_path', 'accent_color',
     'is_visible', 'is_featured', 'sort_order',
     'name_ar', 'tagline_ar', 'description_ar',
+    'name_en', 'tagline_en', 'description_en',
 ])]
 class Collection extends Model
 {
     use HasFactory, HasTranslations;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['name', 'tagline', 'description'];
 
     protected function casts(): array

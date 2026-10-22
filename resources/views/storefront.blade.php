@@ -23,8 +23,11 @@
     <meta property="og:description" content="{{ $meta['description'] }}">
     <meta property="og:url" content="{{ $meta['url'] }}">
     <meta property="og:image" content="{{ $meta['image'] }}">
-    <meta property="og:locale" content="{{ $meta['locale'] === 'ar' ? 'ar_MA' : 'fr_MA' }}">
-    <meta property="og:locale:alternate" content="{{ $meta['locale'] === 'ar' ? 'fr_MA' : 'ar_MA' }}">
+    @php($ogLocales = ['fr' => 'fr_MA', 'ar' => 'ar_MA', 'en' => 'en_GB'])
+    <meta property="og:locale" content="{{ $ogLocales[$meta['locale']] }}">
+    @foreach (array_diff_key($ogLocales, [$meta['locale'] => true]) as $alternate)
+        <meta property="og:locale:alternate" content="{{ $alternate }}">
+    @endforeach
     <meta name="twitter:card" content="summary_large_image">
 
     <meta name="theme-color" content="#0b0a09">
@@ -47,7 +50,7 @@
 <body>
     <div id="app"></div>
     <noscript>
-        <p style="padding:2rem;font-family:sans-serif">Cette boutique nécessite JavaScript pour fonctionner.</p>
+        <p style="padding:2rem;font-family:sans-serif">{{ __('Cette boutique nécessite JavaScript pour fonctionner.') }}</p>
     </noscript>
 </body>
 </html>

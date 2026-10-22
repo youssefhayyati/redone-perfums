@@ -7,7 +7,7 @@ import { Button, IconButton } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Dialog } from '../components/ui/Dialog';
 import { EmptyState, ErrorState, TableSkeleton } from '../components/ui/feedback';
-import { AffixInput, ARABIC_PANEL_HINT, arabicText, Field, Segmented, Switch, TextArea, TextInput } from '../components/ui/form';
+import { AffixInput, ARABIC_PANEL_HINT, arabicText, ENGLISH_PANEL_HINT, englishText, Field, Segmented, Switch, TextArea, TextInput } from '../components/ui/form';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { DataTable, Td, Th } from '../components/ui/Table';
 import { toast } from '../components/ui/toast';
@@ -24,18 +24,28 @@ interface PageForm {
     body: string;
     meta_description: string;
     title_ar: string;
+    title_en: string;
     body_ar: string;
+    body_en: string;
     meta_description_ar: string;
+    meta_description_en: string;
     is_published: boolean;
     sort_order: string;
 }
 
-type Language = 'fr' | 'ar';
+type Language = 'fr' | 'ar' | 'en';
 
 /** The fields edited in each language; the slug, publication and order are shared. */
 const COPY_FIELDS = {
     fr: { title: 'title', body: 'body', meta_description: 'meta_description' },
     ar: { title: 'title_ar', body: 'body_ar', meta_description: 'meta_description_ar' },
+    en: { title: 'title_en', body: 'body_en', meta_description: 'meta_description_en' },
+} as const;
+
+/** Input attributes and the panel hint of each translation. */
+const TRANSLATIONS = {
+    ar: { input: arabicText, hint: ARABIC_PANEL_HINT },
+    en: { input: englishText, hint: ENGLISH_PANEL_HINT },
 } as const;
 
 const toForm = (page: AdminPage | null): PageForm => ({
@@ -44,8 +54,11 @@ const toForm = (page: AdminPage | null): PageForm => ({
     body: page?.body ?? '',
     meta_description: page?.meta_description ?? '',
     title_ar: page?.title_ar ?? '',
+    title_en: page?.title_en ?? '',
     body_ar: page?.body_ar ?? '',
+    body_en: page?.body_en ?? '',
     meta_description_ar: page?.meta_description_ar ?? '',
+    meta_description_en: page?.meta_description_en ?? '',
     is_published: page?.is_published ?? false,
     sort_order: String(page?.sort_order ?? 0),
 });
@@ -54,10 +67,9 @@ const nullableText = (value: string): string | null => (value.trim() === '' ? nu
 
 /** The language holding the first error, so the editor shows the field to fix. */
 function languageWithErrors(errors: FieldErrors, current: Language): Language {
-    const inFrench = Object.values(COPY_FIELDS.fr).some((field) => errors[field]);
-    const inArabic = Object.values(COPY_FIELDS.ar).some((field) => errors[field]);
+    const languages: Language[] = ['fr', 'ar', 'en'];
 
-    return inFrench ? 'fr' : inArabic ? 'ar' : current;
+    return languages.find((language) => Object.values(COPY_FIELDS[language]).some((field) => errors[field])) ?? current;
 }
 
 /** Preview of the light markup, rendered as text (never HTML) like the storefront. */
@@ -114,9 +126,12 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
 
     const set = <K extends keyof PageForm>(key: K, value: PageForm[K]) => setForm((current) => ({ ...current, [key]: value }));
     const requestClose = () => (dirty ? setConfirmDiscard(true) : onClose());
+    /** Arabic or English: every field is optional and falls back to the French text. */
+    const translation = language === 'fr' ? null : TRANSLATIONS[language];
+    const translated = translation !== null;
     const arabic = language === 'ar';
     const fields = COPY_FIELDS[language];
-    const copy = arabic ? arabicText : {};
+    const copy = translation?.input ?? {};
 
     async function submit(event: FormEvent) {
         event.preventDefault();
@@ -143,8 +158,11 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                 body: form.body,
                 meta_description: nullableText(form.meta_description),
                 title_ar: nullableText(form.title_ar),
+                title_en: nullableText(form.title_en),
                 body_ar: form.body_ar.trim() === '' ? null : form.body_ar,
+                body_en: form.body_en.trim() === '' ? null : form.body_en,
                 meta_description_ar: nullableText(form.meta_description_ar),
+                meta_description_en: nullableText(form.meta_description_en),
                 is_published: form.is_published,
                 sort_order: Number.parseInt(form.sort_order, 10) || 0,
             };
@@ -195,19 +213,20 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                             options={[
                                 { value: 'fr', label: 'Français' },
                                 { value: 'ar', label: <span lang="ar">العربية</span> },
+                                { value: 'en', label: <span lang="en">English</span> },
                             ]}
                         />
-                        {arabic && <p className="text-xs text-muted">{ARABIC_PANEL_HINT}</p>}
+                        {translation && <p className="text-xs text-muted">{translation.hint}</p>}
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <Field key={fields.title} label="Titre" required={!arabic} optional={arabic} error={errors[fields.title]}>
+                        <Field key={fields.title} label="Titre" required={!translated} optional={translated} error={errors[fields.title]}>
                             {(control) => (
                                 <TextInput
                                     {...control}
                                     {...copy}
                                     value={form[fields.title]}
                                     maxLength={160}
-                                    placeholder={arabic ? form.title : undefined}
+                                    placeholder={translated ? form.title : undefined}
                                     onChange={(event) => set(fields.title, event.target.value)}
                                     data-autofocus
                                 />
@@ -231,7 +250,7 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                         <div className="flex flex-wrap items-center justify-between gap-2">
                             <span className="text-xs font-medium text-ink">
                                 Contenu
-                                {arabic ? <span className="ml-1 font-normal text-muted">(facultatif)</span> : <span className="ml-0.5 text-danger" aria-hidden>*</span>}
+                                {translated ? <span className="ml-1 font-normal text-muted">(facultatif)</span> : <span className="ml-0.5 text-danger" aria-hidden>*</span>}
                             </span>
                             <Segmented
                                 label="Mode d’édition"
@@ -278,7 +297,7 @@ function PageEditor({ page, open, onClose, onSaved }: { page: AdminPage | null; 
                                 rows={2}
                                 maxLength={320}
                                 value={form[fields.meta_description]}
-                                placeholder={arabic ? form.meta_description : undefined}
+                                placeholder={translated ? form.meta_description : undefined}
                                 onChange={(event) => set(fields.meta_description, event.target.value)}
                             />
                         )}
@@ -376,6 +395,7 @@ export default function ContentPagesPage() {
                                         <div className="flex flex-wrap items-center gap-1.5">
                                             {page.is_published ? <Badge tone="success" dot>Publiée</Badge> : <Badge tone="muted" dot>Brouillon</Badge>}
                                             {!page.body_ar && <Badge tone="muted">Arabe à rédiger</Badge>}
+                                            {!page.body_en && <Badge tone="muted">Anglais à rédiger</Badge>}
                                         </div>
                                     </Td>
                                     <Td hideBelow="md" align="right" className="whitespace-nowrap text-xs tabular-nums text-muted">

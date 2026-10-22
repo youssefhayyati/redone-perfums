@@ -115,6 +115,24 @@ class OrderConfirmationTest extends TestCase
         $this->assertStringContainsString('href="'.config('app.url').'/ar/commande/confirmation/RP-261021-AMBRE2?token=jeton-invite-ambre"', $html);
     }
 
+    public function test_english_order_is_confirmed_in_english_left_to_right(): void
+    {
+        $order = $this->order();
+        $order->forceFill(['locale' => 'en'])->save();
+
+        $mail = (new OrderConfirmation($order))->locale('en');
+        App::setLocale('en');
+        $message = $mail->toMail(new AnonymousNotifiable);
+        $html = (string) $message->render();
+
+        $this->assertSame('We have received your order RP-261021-AMBRE2', $message->subject);
+        $this->assertStringContainsString('dir="ltr"', $html);
+        $this->assertStringContainsString('Thank you, Salma.', $html);
+        $this->assertStringContainsString('Track my order', $html);
+        $this->assertStringContainsString("930\u{00A0}DH", $html);
+        $this->assertStringContainsString('href="'.config('app.url').'/en/commande/confirmation/RP-261021-AMBRE2?token=jeton-invite-ambre"', $html);
+    }
+
     /**
      * Two 50 ml bottles of Ambre Nuit at 450 DH, delivered to Casablanca for 30 DH.
      */

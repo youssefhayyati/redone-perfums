@@ -7,7 +7,7 @@ import { Button, IconButton } from '../components/ui/Button';
 import { ConfirmDialog } from '../components/ui/ConfirmDialog';
 import { Dialog } from '../components/ui/Dialog';
 import { EmptyState, ErrorState, InlineAlert, Skeleton } from '../components/ui/feedback';
-import { arabicText, Field, Switch, TextArea, TextInput } from '../components/ui/form';
+import { arabicText, englishText, Field, Switch, TextArea, TextInput } from '../components/ui/form';
 import { PageHeader, Panel } from '../components/ui/Panel';
 import { ImageField } from '../components/ui/pickers';
 import { toast } from '../components/ui/toast';
@@ -21,10 +21,13 @@ import type { AdminProcessStep, ProcessStepPayload } from '../types';
 interface StepForm {
     title: string;
     title_ar: string;
+    title_en: string;
     body: string;
     body_ar: string;
+    body_en: string;
     detail: string;
     detail_ar: string;
+    detail_en: string;
     image_path: string | null;
     image_url: string | null;
     image_credit: string;
@@ -34,10 +37,13 @@ interface StepForm {
 const toForm = (step: AdminProcessStep | null): StepForm => ({
     title: step?.title ?? '',
     title_ar: step?.title_ar ?? '',
+    title_en: step?.title_en ?? '',
     body: step?.body ?? '',
     body_ar: step?.body_ar ?? '',
+    body_en: step?.body_en ?? '',
     detail: step?.detail ?? '',
     detail_ar: step?.detail_ar ?? '',
+    detail_en: step?.detail_en ?? '',
     image_path: step?.image_path ?? null,
     image_url: step?.image_url ?? null,
     image_credit: step?.image_credit ?? '',
@@ -50,10 +56,13 @@ function toPayload(form: StepForm): ProcessStepPayload {
     return {
         title: form.title.trim(),
         title_ar: text(form.title_ar),
+        title_en: text(form.title_en),
         body: form.body.trim(),
         body_ar: text(form.body_ar),
+        body_en: text(form.body_en),
         detail: text(form.detail),
         detail_ar: text(form.detail_ar),
+        detail_en: text(form.detail_en),
         image_path: form.image_path,
         image_credit: text(form.image_credit),
         is_visible: form.is_visible,
@@ -156,6 +165,17 @@ function StepDialog({ step, open, onClose, onSaved }: { step: AdminProcessStep |
                 </Field>
                 <Field label="Récit en arabe" optional error={errors.body_ar} counter={{ value: form.body_ar.length, max: 1000 }}>
                     {(control) => <TextArea {...control} {...arabicText} rows={4} maxLength={1000} value={form.body_ar} onChange={(event) => set('body_ar', event.target.value)} />}
+                </Field>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <Field label="Nom en anglais" optional error={errors.title_en}>
+                        {(control) => <TextInput {...control} {...englishText} value={form.title_en} maxLength={120} placeholder={form.title} onChange={(event) => set('title_en', event.target.value)} />}
+                    </Field>
+                    <Field label="En bref, en anglais" optional error={errors.detail_en}>
+                        {(control) => <TextInput {...control} {...englishText} value={form.detail_en} maxLength={80} placeholder={form.detail} onChange={(event) => set('detail_en', event.target.value)} />}
+                    </Field>
+                </div>
+                <Field label="Récit en anglais" optional error={errors.body_en} counter={{ value: form.body_en.length, max: 1000 }}>
+                    {(control) => <TextArea {...control} {...englishText} rows={4} maxLength={1000} value={form.body_en} onChange={(event) => set('body_en', event.target.value)} />}
                 </Field>
                 <Field label="Crédit photo" optional error={errors.image_credit} hint="Seulement si la photo n’est pas la vôtre (auteur et licence). Laissez vide pour vos propres photos.">
                     {(control) => <TextInput {...control} value={form.image_credit} maxLength={255} onChange={(event) => set('image_credit', event.target.value)} />}

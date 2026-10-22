@@ -24,13 +24,8 @@ class SpaController extends Controller
 {
     public function storefront(Request $request, StoreSettings $settings, StorefrontConfig $config): Response
     {
-        // Arabic pages live under /ar; the rest of the path is the same in both languages.
-        $path = trim($request->path(), '/');
-        $locale = Locale::FRENCH;
-        if ($path === 'ar' || str_starts_with($path, 'ar/')) {
-            $locale = Locale::ARABIC;
-            $path = substr($path, 3) ?: '';
-        }
+        // Arabic and English pages live under /ar and /en; the rest of the path is the same in every language.
+        [$locale, $path] = Locale::fromPath($request->path());
         App::setLocale($locale);
 
         $store = $settings->get('store.name');
@@ -100,7 +95,7 @@ class SpaController extends Controller
                 'site_name' => $store,
                 'noindex' => $private || $status === 404,
                 'locale' => $locale,
-                'dir' => $locale === Locale::ARABIC ? 'rtl' : 'ltr',
+                'dir' => Locale::isRightToLeft($locale) ? 'rtl' : 'ltr',
                 // The same page in each language, for hreflang links and the language switch.
                 'alternates' => collect(Locale::SUPPORTED)->mapWithKeys(fn (string $code) => [$code => url(Locale::path($path, $code))])->all(),
             ],

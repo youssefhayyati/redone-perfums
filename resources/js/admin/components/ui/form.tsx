@@ -77,6 +77,12 @@ export const arabicText = { dir: 'rtl', lang: 'ar' } as const;
 /** Description for the panel of a form that collects the Arabic version of the copy. */
 export const ARABIC_PANEL_HINT = 'Textes de la boutique en arabe (/ar). Laissé vide, un champ reprend le texte français.';
 
+/** Spread on an input holding English storefront copy, for the browser's spelling and hyphenation. */
+export const englishText = { lang: 'en' } as const;
+
+/** Description for the panel of a form that collects the English version of the copy. */
+export const ENGLISH_PANEL_HINT = 'Textes de la boutique en anglais (/en). Laissé vide, un champ reprend le texte français.';
+
 export function TextInput({ className, ...props }: ComponentProps<'input'>) {
     return <input {...props} className={cn('field-control', className)} />;
 }

@@ -45,7 +45,9 @@ export const routes: RouteObject[] = [
     },
 ];
 
-/** Arabic pages live under /ar: internal links ("/boutique") stay in the page's language. */
+/** Arabic and English pages live under /ar and /en: internal links ("/boutique") stay in the page's language. */
 export function createRouter() {
-    return createBrowserRouter(routes, { basename: getLocale() === 'ar' ? '/ar' : '/' });
+    const locale = getLocale();
+
+    return createBrowserRouter(routes, { basename: locale === 'fr' ? '/' : `/${locale}` });
 }

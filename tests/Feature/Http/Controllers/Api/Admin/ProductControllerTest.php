@@ -71,6 +71,21 @@ class ProductControllerTest extends TestCase
         $this->assertDatabaseHas('products', ['slug' => 'ambre-nocturne', 'name_ar' => 'عنبر الليل', 'description_ar' => 'وصف بالعربية.']);
     }
 
+    public function test_store_saves_the_english_version_of_the_texts(): void
+    {
+        $response = $this->actingAs($this->manager())->postJson('/api/admin/products', $this->payload([
+            'name_en' => 'Night Amber',
+            'tagline_en' => 'Amber, vanilla and oud',
+            'concentration_en' => 'Eau de Parfum',
+        ]));
+
+        $response->assertCreated()
+            ->assertJsonPath('data.name', 'Ambre Nocturne')
+            ->assertJsonPath('data.name_en', 'Night Amber')
+            ->assertJsonPath('data.tagline_en', 'Amber, vanilla and oud');
+        $this->assertDatabaseHas('products', ['slug' => 'ambre-nocturne', 'name_en' => 'Night Amber', 'concentration_en' => 'Eau de Parfum']);
+    }
+
     public function test_store_records_the_initial_stock_as_an_initial_movement(): void
     {
         $manager = $this->manager();

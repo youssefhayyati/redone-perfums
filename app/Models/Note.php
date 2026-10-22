@@ -8,12 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Str;
 
-#[Fillable(['name', 'slug', 'name_ar'])]
+#[Fillable(['name', 'slug', 'name_ar', 'name_en'])]
 class Note extends Model
 {
     use HasTranslations;
 
-    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    /** Columns with Arabic `_ar` and English `_en` siblings (see HasTranslations). */
     public const TRANSLATABLE = ['name'];
 
     public function products(): BelongsToMany

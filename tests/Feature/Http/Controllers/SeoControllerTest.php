@@ -46,7 +46,7 @@ class SeoControllerTest extends TestCase
             ->assertSee('<lastmod>2026-10-21T09:30:00+01:00</lastmod>', false);
     }
 
-    public function test_sitemap_lists_each_page_in_both_languages_linked_to_each_other(): void
+    public function test_sitemap_lists_each_page_in_every_language_linked_to_each_other(): void
     {
         Product::factory()->published()->create(['slug' => 'nuit-d-ambre']);
         $base = config('app.url');
@@ -56,8 +56,11 @@ class SeoControllerTest extends TestCase
         $response->assertOk()
             ->assertSee("<loc>{$base}/parfums/nuit-d-ambre</loc>", false)
             ->assertSee("<loc>{$base}/ar/parfums/nuit-d-ambre</loc>", false)
+            ->assertSee("<loc>{$base}/en/parfums/nuit-d-ambre</loc>", false)
             ->assertSee("<loc>{$base}/ar</loc>", false)
-            ->assertSee('<xhtml:link rel="alternate" hreflang="ar" href="'.$base.'/ar/parfums/nuit-d-ambre"/>', false);
+            ->assertSee("<loc>{$base}/en</loc>", false)
+            ->assertSee('<xhtml:link rel="alternate" hreflang="ar" href="'.$base.'/ar/parfums/nuit-d-ambre"/>', false)
+            ->assertSee('<xhtml:link rel="alternate" hreflang="en" href="'.$base.'/en/parfums/nuit-d-ambre"/>', false);
     }
 
     public function test_sitemap_leaves_out_what_customers_cannot_open(): void

@@ -73,7 +73,7 @@ class ProcessStepController extends Controller
     private function present(ProcessStep $step): array
     {
         return [
-            ...$step->only(['id', 'title', 'title_ar', 'body', 'body_ar', 'detail', 'detail_ar', 'image_path', 'image_credit', 'sort_order', 'is_visible', 'is_demo']),
+            ...$step->only(['id', 'title', 'title_ar', 'title_en', 'body', 'body_ar', 'body_en', 'detail', 'detail_ar', 'detail_en', 'image_path', 'image_credit', 'sort_order', 'is_visible', 'is_demo']),
             'image_url' => $step->imageUrl(),
         ];
     }

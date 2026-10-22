@@ -47,6 +47,7 @@ class DeliveryZoneController extends Controller
             'free_shipping_threshold' => ['nullable', 'integer', 'min:0', 'max:100000000'],
             'delivery_estimate' => ['nullable', 'string', 'max:120'],
             'delivery_estimate_ar' => ['nullable', 'string', 'max:120'],
+            'delivery_estimate_en' => ['nullable', 'string', 'max:120'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);

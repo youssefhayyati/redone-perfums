@@ -22,6 +22,8 @@ class MoneyTest extends TestCase
             'below a thousand' => [45000, 'fr', "450\u{00A0}DH"],
             'zero' => [0, 'fr', "0\u{00A0}DH"],
             'arabic currency' => [125000, 'ar', "1\u{202F}250\u{00A0}درهم"],
+            'english grouping' => [125000, 'en', "1,250\u{00A0}DH"],
+            'english decimals' => [125050, 'en', "1,250.50\u{00A0}DH"],
         ];
     }
 

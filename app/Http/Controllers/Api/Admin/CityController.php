@@ -45,8 +45,10 @@ class CityController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120', Rule::unique('cities', 'name')->ignore($city?->id)],
             'name_ar' => ['nullable', 'string', 'max:120'],
+            'name_en' => ['nullable', 'string', 'max:120'],
             'region' => ['nullable', 'string', 'max:120'],
             'region_ar' => ['nullable', 'string', 'max:120'],
+            'region_en' => ['nullable', 'string', 'max:120'],
             'delivery_zone_id' => ['nullable', 'integer', 'exists:delivery_zones,id'],
             'is_active' => ['boolean'],
         ]);
