@@ -3,6 +3,7 @@ import { ArrowRight } from 'lucide-react';
 import { plural } from '@shared/format';
 import { api } from '../api';
 import { ProductCard } from '../components/product/ProductCard';
+import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -15,26 +16,28 @@ export default function DiscoverPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="grid grid-cols-1 gap-8 border-b border-line pb-12 lg:grid-cols-[1fr_auto] lg:items-end">
-                <div className="flex max-w-3xl flex-col gap-5">
-                    <p className="eyebrow">Guide olfactif</p>
-                    <h1 className="font-display text-display-lg text-balance">Trouvez le parfum qui vous ressemble.</h1>
-                    <p className="max-w-xl text-muted">Les parfums se rangent en familles, selon la matière qui domine leur caractère. Commencez par celle qui vous attire, puis laissez-vous surprendre.</p>
-                </div>
-                {families.length > 0 && (
-                    <nav aria-label="Familles olfactives">
-                        <ul className="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
-                            {families.map((family) => (
-                                <li key={family.slug}>
-                                    <a href={`#${family.slug}`} className="inline-flex border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-ink hover:text-ink">
-                                        {family.name}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </nav>
-                )}
-            </header>
+            <PageHeader
+                label="Guide olfactif"
+                title="Trouvez le parfum qui vous ressemble."
+                meta={families.length > 0 ? plural(families.length, 'famille') : null}
+                aside={
+                    families.length > 0 && (
+                        <nav aria-label="Familles olfactives">
+                            <ul className="flex flex-wrap gap-2 lg:max-w-sm lg:justify-end">
+                                {families.map((family) => (
+                                    <li key={family.slug}>
+                                        <a href={`#${family.slug}`} className="inline-flex rounded-full border border-line px-3.5 py-1.5 text-xs text-muted transition-colors hover:border-ink hover:text-ink">
+                                            {family.name}
+                                        </a>
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
+                    )
+                }
+            >
+                <p className="max-w-xl text-muted">Les parfums se rangent en familles, selon la matière qui domine leur caractère. Commencez par celle qui vous attire, puis laissez-vous surprendre.</p>
+            </PageHeader>
 
             {error && !data ? (
                 <ErrorState message={error.message} onRetry={refetch} />

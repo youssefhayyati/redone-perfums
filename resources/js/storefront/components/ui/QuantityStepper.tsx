@@ -16,7 +16,7 @@ export function QuantityStepper({ value, max, min = 1, onChange, disabled = fals
     const button = cn('flex items-center justify-center text-muted transition-colors hover:text-ink disabled:opacity-35', size === 'sm' ? 'w-8' : 'w-11');
 
     return (
-        <div role="group" aria-label={label} className={cn('inline-flex items-stretch border border-line-strong', box)}>
+        <div role="group" aria-label={label} className={cn('inline-flex items-stretch rounded-full border border-line-strong px-1', box)}>
             <button type="button" className={button} onClick={() => onChange(value - 1)} disabled={disabled || value <= min} aria-label="Diminuer la quantité">
                 <Minus className="size-3.5" strokeWidth={1.5} />
             </button>

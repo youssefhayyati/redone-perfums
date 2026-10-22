@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { ApiError } from '@shared/http';
+import { cn } from '@shared/format';
 import { api } from '../../api';
-import { Button } from '../ui/Button';
+import { ButtonLabel } from '../ui/Button';
 import { Checkbox } from '../ui/Field';
+import { Spinner } from '../ui/Spinner';
 
 export function NewsletterForm({ source = 'footer' }: { source?: string }) {
     const [email, setEmail] = useState('');
@@ -42,8 +45,15 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
     }
 
     return (
-        <form onSubmit={submit} noValidate className="flex w-full flex-col gap-4">
-            <div className="flex flex-col gap-3 sm:flex-row">
+        <form onSubmit={submit} noValidate className="flex w-full flex-col gap-5">
+            {/* Editorial underline field; the line under it draws in accent while focused. */}
+            <div
+                className={cn(
+                    'relative flex items-center gap-4 border-b pb-3 transition-colors duration-300',
+                    'after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:origin-left after:scale-x-0 after:transition-transform after:duration-700 after:ease-luxe focus-within:after:scale-x-100',
+                    errors.email ? 'border-danger after:bg-danger' : 'border-line-strong after:bg-accent',
+                )}
+            >
                 <label htmlFor="newsletter-email" className="sr-only">
                     Adresse e-mail
                 </label>
@@ -57,11 +67,24 @@ export function NewsletterForm({ source = 'footer' }: { source?: string }) {
                     onChange={(event) => setEmail(event.target.value)}
                     aria-invalid={errors.email ? true : undefined}
                     aria-describedby={errors.email ? 'newsletter-email-error' : undefined}
-                    className="field-control flex-1"
+                    className="min-w-0 flex-1 bg-transparent py-2 font-display text-2xl text-ink outline-none placeholder:text-faint placeholder:italic sm:text-[1.75rem]"
                 />
-                <Button type="submit" loading={status === 'sending'} className="sm:w-auto">
-                    S’inscrire
-                </Button>
+                <button
+                    type="submit"
+                    disabled={status === 'sending'}
+                    aria-busy={status === 'sending' || undefined}
+                    aria-label="S’inscrire"
+                    title="S’inscrire"
+                    className="btn flex size-12 shrink-0 items-center justify-center rounded-full border border-line-strong text-ink [--btn-fill:var(--color-accent)] hover:border-accent hover:text-on-accent focus-visible:border-accent focus-visible:text-on-accent disabled:opacity-60"
+                >
+                    {status === 'sending' ? (
+                        <Spinner className="size-4" />
+                    ) : (
+                        <ButtonLabel>
+                            <ArrowRight className="size-4" strokeWidth={1.5} />
+                        </ButtonLabel>
+                    )}
+                </button>
             </div>
             {errors.email && (
                 <p id="newsletter-email-error" role="alert" className="text-xs text-danger">

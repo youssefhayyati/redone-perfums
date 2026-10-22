@@ -27,8 +27,8 @@ final class StoreSettings
         $s = fn (string $group, string $type, mixed $default, string $label) => compact('group', 'type', 'default', 'label');
 
         return [
-            'store.name' => $s('general', 'string', 'Redone Parfums', 'Nom de la boutique'),
-            'store.wordmark' => $s('general', 'string', 'REDONE', 'Logotype (texte)'),
+            'store.name' => $s('general', 'string', 'Myperfum', 'Nom de la boutique'),
+            'store.wordmark' => $s('general', 'string', 'myperfum', 'Logotype (texte)'),
             'store.descriptor' => $s('general', 'string', 'Maison de parfum', 'Sous-titre du logotype'),
             'store.meta_description' => $s('general', 'text', 'Parfums de niche et coffrets composés à la main. Livraison au Maroc selon votre ville.', 'Description SEO par défaut'),
 
@@ -41,6 +41,9 @@ final class StoreSettings
             'contact.whatsapp' => $s('contact', 'string', null, 'WhatsApp (numéro international)'),
             'contact.address' => $s('contact', 'text', null, 'Adresse'),
             'contact.hours' => $s('contact', 'string', null, 'Horaires du service client'),
+
+            // Internal: never part of StorefrontConfig, which publishes the whole contact group.
+            'notifications.orders_email' => $s('notifications', 'string', null, 'E-mail qui reçoit les nouvelles commandes (par défaut : e-mail de contact)'),
 
             'social.instagram' => $s('social', 'url', null, 'Instagram'),
             'social.tiktok' => $s('social', 'url', null, 'TikTok'),

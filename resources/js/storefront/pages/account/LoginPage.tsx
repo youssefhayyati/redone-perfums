@@ -64,9 +64,9 @@ export default function LoginPage() {
                     error={fieldError(error?.errors, 'password')}
                     required
                 />
-                <div className="flex items-center justify-between gap-4">
-                    <Checkbox label="Rester connecté" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
-                    <Link to="/compte/mot-de-passe-oublie" className="link-draw text-sm text-muted hover:text-ink">
+                <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3">
+                    <Checkbox label="Rester connecté" checked={remember} onChange={(event) => setRemember(event.target.checked)} className="whitespace-nowrap" />
+                    <Link to="/compte/mot-de-passe-oublie" className="link-draw text-sm whitespace-nowrap text-muted hover:text-ink">
                         Mot de passe oublié ?
                     </Link>
                 </div>

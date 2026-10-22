@@ -9,6 +9,7 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Markdown;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +38,9 @@ class AppServiceProvider extends ServiceProvider
             'token' => $token,
             'email' => $user->email,
         ])));
+
+        // Customer text in Markdown e-mails (names, delivery notes) must never become a link or HTML.
+        Markdown::withSecuredEncoding();
 
         $this->configureRateLimiting();
     }

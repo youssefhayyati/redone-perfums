@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { Navigate, useSearchParams } from 'react-router';
 import { Eye, EyeOff, LogIn, RotateCcw } from 'lucide-react';
 import { ApiError } from '@shared/http';
+import { LogoMark } from '@shared/LogoMark';
 import { Button } from '../components/ui/Button';
 import { Checkbox, Field, TextInput } from '../components/ui/form';
 import { InlineAlert } from '../components/ui/feedback';
@@ -69,7 +70,8 @@ export default function LoginPage() {
             </div>
             <div className="w-full max-w-sm">
                 <div className="mb-8 text-center">
-                    <p className="text-base font-semibold uppercase tracking-wordmark text-ink">Redone</p>
+                    <LogoMark className="mx-auto mb-3 size-10 text-ink" />
+                    <p className="text-lg font-semibold tracking-tight text-ink">Myperfum</p>
                     <p className="mt-2 text-2xs uppercase tracking-label text-muted">Maison de parfum · Administration</p>
                 </div>
                 <div className="rounded-xl border border-line bg-raised p-6 shadow-[0_24px_60px_-30px_rgb(var(--rp-shadow)/0.55)] sm:p-8">

@@ -22,7 +22,7 @@ export function VariantPicker({ variants, value, onChange, name = 'variant' }: V
                         <label
                             key={variant.id}
                             className={cn(
-                                'relative flex min-w-[6.5rem] flex-col items-center gap-0.5 border px-4 py-3 text-center transition-colors duration-300 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
+                                'relative flex min-w-[6.5rem] flex-col items-center gap-0.5 rounded-control border px-4 py-3 text-center transition-colors duration-300 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent',
                                 selected ? 'border-ink bg-ink/4' : 'border-line-strong hover:border-ink/60',
                                 soldOut && 'cursor-not-allowed opacity-50',
                             )}

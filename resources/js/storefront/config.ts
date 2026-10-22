@@ -2,7 +2,7 @@ import type { StorefrontConfig } from '@shared/types';
 import { createStore, useStore } from '@shared/store';
 
 const FALLBACK: StorefrontConfig = {
-    store: { name: 'Redone Parfums', wordmark: 'REDONE', descriptor: 'Maison de parfum', meta_description: '' },
+    store: { name: 'Myperfum', wordmark: 'myperfum', descriptor: 'Maison de parfum', meta_description: '' },
     announcement: { enabled: false, text: null, link: null },
     contact: { email: null, phone: null, whatsapp: null, address: null, hours: null },
     social: {},

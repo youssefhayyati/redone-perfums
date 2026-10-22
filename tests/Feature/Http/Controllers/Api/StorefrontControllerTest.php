@@ -111,6 +111,17 @@ class StorefrontControllerTest extends TestCase
             ->assertJsonPath('has_packs', false);
     }
 
+    public function test_config_never_publishes_the_orders_inbox(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma', 'notifications.orders_email' => 'commandes@myperfum.ma']);
+
+        $response = $this->getJson('/api/storefront');
+
+        $response->assertOk()
+            ->assertJsonPath('contact.email', 'contact@myperfum.ma')
+            ->assertDontSee('commandes@myperfum.ma');
+    }
+
     public function test_home_features_published_featured_products_in_their_manual_order(): void
     {
         $second = Product::factory()->published()->featured()->withVariant()->create(['sort_order' => 2]);

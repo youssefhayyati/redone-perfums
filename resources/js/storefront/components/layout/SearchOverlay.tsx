@@ -30,7 +30,7 @@ function SearchResults({ term }: { term: string }) {
                     {[{ name: 'Tous les parfums', to: '/boutique' }, ...config.collections.map((c) => ({ name: c.name, to: `/collections/${c.slug}` })), { name: 'Guide olfactif', to: '/decouvrir' }].map(
                         (link) => (
                             <li key={link.to}>
-                                <Link to={link.to} className="inline-flex border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-ink hover:text-ink">
+                                <Link to={link.to} className="inline-flex rounded-full border border-line px-4 py-2 text-sm text-muted transition-colors hover:border-ink hover:text-ink">
                                     {link.name}
                                 </Link>
                             </li>

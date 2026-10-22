@@ -15,10 +15,14 @@ use App\Models\Pack;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
+use App\Notifications\NewOrderAlert;
+use App\Notifications\OrderConfirmation;
 use App\Services\Checkout\CheckoutData;
 use App\Services\Checkout\OrderPlacer;
 use App\Services\Settings\StoreSettings;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\TestWith;
 use Tests\TestCase;
@@ -397,6 +401,94 @@ class CheckoutControllerTest extends TestCase
         $response->assertUnprocessable()
             ->assertJsonValidationErrors(['phone' => 'Saisissez un numéro marocain valide (ex. 06 12 34 56 78).']);
         $this->assertNothingWasPlaced($cart);
+    }
+
+    public function test_checkout_confirms_the_order_to_the_customer_and_alerts_the_orders_inbox(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma', 'notifications.orders_email' => 'commandes@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $response = $this->withCart($cart)->postJson('/api/checkout', $this->payload($this->deliverableCity()));
+
+        $response->assertCreated();
+        $reference = $response->json('order.reference');
+        Notification::assertSentOnDemand(
+            OrderConfirmation::class,
+            fn (OrderConfirmation $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === ['salma@example.com' => 'Salma Benali']
+                && $notification->order->reference === $reference
+                && $notification->replyToAddress === 'contact@myperfum.ma',
+        );
+        Notification::assertSentOnDemand(
+            NewOrderAlert::class,
+            fn (NewOrderAlert $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === 'commandes@myperfum.ma'
+                && $notification->order->reference === $reference,
+        );
+        Notification::assertCount(2);
+    }
+
+    public function test_checkout_alerts_the_store_at_its_contact_email_while_no_orders_inbox_is_set(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $this->withCart($cart)->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemand(
+            NewOrderAlert::class,
+            fn (NewOrderAlert $notification, array $channels, AnonymousNotifiable $notifiable) => $notifiable->routes['mail'] === 'contact@myperfum.ma',
+        );
+    }
+
+    public function test_checkout_sends_no_store_alert_while_the_store_has_no_email_address(): void
+    {
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $this->withCart($cart)->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertCreated();
+
+        Notification::assertSentOnDemandTimes(NewOrderAlert::class, 0);
+        Notification::assertSentOnDemandTimes(OrderConfirmation::class, 1);
+    }
+
+    public function test_checkout_without_an_email_address_sends_the_customer_no_confirmation(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        Notification::fake();
+
+        $this->withCart($cart)->postJson('/api/checkout', $this->payload($this->deliverableCity(), ['email' => null]))->assertCreated();
+
+        Notification::assertSentOnDemandTimes(OrderConfirmation::class, 0);
+        Notification::assertSentOnDemandTimes(NewOrderAlert::class, 1);
+    }
+
+    public function test_replaying_the_idempotency_key_notifies_no_one_a_second_time(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $cart = $this->cartWith([[$this->sellableVariant(), 1]]);
+        $payload = $this->payload($this->deliverableCity());
+        Notification::fake();
+        $this->withCart($cart)->withHeader('Idempotency-Key', 'checkout-5f0c2a51-7d3e')->postJson('/api/checkout', $payload)->assertCreated();
+
+        $this->withCart($cart)->withHeader('Idempotency-Key', 'checkout-5f0c2a51-7d3e')->postJson('/api/checkout', $payload)->assertOk();
+
+        Notification::assertSentOnDemandTimes(OrderConfirmation::class, 1);
+        Notification::assertSentOnDemandTimes(NewOrderAlert::class, 1);
+    }
+
+    public function test_refused_checkout_notifies_no_one(): void
+    {
+        app(StoreSettings::class)->put(['contact.email' => 'contact@myperfum.ma']);
+        $amber = $this->sellableVariant('Ambre Nuit', stock: 5);
+        $cart = $this->cartWith([[$amber, 3]]);
+        $amber->forceFill(['stock' => 2])->save();
+        Notification::fake();
+
+        $this->withCart($cart)->postJson('/api/checkout', $this->payload($this->deliverableCity()))->assertUnprocessable();
+
+        Notification::assertNothingSent();
     }
 
     public function test_confirmation_shows_the_order_to_the_holder_of_the_guest_token(): void

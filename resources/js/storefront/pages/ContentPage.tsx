@@ -2,6 +2,7 @@ import { useParams } from 'react-router';
 import { formatDate } from '@shared/format';
 import { api } from '../api';
 import { RichText } from '../components/RichText';
+import { PageHeader } from '../components/ui/PageHeader';
 import { ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -25,11 +26,7 @@ export default function ContentPage() {
         <article className="container-page max-w-3xl pt-16 sm:pt-24">
             {page ? (
                 <>
-                    <header className="flex flex-col gap-5 border-b border-line pb-10">
-                        <p className="eyebrow">Informations</p>
-                        <h1 className="font-display text-display-lg text-balance">{page.title}</h1>
-                        {page.updated_at && <p className="text-xs text-faint">Mis à jour le {formatDate(page.updated_at)}</p>}
-                    </header>
+                    <PageHeader label="Informations" title={page.title} meta={page.updated_at ? `Mis à jour le ${formatDate(page.updated_at)}` : null} />
                     <RichText source={page.body} className="pt-10" />
                 </>
             ) : (

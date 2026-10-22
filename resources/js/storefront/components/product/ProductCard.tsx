@@ -36,7 +36,7 @@ export function ProductCard({ product, priority = false, sizes = '(min-width: 80
                     sizes={sizes}
                     priority={priority}
                     className={cn(
-                        'absolute inset-0 size-full p-[4%] transition-[opacity,transform] duration-[900ms] ease-luxe group-hover:scale-[1.035]',
+                        'absolute inset-0 size-full p-[4%] transition-[opacity,scale,rotate] duration-700 ease-spring group-hover:scale-[1.04] group-hover:-rotate-3',
                         product.hover_image && 'group-hover:opacity-0',
                     )}
                 />
@@ -45,10 +45,10 @@ export function ProductCard({ product, priority = false, sizes = '(min-width: 80
                         image={product.hover_image}
                         alt=""
                         sizes={sizes}
-                        className="absolute inset-0 size-full scale-[1.02] p-[4%] opacity-0 transition-[opacity,transform] duration-[900ms] ease-luxe group-hover:scale-100 group-hover:opacity-100"
+                        className="absolute inset-0 size-full scale-[1.02] p-[4%] opacity-0 transition-[opacity,scale] duration-700 ease-luxe group-hover:scale-100 group-hover:opacity-100"
                     />
                 )}
-                <div className="absolute top-3 left-3 flex flex-col items-start gap-1.5">
+                <div className="absolute top-3.5 left-3.5 flex flex-col items-start gap-1.5">
                     {product.badge && <Badge>{BADGE_LABELS[product.badge]}</Badge>}
                     {!product.in_stock && <Badge className="text-muted">Épuisé</Badge>}
                 </div>

@@ -1,5 +1,7 @@
+import { plural } from '@shared/format';
 import { api } from '../api';
 import { CollectionTiles } from '../components/CollectionTiles';
+import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -10,11 +12,9 @@ export default function CollectionsPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-col gap-4 border-b border-line pb-10">
-                <p className="eyebrow">Les collections</p>
-                <h1 className="font-display text-display-lg text-balance">Des univers à explorer</h1>
+            <PageHeader label="Les collections" title="Des univers à explorer" meta={data ? plural(data.data.length, 'univers', 'univers') : null}>
                 <p className="max-w-xl text-muted">Chaque collection réunit des parfums qui partagent une lumière, une matière ou un moment de la journée.</p>
-            </header>
+            </PageHeader>
             <div className="pt-12">
                 {error && !data ? (
                     <ErrorState message={error.message} onRetry={refetch} />

@@ -10,7 +10,10 @@ interface FieldShellProps {
     children: (props: { id: string; 'aria-invalid'?: true; 'aria-describedby'?: string }) => ReactNode;
 }
 
-/** Label, control, hint and error wired together for assistive technology. */
+/**
+ * Label, control, hint and error wired together for assistive technology. The control
+ * must be a single `.field-control`: the label is drawn inside it (see `.field-float`).
+ */
 export function Field({ label, error, hint, optional = false, className, children }: FieldShellProps) {
     const id = useId();
     const hintId = hint ? `${id}-hint` : undefined;
@@ -19,11 +22,18 @@ export function Field({ label, error, hint, optional = false, className, childre
 
     return (
         <div className={cn('flex flex-col gap-2', className)}>
-            <label htmlFor={id} className="flex items-baseline justify-between gap-3 text-sm text-ink">
-                <span>{label}</span>
-                {optional && <span className="text-2xs tracking-[0.12em] text-muted uppercase">Facultatif</span>}
-            </label>
-            {children({ id, 'aria-invalid': error ? true : undefined, 'aria-describedby': describedBy })}
+            <div className="field-float">
+                {children({ id, 'aria-invalid': error ? true : undefined, 'aria-describedby': describedBy })}
+                <label htmlFor={id} className="field-label">
+                    {label}
+                    {optional && <span className="sr-only"> (facultatif)</span>}
+                </label>
+                {optional && (
+                    <span aria-hidden="true" className="field-optional">
+                        Facultatif
+                    </span>
+                )}
+            </div>
             {hint && !error && (
                 <p id={hintId} className="text-xs text-muted">
                     {hint}
@@ -40,18 +50,19 @@ export function Field({ label, error, hint, optional = false, className, childre
 
 type Common = { label: ReactNode; error?: string; hint?: ReactNode; optional?: boolean; fieldClassName?: string };
 
-export function TextField({ label, error, hint, optional, fieldClassName, className, ...props }: Common & InputHTMLAttributes<HTMLInputElement>) {
+/** A placeholder is always set, even blank, so `:placeholder-shown` can tell when the field is empty. */
+export function TextField({ label, error, hint, optional, fieldClassName, className, placeholder = ' ', ...props }: Common & InputHTMLAttributes<HTMLInputElement>) {
     return (
         <Field label={label} error={error} hint={hint} optional={optional} className={fieldClassName}>
-            {(a11y) => <input className={cn('field-control', className)} {...a11y} {...props} />}
+            {(a11y) => <input className={cn('field-control', className)} placeholder={placeholder} {...a11y} {...props} />}
         </Field>
     );
 }
 
-export function TextAreaField({ label, error, hint, optional, fieldClassName, className, ...props }: Common & TextareaHTMLAttributes<HTMLTextAreaElement>) {
+export function TextAreaField({ label, error, hint, optional, fieldClassName, className, placeholder = ' ', ...props }: Common & TextareaHTMLAttributes<HTMLTextAreaElement>) {
     return (
         <Field label={label} error={error} hint={hint} optional={optional} className={fieldClassName}>
-            {(a11y) => <textarea className={cn('field-control min-h-28 resize-y leading-relaxed', className)} {...a11y} {...props} />}
+            {(a11y) => <textarea className={cn('field-control min-h-28 resize-y leading-relaxed', className)} placeholder={placeholder} {...a11y} {...props} />}
         </Field>
     );
 }
@@ -70,8 +81,8 @@ export function SelectField({ label, error, hint, optional, fieldClassName, clas
 
 export function Checkbox({ label, className, ...props }: { label: ReactNode } & InputHTMLAttributes<HTMLInputElement>) {
     return (
-        <label className={cn('flex cursor-pointer items-start gap-3 text-sm text-muted', className)}>
-            <input type="checkbox" className="mt-0.5 size-4 shrink-0 accent-(--color-accent)" {...props} />
+        <label className={cn('flex cursor-pointer items-start gap-3 text-sm text-muted transition-colors hover:text-ink', className)}>
+            <input type="checkbox" className="check-control mt-px" {...props} />
             <span>{label}</span>
         </label>
     );

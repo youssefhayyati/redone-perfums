@@ -10,6 +10,7 @@ import { activeFilterCount, readFilters, SORT_LABELS, toApiQuery, writeFilters, 
 import { Pagination } from '../components/shop/Pagination';
 import { Button } from '../components/ui/Button';
 import { Drawer } from '../components/ui/Drawer';
+import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -62,13 +63,7 @@ export default function ShopPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-col gap-4 border-b border-line pb-10">
-                <p className="eyebrow">La boutique</p>
-                <h1 className="font-display text-display-lg text-balance">{title}</h1>
-                <p className="text-sm text-muted" aria-live="polite">
-                    {total !== undefined ? plural(total, 'parfum') : ' '}
-                </p>
-            </header>
+            <PageHeader label="La boutique" title={title} meta={<span aria-live="polite">{total !== undefined ? plural(total, 'parfum') : ''}</span>} />
 
             <div className="grid grid-cols-1 gap-10 pt-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-14">
                 <aside className="hidden lg:block" aria-label="Filtres">
@@ -89,7 +84,7 @@ export default function ShopPage() {
                                     key={chip.key}
                                     type="button"
                                     onClick={chip.remove}
-                                    className="inline-flex h-10 items-center gap-2 border border-line px-3 text-xs text-ink transition-colors hover:border-ink"
+                                    className="inline-flex h-10 items-center gap-2 rounded-full border border-line px-4 text-xs text-ink transition-colors hover:border-ink"
                                     aria-label={`Retirer le filtre ${chip.label}`}
                                 >
                                     {chip.label}

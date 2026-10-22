@@ -1,19 +1,26 @@
 import type { ReactNode } from 'react';
-import { Reveal } from '../../motion/Reveal';
+import { LogoMark } from '@shared/LogoMark';
+import { Reveal, RevealWords } from '../../motion/Reveal';
 
-/** Narrow centred column used by the sign-in, sign-up and password pages. */
+/**
+ * Narrow centred column used by the sign-in, sign-up and password pages: the house
+ * mark and a title, then the form on a card.
+ */
 export function AuthLayout({ eyebrow, title, intro, children, footer }: { eyebrow: string; title: string; intro?: ReactNode; children: ReactNode; footer?: ReactNode }) {
     return (
-        <div className="container-page flex justify-center pt-16 sm:pt-24">
-            <Reveal className="flex w-full max-w-md flex-col gap-10">
-                <header className="flex flex-col gap-4 text-center">
+        <div className="container-page flex justify-center pt-12 sm:pt-20">
+            <div className="flex w-full max-w-md flex-col gap-8">
+                <header className="flex flex-col items-center gap-4 text-center">
+                    <LogoMark className="mb-2 size-10 text-ink" />
                     <p className="eyebrow">{eyebrow}</p>
-                    <h1 className="font-display text-display-md text-balance">{title}</h1>
+                    <RevealWords as="h1" text={title} className="font-display text-display-md font-normal text-balance" />
                     {intro && <div className="text-muted">{intro}</div>}
                 </header>
-                {children}
-                {footer && <div className="border-t border-line pt-8 text-center text-sm text-muted">{footer}</div>}
-            </Reveal>
+                <Reveal delay={0.15} className="rounded-card border border-line bg-raised p-6 sm:p-8">
+                    {children}
+                </Reveal>
+                {footer && <div className="text-center text-sm text-muted">{footer}</div>}
+            </div>
         </div>
     );
 }

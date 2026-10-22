@@ -15,7 +15,7 @@ export function NotesPyramid({ notes, compact = false, className }: { notes: Not
     return (
         <dl className={cn('grid', compact ? 'gap-5 sm:grid-cols-3' : 'gap-0 divide-y divide-line border-y border-line', className)}>
             {LAYERS.filter((layer) => notes[layer.key].length > 0).map((layer, index) => (
-                <div key={layer.key} className={cn(compact ? 'flex flex-col gap-2' : 'grid gap-2 py-5 sm:grid-cols-[10rem_1fr] sm:gap-6')}>
+                <div key={layer.key} className={cn(compact ? 'flex flex-col gap-2' : 'grid gap-2 py-5 sm:grid-cols-[13rem_1fr] sm:gap-6')}>
                     <dt className="flex flex-col gap-1">
                         <span className="flex items-center gap-3 font-display text-xl">
                             {!compact && <span className="text-xs text-accent tabular-nums">0{index + 1}</span>}

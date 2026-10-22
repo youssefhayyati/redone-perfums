@@ -25,7 +25,7 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="any">
 
-    @fonts
+    @fonts(['fraunces', 'dm-sans'])
     @viteReactRefresh
     @vite(['resources/js/storefront/main.tsx'])
 

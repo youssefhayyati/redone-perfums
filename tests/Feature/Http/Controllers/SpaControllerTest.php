@@ -106,7 +106,7 @@ class SpaControllerTest extends TestCase
         $response = $this->get('/parfums/aurore');
 
         $response->assertOk()
-            ->assertSee('<title>Aurore — Redone Parfums</title>', false)
+            ->assertSee('<title>Aurore — Myperfum</title>', false)
             ->assertDontSee('noindex', false);
         $meta = $response->viewData('meta');
         $this->assertSame('Ambre et fleur d’oranger', $meta['description']);
@@ -147,7 +147,7 @@ class SpaControllerTest extends TestCase
 
         $response->assertOk()
             ->assertDontSee('<script>alert(1)</script>', false)
-            ->assertSee('<title>Nuit &lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt; — Redone Parfums</title>', false)
+            ->assertSee('<title>Nuit &lt;/script&gt;&lt;script&gt;alert(1)&lt;/script&gt; — Myperfum</title>', false)
             ->assertDontSee('Cuir & "encens"', false)
             ->assertSee('Cuir &amp; &quot;encens&quot;', false);
         $this->assertSame($name, $this->jsonLd($response)['name']);
@@ -172,7 +172,7 @@ class SpaControllerTest extends TestCase
         $response = $this->get('/collections/nuits-dorient');
 
         $response->assertOk()
-            ->assertSee('<title>Nuits d’Orient — Redone Parfums</title>', false);
+            ->assertSee('<title>Nuits d’Orient — Myperfum</title>', false);
         $this->assertSame('Oud, ambre et safran.', $response->viewData('meta')['description']);
     }
 
@@ -186,7 +186,7 @@ class SpaControllerTest extends TestCase
         $response = $this->get('/coffrets/coffret-nuit-blanche');
 
         $response->assertOk()
-            ->assertSee('<title>Coffret Nuit Blanche — Redone Parfums</title>', false)
+            ->assertSee('<title>Coffret Nuit Blanche — Myperfum</title>', false)
             ->assertDontSee('noindex', false);
         $meta = $response->viewData('meta');
         $this->assertSame('Trois parfums du soir à composer.', $meta['description']);
@@ -273,7 +273,7 @@ class SpaControllerTest extends TestCase
         $response = $this->get('/pages/livraison');
 
         $response->assertOk()
-            ->assertSee('<title>Livraison — Redone Parfums</title>', false);
+            ->assertSee('<title>Livraison — Myperfum</title>', false);
         $this->assertSame('Délais et frais de livraison au Maroc.', $response->viewData('meta')['description']);
     }
 
@@ -303,7 +303,7 @@ class SpaControllerTest extends TestCase
         $response = $this->get($path);
 
         $response->assertOk()
-            ->assertSee('<title>Administration — Redone Parfums</title>', false)
+            ->assertSee('<title>Administration — Myperfum</title>', false)
             ->assertSee('noindex', false);
     }
 

@@ -31,7 +31,7 @@ function PackHeader({ pack, kind }: { pack: Pack; kind: string }) {
             {pack.description && <p className="max-w-xl text-muted">{pack.description}</p>}
             <ul className="flex flex-wrap gap-2 pt-1">
                 {facts.map((fact) => (
-                    <li key={fact} className="border border-line px-3 py-1.5 text-xs text-muted">
+                    <li key={fact} className="rounded-full border border-line px-3.5 py-1.5 text-xs text-muted">
                         {fact}
                     </li>
                 ))}
@@ -249,7 +249,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                                     type="button"
                                     aria-pressed={family === slug}
                                     onClick={() => setFamily(slug)}
-                                    className={cn('h-9 shrink-0 border px-3.5 text-xs transition-colors', family === slug ? 'border-ink bg-ink text-canvas' : 'border-line-strong text-muted hover:text-ink')}
+                                    className={cn('h-9 shrink-0 rounded-full border px-4 text-xs transition-colors', family === slug ? 'border-ink bg-ink text-canvas' : 'border-line-strong text-muted hover:text-ink')}
                                 >
                                     {name}
                                 </button>
@@ -285,7 +285,7 @@ function PackBuilder({ pack, options }: { pack: Pack; options: PackOption[] }) {
                 </section>
 
                 <aside className="order-first lg:order-none" aria-label="Composition du coffret">
-                    <div className="border border-line bg-raised p-6 lg:sticky lg:top-24">{panel}</div>
+                    <div className="rounded-card border border-line bg-raised p-6 lg:sticky lg:top-24">{panel}</div>
                 </aside>
             </div>
 
@@ -327,7 +327,7 @@ function FixedPack({ pack }: { pack: Pack }) {
         <div className="container-page pt-8 sm:pt-12">
             <Breadcrumbs items={[{ label: 'Coffrets', to: '/coffrets' }, { label: pack.name }]} />
             <article className="grid grid-cols-1 gap-12 pt-8 lg:grid-cols-2 lg:gap-20">
-                <div className="relative aspect-[4/5] overflow-hidden bg-raised lg:sticky lg:top-24 lg:self-start">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-card bg-raised lg:sticky lg:top-24 lg:self-start">
                     {pack.image && <img src={pack.image} alt={pack.name} className="absolute inset-0 size-full object-cover" />}
                 </div>
                 <div className="flex flex-col gap-10 lg:py-6">

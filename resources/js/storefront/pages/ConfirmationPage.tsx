@@ -67,7 +67,7 @@ export default function ConfirmationPage() {
                 <OrderStatusBadge status={order.status} label={order.status_label} />
             </header>
 
-            <div className="mt-16 flex flex-col gap-12 border border-line bg-raised p-6 sm:p-10">
+            <div className="mt-16 flex flex-col gap-12 rounded-card border border-line bg-raised p-6 sm:p-10">
                 <section aria-labelledby="items-title" className="flex flex-col gap-4">
                     <h2 id="items-title" className="eyebrow">
                         Récapitulatif

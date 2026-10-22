@@ -5,6 +5,7 @@ import { CitySelect } from '../components/cart/CitySelect';
 import { CouponForm } from '../components/cart/CouponForm';
 import { FreeShippingHint, Totals } from '../components/cart/Totals';
 import { ButtonLink } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/States';
 import { useConfig } from '../config';
@@ -40,10 +41,7 @@ export default function CartPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-col gap-3 border-b border-line pb-8">
-                <h1 className="font-display text-display-lg">Votre panier</h1>
-                <p className="text-sm text-muted">{plural(cart.items_count, 'article')}</p>
-            </header>
+            <PageHeader label="Panier" title="Votre panier" meta={plural(cart.items_count, 'article')} />
 
             <div className="grid grid-cols-1 gap-12 pt-4 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-16">
                 <section aria-label="Articles">
@@ -61,7 +59,7 @@ export default function CartPage() {
                 </section>
 
                 <aside aria-label="Récapitulatif" className="lg:pt-6">
-                    <div className="flex flex-col gap-7 border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
+                    <div className="flex flex-col gap-7 rounded-card border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
                         <h2 className="font-display text-2xl">Récapitulatif</h2>
 
                         <div className="flex flex-col gap-2">

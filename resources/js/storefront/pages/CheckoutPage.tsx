@@ -11,6 +11,7 @@ import { CitySelect } from '../components/cart/CitySelect';
 import { FreeShippingHint, Totals } from '../components/cart/Totals';
 import { Button, ButtonLink } from '../components/ui/Button';
 import { Field, FormAlert, TextAreaField, TextField } from '../components/ui/Field';
+import { PageHeader } from '../components/ui/PageHeader';
 import { Spinner } from '../components/ui/Spinner';
 import { EmptyState } from '../components/ui/States';
 import { useConfig } from '../config';
@@ -184,10 +185,7 @@ export default function CheckoutPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-col gap-3 border-b border-line pb-8">
-                <p className="eyebrow">Commande</p>
-                <h1 className="font-display text-display-lg">Finaliser votre commande</h1>
-            </header>
+            <PageHeader label="Commande" title="Finaliser votre commande" />
 
             <form ref={formRef} onSubmit={submit} noValidate className="grid grid-cols-1 gap-12 pt-10 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-16">
                 <div className="flex flex-col gap-12">
@@ -293,11 +291,11 @@ export default function CheckoutPage() {
                                 <label
                                     key={method.code}
                                     className={cn(
-                                        'flex cursor-pointer items-start gap-4 border p-5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent',
-                                        form.payment_method === method.code ? 'border-ink' : 'border-line-strong',
+                                        'flex cursor-pointer items-start gap-4 rounded-2xl border p-5 transition-colors has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent',
+                                        form.payment_method === method.code ? 'border-accent bg-accent/5' : 'border-line-strong hover:border-ink/60',
                                     )}
                                 >
-                                    <input type="radio" name="payment_method" value={method.code} checked={form.payment_method === method.code} onChange={() => set('payment_method')(method.code)} className="mt-1 accent-(--color-accent)" />
+                                    <input type="radio" name="payment_method" value={method.code} checked={form.payment_method === method.code} onChange={() => set('payment_method')(method.code)} className="radio-control mt-0.5" />
                                     <span className="flex flex-col gap-1">
                                         <span className="text-ink">{method.label}</span>
                                         <span className="text-sm text-muted">{method.description}</span>
@@ -314,7 +312,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <aside aria-label="Récapitulatif de la commande">
-                    <div className="flex flex-col gap-6 border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
+                    <div className="flex flex-col gap-6 rounded-card border border-line bg-raised p-6 sm:p-8 lg:sticky lg:top-24">
                         <h2 className="font-display text-2xl">Votre commande</h2>
                         <ul className="flex flex-col gap-3 border-b border-line pb-6 text-sm">
                             {cart.lines.map((line) => (

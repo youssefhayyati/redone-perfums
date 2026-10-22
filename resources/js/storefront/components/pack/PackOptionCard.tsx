@@ -41,7 +41,7 @@ export function PackOptionCard({ option, chosen, full, allowDuplicates, onPick }
                             type="button"
                             disabled={disabled}
                             onClick={() => onPick(variant)}
-                            className="flex min-h-10 items-center gap-2 border border-line-strong px-3 text-xs transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong disabled:hover:text-inherit"
+                            className="flex min-h-10 items-center gap-2 rounded-full border border-line-strong px-4 text-xs transition-colors hover:border-accent hover:text-accent disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong disabled:hover:text-inherit"
                             aria-label={`Ajouter ${option.name} ${variant.label} à la sélection${soldOut ? ' (épuisé)' : ''}`}
                         >
                             <span>+ {variant.label}</span>

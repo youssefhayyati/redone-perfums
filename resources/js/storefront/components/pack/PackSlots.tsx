@@ -28,7 +28,7 @@ export function PackSlots({ count, items, onRemove, compact = false }: PackSlots
 
                 return (
                     <li key={index} className={cn('relative flex flex-col gap-2', compact && 'min-w-[4.5rem]')}>
-                        <div className={cn('relative aspect-[3/4] overflow-hidden border transition-colors duration-500', item ? 'aura border-line' : 'border-dashed border-line-strong')}>
+                        <div className={cn('relative aspect-[3/4] overflow-hidden rounded-2xl border transition-colors duration-500', item ? 'aura border-line' : 'border-dashed border-line-strong')}>
                             <span className="absolute top-2 left-2 z-10 text-2xs text-faint tabular-nums">{String(index + 1).padStart(2, '0')}</span>
                             <AnimatePresence mode="popLayout">
                                 {item ? (

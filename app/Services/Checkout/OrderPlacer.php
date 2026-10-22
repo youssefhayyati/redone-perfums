@@ -7,6 +7,7 @@ use App\Enums\InventoryReason;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Events\OrderPlaced;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderEvent;
@@ -131,7 +132,12 @@ final class OrderPlacer
             'user_id' => $user?->id,
         ]);
 
-        return $order->load('items.selections');
+        $order->load('items.selections');
+
+        // Held until the transaction commits; discarded if a retry or a rollback replaces it.
+        OrderPlaced::dispatch($order);
+
+        return $order;
     }
 
     private function writeLine(Order $order, CartLine $line): void

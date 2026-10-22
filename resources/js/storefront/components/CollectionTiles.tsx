@@ -8,7 +8,7 @@ export function CollectionTiles({ collections, className }: { collections: Colle
         <RevealGroup as="ul" className={cn('grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5', className)}>
             {collections.map((collection) => (
                 <RevealItem as="li" key={collection.id}>
-                    <Link to={`/collections/${collection.slug}`} className="group relative block aspect-[3/4] overflow-hidden bg-raised">
+                    <Link to={`/collections/${collection.slug}`} className="group relative block aspect-[3/4] overflow-hidden rounded-card bg-raised">
                         {collection.image ? (
                             <img
                                 src={collection.image}

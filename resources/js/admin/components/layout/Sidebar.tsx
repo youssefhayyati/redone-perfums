@@ -1,15 +1,19 @@
 import { Link, NavLink } from 'react-router';
 import { ExternalLink } from 'lucide-react';
 import { cn } from '@shared/format';
+import { LogoMark } from '@shared/LogoMark';
 import { NAVIGATION, filterNavigation } from '../../navigation';
 import type { Permission } from '../../types';
 
 export function Wordmark({ className }: { className?: string }) {
     return (
-        <Link to="/" className={cn('inline-flex flex-col rounded leading-none', className)} aria-label="Redone — tableau de bord">
-            <span className="text-[0.8125rem] font-semibold uppercase tracking-wordmark text-ink">Redone</span>
-            <span className="mt-1.5 text-2xs uppercase tracking-label text-muted" aria-hidden>
-                Administration
+        <Link to="/" className={cn('inline-flex items-center gap-2.5 rounded leading-none', className)} aria-label="Myperfum — tableau de bord">
+            <LogoMark className="size-7 shrink-0 text-ink" />
+            <span className="flex flex-col">
+                <span className="text-[0.9375rem] font-semibold tracking-tight text-ink">Myperfum</span>
+                <span className="mt-1 text-2xs uppercase tracking-label text-muted" aria-hidden>
+                    Administration
+                </span>
             </span>
         </Link>
     );

@@ -110,7 +110,7 @@ function ProductView({ product }: { product: Product }) {
                                     {product.family.name}
                                 </Link>
                             )}
-                            {product.badge && <span className="border border-accent/50 px-2 py-0.5 text-2xs tracking-[0.18em] text-accent uppercase">{BADGE_LABELS[product.badge]}</span>}
+                            {product.badge && <span className="rounded-full border border-accent/50 px-2.5 py-0.5 text-2xs tracking-[0.18em] text-accent uppercase">{BADGE_LABELS[product.badge]}</span>}
                         </div>
                         <h1 className="font-display text-display-lg">{product.name}</h1>
                         {facts && <p className="text-sm text-muted">{facts}</p>}
@@ -190,7 +190,7 @@ function ProductView({ product }: { product: Product }) {
                         <div className="flex flex-wrap items-center gap-2">
                             <span className="eyebrow mr-2">Collections</span>
                             {product.collections.map((collection) => (
-                                <Link key={collection.slug} to={`/collections/${collection.slug}`} className="border border-line px-3 py-1.5 text-xs text-muted transition-colors hover:border-ink hover:text-ink">
+                                <Link key={collection.slug} to={`/collections/${collection.slug}`} className="rounded-full border border-line px-3.5 py-1.5 text-xs text-muted transition-colors hover:border-ink hover:text-ink">
                                     {collection.name}
                                 </Link>
                             ))}

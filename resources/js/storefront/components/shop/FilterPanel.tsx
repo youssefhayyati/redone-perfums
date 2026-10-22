@@ -19,9 +19,9 @@ function CheckRow({ label, count, checked, onChange }: { label: string; count?: 
                 <input type="checkbox" checked={checked} onChange={onChange} className="peer sr-only" />
                 <span
                     aria-hidden="true"
-                    className="flex size-4 items-center justify-center border border-line-strong transition-colors peer-checked:border-accent peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
+                    className="flex size-4 items-center justify-center rounded-[0.3rem] border border-line-strong transition-colors peer-checked:border-accent peer-checked:bg-accent peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent"
                 >
-                    <span className={cn('size-1.5 bg-on-accent transition-opacity', checked ? 'opacity-100' : 'opacity-0')} />
+                    <span className={cn('size-1.5 rounded-full bg-on-accent transition-opacity', checked ? 'opacity-100' : 'opacity-0')} />
                 </span>
                 <span className={cn('transition-colors', checked ? 'text-ink' : 'text-muted group-hover:text-ink')}>{label}</span>
             </span>
@@ -113,7 +113,7 @@ export function FilterPanel({ facets, filters, onChange }: FilterPanelProps) {
                                     type="button"
                                     aria-pressed={active}
                                     onClick={() => onChange({ sizes: toggle(filters.sizes, size) })}
-                                    className={cn('h-9 border px-3.5 text-xs tabular-nums transition-colors', active ? 'border-accent bg-accent text-on-accent' : 'border-line-strong text-muted hover:border-ink hover:text-ink')}
+                                    className={cn('h-9 rounded-full border px-4 text-xs tabular-nums transition-colors', active ? 'border-accent bg-accent text-on-accent' : 'border-line-strong text-muted hover:border-ink hover:text-ink')}
                                 >
                                     {size} ml
                                 </button>

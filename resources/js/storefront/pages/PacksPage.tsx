@@ -3,7 +3,8 @@ import type { Pack } from '@shared/types';
 import { formatMoney } from '@shared/money';
 import { plural } from '@shared/format';
 import { api } from '../api';
-import { buttonClasses } from '../components/ui/Button';
+import { ButtonLabel, buttonClasses } from '../components/ui/Button';
+import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../components/ui/States';
 import { useHead } from '../hooks/useHead';
 import { useQuery } from '../hooks/useQuery';
@@ -14,7 +15,7 @@ function PackCard({ pack }: { pack: Pack }) {
 
     return (
         <article className="group flex flex-col gap-6">
-            <Link to={`/coffrets/${pack.slug}`} tabIndex={-1} aria-hidden="true" className="relative block aspect-[4/5] overflow-hidden bg-raised">
+            <Link to={`/coffrets/${pack.slug}`} tabIndex={-1} aria-hidden="true" className="relative block aspect-[4/5] overflow-hidden rounded-card bg-raised">
                 {pack.image && <img src={pack.image} alt="" loading="lazy" className="absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-luxe group-hover:scale-[1.04]" />}
                 <span className="absolute top-4 left-4 bg-canvas/85 px-2.5 py-1 text-2xs tracking-[0.18em] text-ink uppercase backdrop-blur-sm">
                     {pack.type === 'custom' ? 'À composer' : 'Composé par la maison'}
@@ -44,7 +45,7 @@ function PackCard({ pack }: { pack: Pack }) {
                         <span className="ml-3 text-xs text-accent">{pack.pricing.label}</span>
                     </p>
                     <Link to={`/coffrets/${pack.slug}`} className={buttonClasses('secondary', 'sm')}>
-                        {pack.type === 'custom' ? 'Composer' : 'Découvrir'}
+                        <ButtonLabel>{pack.type === 'custom' ? 'Composer' : 'Découvrir'}</ButtonLabel>
                     </Link>
                 </div>
             </div>
@@ -58,11 +59,9 @@ export default function PacksPage() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-col gap-4 border-b border-line pb-10">
-                <p className="eyebrow">Coffrets</p>
-                <h1 className="font-display text-display-lg text-balance">Composez, offrez, explorez.</h1>
+            <PageHeader label="Coffrets" title="Composez, offrez, explorez." meta={data ? plural(data.data.length, 'coffret') : null}>
                 <p className="max-w-xl text-muted">Réunissez plusieurs parfums dans un écrin à un prix plus doux que l’achat séparé. Le prix exact est calculé dès que votre sélection est complète.</p>
-            </header>
+            </PageHeader>
             <div className="pt-12">
                 {error && !data ? (
                     <ErrorState message={error.message} onRetry={refetch} />

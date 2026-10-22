@@ -12,6 +12,7 @@ export const SETTING_GROUPS: Array<{ key: string; label: string; description?: s
     { key: 'general', label: 'Boutique', description: 'Nom, logotype et description par défaut pour les moteurs de recherche.' },
     { key: 'announcement', label: 'Barre d’annonce', description: 'Bandeau affiché en haut de toutes les pages.' },
     { key: 'contact', label: 'Contact', description: 'Coordonnées affichées sur la boutique et dans les e-mails.' },
+    { key: 'notifications', label: 'Notifications', description: 'Adresse qui reçoit une alerte à chaque nouvelle commande.' },
     { key: 'social', label: 'Réseaux sociaux', description: 'Adresses complètes commençant par https://.' },
     { key: 'payment', label: 'Paiement et commande' },
     { key: 'benefits', label: 'Avantages' },

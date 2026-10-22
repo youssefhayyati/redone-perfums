@@ -1,5 +1,5 @@
 import { isRouteErrorResponse, Link, useRouteError } from 'react-router';
-import { buttonClasses } from '../components/ui/Button';
+import { ButtonLabel, buttonClasses } from '../components/ui/Button';
 
 /** Last-resort boundary: a render error or a failed lazy chunk (e.g. after a deploy). */
 export function ErrorPage() {
@@ -15,10 +15,10 @@ export function ErrorPage() {
             </p>
             <div className="flex flex-wrap justify-center gap-3">
                 <button type="button" className={buttonClasses('primary')} onClick={() => window.location.reload()}>
-                    Recharger
+                    <ButtonLabel>Recharger</ButtonLabel>
                 </button>
                 <Link to="/" className={buttonClasses('secondary')} reloadDocument>
-                    Accueil
+                    <ButtonLabel>Accueil</ButtonLabel>
                 </Link>
             </div>
         </main>

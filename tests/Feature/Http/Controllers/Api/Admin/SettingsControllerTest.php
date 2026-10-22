@@ -105,6 +105,19 @@ class SettingsControllerTest extends TestCase
         $this->assertDatabaseCount('store_settings', 0);
     }
 
+    public function test_update_requires_the_orders_inbox_to_be_an_email_address_with_422(): void
+    {
+        $response = $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [
+            'notifications.orders_email' => 'commandes-myperfum',
+        ]]);
+
+        $response->assertUnprocessable()
+            ->assertJsonValidationErrors([
+                'values.notifications.orders_email' => 'Le champ E-mail qui reçoit les nouvelles commandes (par défaut : e-mail de contact) doit être une adresse e-mail valide.',
+            ]);
+        $this->assertDatabaseCount('store_settings', 0);
+    }
+
     public function test_update_ignores_keys_that_are_not_store_settings(): void
     {
         $response = $this->actingAs($this->admin())->putJson('/api/admin/settings', ['values' => [

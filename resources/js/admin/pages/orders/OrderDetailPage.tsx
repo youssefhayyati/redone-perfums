@@ -261,7 +261,7 @@ export default function OrderDetailPage() {
 
     const forward = order.allowed_transitions.filter((option) => option.value !== 'cancelled');
     const canCancel = order.allowed_transitions.some((option) => option.value === 'cancelled');
-    const whatsappMessage = `Bonjour ${order.customer_name.split(' ')[0]}, ici Redone Parfums au sujet de votre commande ${order.reference}.`;
+    const whatsappMessage = `Bonjour ${order.customer_name.split(' ')[0]}, ici Myperfum au sujet de votre commande ${order.reference}.`;
 
     const copyReference = async () => {
         try {

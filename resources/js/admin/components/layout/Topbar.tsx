@@ -73,7 +73,7 @@ export function Topbar({ user, onOpenNavigation, navigationOpen }: { user: Admin
                 aria-expanded={navigationOpen}
                 className="-ml-2 lg:hidden"
             />
-            <Wordmark className="lg:hidden [&>span:last-child]:hidden" />
+            <Wordmark className="lg:hidden [&>span>span:last-child]:hidden" />
             <div className="ml-auto flex items-center gap-1">
                 <ThemeToggle />
                 <span className="mx-1 h-5 w-px bg-line" aria-hidden />

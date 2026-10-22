@@ -49,6 +49,7 @@ class SettingsController extends Controller
         $rules['values'] = ['required', 'array'];
         $rules['values.announcement\.link'] = ['sometimes', 'nullable', 'string', 'max:255', 'regex:#^/[A-Za-z0-9/_\-?=&]*$#'];
         $rules['values.contact\.email'] = ['sometimes', 'nullable', 'email', 'max:190'];
+        $rules['values.notifications\.orders_email'] = ['sometimes', 'nullable', 'email', 'max:190'];
 
         $request->validate($rules, [
             'values.announcement.link.regex' => 'Le lien doit être un chemin interne commençant par « / ».',

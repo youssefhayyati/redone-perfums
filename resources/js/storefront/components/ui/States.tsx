@@ -36,5 +36,5 @@ export function SectionHeading({ eyebrow, title, action, className, id }: { eyeb
 }
 
 export function Badge({ children, className }: { children: ReactNode; className?: string }) {
-    return <span className={cn('inline-flex items-center bg-canvas/80 px-2.5 py-1 text-2xs font-medium tracking-[0.18em] text-ink uppercase backdrop-blur-sm', className)}>{children}</span>;
+    return <span className={cn('inline-flex items-center rounded-full bg-canvas/80 px-3 py-1 text-2xs font-medium tracking-[0.18em] text-ink uppercase backdrop-blur-sm', className)}>{children}</span>;
 }

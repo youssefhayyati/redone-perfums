@@ -41,7 +41,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
     if (cart.coupon) {
         return (
             <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between gap-3 border border-dashed border-line-strong px-4 py-3">
+                <div className="flex items-center justify-between gap-3 rounded-control border border-dashed border-line-strong px-4 py-3">
                     <p className="text-sm">
                         <span className="font-medium tracking-[0.12em] uppercase">{cart.coupon.code}</span>
                         {cart.coupon.discount > 0 && <span className="ml-2 text-success">−{formatMoney(cart.coupon.discount)}</span>}

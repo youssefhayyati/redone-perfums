@@ -58,6 +58,10 @@ Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / lega
 - `Packs\PackResolver`: eligibility, selection validation, and pricing (`quote`).
 - `Cart\CartManager` / `Cart\CartCalculator`: cart mutations and server-side pricing, with per-line issues.
 - `Checkout\OrderPlacer`: idempotent placement with locks, stock decrement and snapshots.
+  It dispatches `Events\OrderPlaced` once the transaction commits (never on a replay);
+  `Listeners\SendOrderPlacedNotifications` queues `NewOrderAlert` to the orders inbox
+  (setting `notifications.orders_email`, else `contact.email`) and `OrderConfirmation`
+  to the customer when they gave an e-mail. Production needs a queue worker.
 - `Orders\OrderWorkflow`: allowed status transitions, restocking on cancel, event log.
 - `Inventory\InventoryManager`: every stock change writes an `InventoryMovement`.
 - `Settings\StoreSettings`: typed defaults, cached, admin-editable.

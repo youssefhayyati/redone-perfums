@@ -22,7 +22,7 @@ class PageSeeder extends Seeder
                 'meta_description' => 'Une maison de parfum imaginée au Maroc : compositions, coffrets et conseil.',
                 'is_published' => true,
                 'body' => <<<'TEXT'
-                    Redone Parfums compose des parfums de caractère, nourris des matières et des paysages du Maroc : les résines des souks, la fleur d’oranger des médinas, le cèdre de l’Atlas.
+                    Myperfum compose des parfums de caractère, nourris des matières et des paysages du Maroc : les résines des souks, la fleur d’oranger des médinas, le cèdre de l’Atlas.
 
                     ## Une boutique de démonstration
                     Le catalogue présenté ici est fictif. Remplacez ce texte depuis l’administration (Contenu › Pages) pour raconter l’histoire de votre maison, vos matières et vos ateliers.

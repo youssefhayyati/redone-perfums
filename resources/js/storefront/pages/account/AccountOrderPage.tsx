@@ -44,7 +44,7 @@ function OrderDetail() {
                     <OrderItems order={order} />
                     <OrderTotals order={order} />
                 </section>
-                <aside className="border border-line bg-raised p-6">
+                <aside className="rounded-card border border-line bg-raised p-6">
                     <OrderDelivery order={order} />
                 </aside>
             </div>

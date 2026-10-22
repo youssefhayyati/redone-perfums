@@ -24,7 +24,7 @@ export function Toaster() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: 8, transition: { duration: 0.2 } }}
                             transition={{ duration: 0.45, ease: EASE_LUXE }}
-                            className="pointer-events-auto flex w-full max-w-sm items-start gap-3 border border-line bg-raised px-4 py-3.5 text-sm shadow-xl"
+                            className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl border border-line bg-raised px-4 py-3.5 text-sm shadow-xl"
                         >
                             <Icon className={cn('mt-0.5 size-4 shrink-0', toast.tone === 'error' ? 'text-danger' : toast.tone === 'success' ? 'text-success' : 'text-accent')} strokeWidth={1.5} />
                             <p className="flex-1 text-ink">{toast.message}</p>

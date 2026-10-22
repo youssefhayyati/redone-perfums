@@ -10,6 +10,7 @@ import { OrderStatusBadge } from '../../components/order/OrderSummary';
 import { Pagination } from '../../components/shop/Pagination';
 import { Button, ButtonLink } from '../../components/ui/Button';
 import { FormAlert, TextField } from '../../components/ui/Field';
+import { PageHeader } from '../../components/ui/PageHeader';
 import { EmptyState, ErrorState } from '../../components/ui/States';
 import { useHead } from '../../hooks/useHead';
 import { useQuery } from '../../hooks/useQuery';
@@ -177,15 +178,15 @@ function Account() {
 
     return (
         <div className="container-page pt-12 sm:pt-16">
-            <header className="flex flex-wrap items-end justify-between gap-6 border-b border-line pb-10">
-                <div className="flex flex-col gap-4">
-                    <p className="eyebrow">Mon compte</p>
-                    <h1 className="font-display text-display-lg">Bonjour, {user.name.split(' ')[0]}</h1>
-                </div>
-                <Button variant="quiet" size="sm" onClick={logout} loading={leaving}>
-                    Se déconnecter
-                </Button>
-            </header>
+            <PageHeader
+                label="Mon compte"
+                title={`Bonjour, ${user.name.split(' ')[0]}`}
+                aside={
+                    <Button variant="quiet" size="sm" onClick={logout} loading={leaving} className="self-start lg:self-auto">
+                        Se déconnecter
+                    </Button>
+                }
+            />
 
             <div className="grid grid-cols-1 gap-10 pt-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-16">
                 <nav aria-label="Rubriques du compte">

@@ -18,12 +18,19 @@ export default defineConfig({
             input: ['resources/js/storefront/main.tsx', 'resources/js/admin/main.tsx'],
             refresh: true,
             fonts: [
-                bunny('Cormorant Garamond', {
-                    weights: [400, 500, 600],
+                // Storefront: a soft, characterful serif for display, a clean sans for text.
+                bunny('Fraunces', {
+                    weights: [300, 400, 500, 600],
                     styles: ['normal', 'italic'],
-                    preload: [{ weight: 500 }],
+                    preload: [{ weight: 400 }],
                     fallbacks: ['Georgia', 'serif'],
                 }),
+                bunny('DM Sans', {
+                    weights: [400, 500, 600],
+                    preload: [{ weight: 400 }, { weight: 500 }],
+                    fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
+                }),
+                // Admin interface.
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                     preload: [{ weight: 400 }, { weight: 500 }],
