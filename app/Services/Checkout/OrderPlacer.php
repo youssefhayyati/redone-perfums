@@ -7,6 +7,7 @@ use App\Enums\InventoryReason;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Events\OrderPlaced;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderEvent;
@@ -17,6 +18,7 @@ use App\Services\Cart\CartLine;
 use App\Services\Inventory\InventoryManager;
 use App\Services\Settings\StoreSettings;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -60,13 +62,13 @@ final class OrderPlacer
         $lockedCart = Cart::query()->whereKey($cart->id)->lockForUpdate()->first();
 
         if ($lockedCart === null || $lockedCart->converted_at !== null) {
-            throw ValidationException::withMessages(['cart' => 'Ce panier a déjà été commandé.']);
+            throw ValidationException::withMessages(['cart' => __('Ce panier a déjà été commandé.')]);
         }
 
         $summary = $this->calculator->summarize($lockedCart, $data->city, lock: true);
 
         if ($summary->isEmpty() || $summary->hasLineIssues() || $summary->deliveryError !== null || $summary->total() === null) {
-            throw ValidationException::withMessages(['cart' => $summary->blockingMessages() ?: ['Votre panier ne peut pas être commandé.']]);
+            throw ValidationException::withMessages(['cart' => $summary->blockingMessages() ?: [__('Votre panier ne peut pas être commandé.')]]);
         }
 
         if ($summary->couponError !== null) {
@@ -80,11 +82,13 @@ final class OrderPlacer
             'status' => OrderStatus::Pending,
             'payment_method' => $data->paymentMethod,
             'payment_status' => PaymentStatus::Unpaid,
+            // Names below are snapshotted in this language, and the customer's e-mails use it.
+            'locale' => App::getLocale(),
             'customer_name' => $data->customerName,
             'phone' => $data->phone,
             'email' => $data->email,
             'city_id' => $data->city->id,
-            'city_name' => $data->city->name,
+            'city_name' => $data->city->translated('name'),
             'address' => $data->address,
             'delivery_notes' => $data->deliveryNotes,
             'delivery_zone_name' => $data->city->zone?->name,
@@ -131,7 +135,12 @@ final class OrderPlacer
             'user_id' => $user?->id,
         ]);
 
-        return $order->load('items.selections');
+        $order->load('items.selections');
+
+        // Held until the transaction commits; discarded if a retry or a rollback replaces it.
+        OrderPlaced::dispatch($order);
+
+        return $order;
     }
 
     private function writeLine(Order $order, CartLine $line): void
@@ -145,7 +154,7 @@ final class OrderPlacer
                 'type' => CartItemType::Product,
                 'product_id' => $variant->product_id,
                 'product_variant_id' => $variant->id,
-                'name' => $variant->product->name,
+                'name' => $variant->product->translated('name'),
                 'variant_label' => $variant->label(),
                 'sku' => $variant->sku,
                 'unit_price' => $line->unitPrice,
@@ -162,7 +171,7 @@ final class OrderPlacer
         $orderItem = $order->items()->create([
             'type' => CartItemType::Pack,
             'pack_id' => $pack->id,
-            'name' => $pack->name,
+            'name' => $pack->translated('name'),
             'variant_label' => count($line->variants).' parfums',
             'unit_price' => $line->unitPrice,
             'compare_at_price' => $line->compareAtPrice,
@@ -180,7 +189,7 @@ final class OrderPlacer
             $orderItem->selections()->create([
                 'product_id' => $variant->product_id,
                 'product_variant_id' => $variant->id,
-                'product_name' => $variant->product->name,
+                'product_name' => $variant->product->translated('name'),
                 'size_ml' => $variant->size_ml,
                 'sku' => $variant->sku,
                 'unit_price' => $variant->price,
@@ -220,7 +229,7 @@ final class OrderPlacer
         };
 
         if (! $enabled) {
-            throw ValidationException::withMessages(['payment_method' => 'Ce mode de paiement n’est pas disponible.']);
+            throw ValidationException::withMessages(['payment_method' => __('Ce mode de paiement n’est pas disponible.')]);
         }
     }
 
@@ -234,7 +243,7 @@ final class OrderPlacer
 
         // A key can only replay the order of the cart it was created with.
         if ($order->cart_id !== $cart->id) {
-            throw ValidationException::withMessages(['idempotency_key' => 'Requête invalide. Veuillez recharger la page.']);
+            throw ValidationException::withMessages(['idempotency_key' => __('Requête invalide. Veuillez recharger la page.')]);
         }
 
         return $order->load('items.selections');

@@ -105,6 +105,8 @@ Route::prefix('admin')->group(function () {
 
             Route::apiResource('families', Admin\FamilyController::class)->except('show');
             Route::get('notes', [Admin\FamilyController::class, 'notes']);
+            Route::get('notes/translations', [Admin\NoteController::class, 'index']);
+            Route::put('notes/{note}', [Admin\NoteController::class, 'update']);
 
             Route::apiResource('collections', Admin\CollectionController::class);
             Route::apiResource('packs', Admin\PackController::class);
@@ -112,12 +114,15 @@ Route::prefix('admin')->group(function () {
             Route::get('inventory', [Admin\InventoryController::class, 'index']);
             Route::get('inventory/{variant}/movements', [Admin\InventoryController::class, 'movements']);
             Route::post('inventory/{variant}/adjust', [Admin\InventoryController::class, 'adjust']);
-
-            Route::post('uploads', [Admin\UploadController::class, 'store'])->middleware('throttle:uploads');
         });
+
+        // Each upload folder checks its own permission (see UploadController::FOLDERS).
+        Route::post('uploads', [Admin\UploadController::class, 'store'])->middleware('throttle:uploads');
 
         Route::middleware('can:manage-orders')->group(function () {
             Route::get('orders', [Admin\OrderController::class, 'index']);
+            Route::get('orders/export', [Admin\OrderController::class, 'export']);
+            Route::get('orders/slips', [Admin\OrderController::class, 'slips']);
             Route::get('orders/{order}', [Admin\OrderController::class, 'show']);
             Route::post('orders/{order}/status', [Admin\OrderController::class, 'updateStatus']);
             Route::post('orders/{order}/payment', [Admin\OrderController::class, 'updatePayment']);
@@ -136,6 +141,11 @@ Route::prefix('admin')->group(function () {
 
         Route::middleware('can:manage-content')->group(function () {
             Route::apiResource('pages', Admin\PageController::class)->except('show');
+            Route::get('process-steps', [Admin\ProcessStepController::class, 'index']);
+            Route::post('process-steps', [Admin\ProcessStepController::class, 'store']);
+            Route::put('process-steps/order', [Admin\ProcessStepController::class, 'reorder']);
+            Route::put('process-steps/{processStep}', [Admin\ProcessStepController::class, 'update']);
+            Route::delete('process-steps/{processStep}', [Admin\ProcessStepController::class, 'destroy']);
             Route::get('newsletter', [Admin\NewsletterController::class, 'index']);
         });
 

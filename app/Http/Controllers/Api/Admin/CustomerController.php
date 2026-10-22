@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\MoroccanPhone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 
 /**
  * Registered customers only. Guest orders are searchable from the orders screen.
@@ -73,7 +74,7 @@ class CustomerController extends Controller
             'is_active' => $u->is_active,
             'orders_count' => (int) $u->orders_count,
             'total_spent' => (int) $u->total_spent,
-            'last_order_at' => $u->last_order_at ? (string) $u->last_order_at : null,
+            'last_order_at' => $u->last_order_at ? Carbon::parse($u->last_order_at)->toIso8601String() : null,
             'created_at' => $u->created_at?->toIso8601String(),
         ];
     }

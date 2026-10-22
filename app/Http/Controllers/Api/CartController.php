@@ -16,6 +16,7 @@ use App\Services\Cart\CartCalculator;
 use App\Services\Cart\CartManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * The cart is identified by the X-Cart-Token header (a random UUID issued by the
@@ -39,22 +40,36 @@ class CartController extends Controller
         return $this->respond($request, $cart);
     }
 
+    /**
+     * A refused addition rolls back the cart it would otherwise have created.
+     */
     public function addItem(AddCartItemRequest $request): JsonResponse
     {
-        $cart = $this->cart($request);
         $variant = ProductVariant::with('product')->findOrFail($request->integer('variant_id'));
 
-        $this->carts->addVariant($cart, $variant, $request->integer('quantity', 1));
+        $cart = DB::transaction(function () use ($request, $variant) {
+            $cart = $this->cart($request);
+            $this->carts->addVariant($cart, $variant, $request->integer('quantity', 1));
+
+            return $cart;
+        });
 
         return $this->respond($request, $cart, 201);
     }
 
+    /**
+     * A refused addition rolls back the cart it would otherwise have created.
+     */
     public function addPack(AddPackRequest $request): JsonResponse
     {
-        $cart = $this->cart($request);
         $pack = Pack::findOrFail($request->integer('pack_id'));
 
-        $this->carts->addPack($cart, $pack, $request->input('selections', []), $request->integer('quantity', 1));
+        $cart = DB::transaction(function () use ($request, $pack) {
+            $cart = $this->cart($request);
+            $this->carts->addPack($cart, $pack, $request->input('selections', []), $request->integer('quantity', 1));
+
+            return $cart;
+        });
 
         return $this->respond($request, $cart, 201);
     }
@@ -109,7 +124,7 @@ class CartController extends Controller
     private function existingCart(Request $request): Cart
     {
         $cart = $this->carts->find($request->header('X-Cart-Token'));
-        abort_if($cart === null, 404, 'Panier introuvable.');
+        abort_if($cart === null, 404, __('Panier introuvable.'));
 
         return $cart;
     }

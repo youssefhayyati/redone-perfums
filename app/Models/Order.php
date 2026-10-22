@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
+use App\Support\Locale;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,9 @@ class Order extends Model
     protected $guarded = ['id'];
 
     protected $hidden = ['guest_token', 'idempotency_key'];
+
+    /** @var array<string, mixed> */
+    protected $attributes = ['locale' => Locale::FRENCH];
 
     protected function casts(): array
     {

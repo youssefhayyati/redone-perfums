@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CouponType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 #[Fillable([
@@ -13,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
 ])]
 class Coupon extends Model
 {
+    use HasFactory;
+
     protected function casts(): array
     {
         return [
@@ -45,11 +48,11 @@ class Coupon extends Model
     public function rejectionReason(int $subtotal): ?string
     {
         return match (true) {
-            ! $this->is_active => 'Ce code n’est pas actif.',
-            $this->starts_at !== null && $this->starts_at->isFuture() => 'Ce code n’est pas encore valable.',
-            $this->ends_at !== null && $this->ends_at->isPast() => 'Ce code a expiré.',
-            $this->max_uses !== null && $this->used_count >= $this->max_uses => 'Ce code a atteint sa limite d’utilisation.',
-            $this->min_subtotal !== null && $subtotal < $this->min_subtotal => 'Le montant minimum pour ce code n’est pas atteint.',
+            ! $this->is_active => __('Ce code n’est pas actif.'),
+            $this->starts_at !== null && $this->starts_at->isFuture() => __('Ce code n’est pas encore valable.'),
+            $this->ends_at !== null && $this->ends_at->isPast() => __('Ce code a expiré.'),
+            $this->max_uses !== null && $this->used_count >= $this->max_uses => __('Ce code a atteint sa limite d’utilisation.'),
+            $this->min_subtotal !== null && $subtotal < $this->min_subtotal => __('Le montant minimum pour ce code n’est pas atteint.'),
             default => null,
         };
     }

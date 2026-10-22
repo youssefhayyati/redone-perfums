@@ -15,9 +15,12 @@ class CollectionRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:120'],
+            'name_ar' => ['nullable', 'string', 'max:120'],
             'slug' => ['required', 'string', 'max:140', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('collections', 'slug')->ignore($id)],
             'tagline' => ['nullable', 'string', 'max:255'],
+            'tagline_ar' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:3000'],
+            'description_ar' => ['nullable', 'string', 'max:3000'],
             'image_path' => ['nullable', 'string', 'max:255', new ManagedImagePath],
             'accent_color' => ['nullable', 'regex:/^#[0-9a-fA-F]{6}$/'],
             'is_visible' => ['boolean'],

@@ -9,9 +9,10 @@ use App\Http\Resources\ProductCardResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Collection;
 use App\Models\Pack;
+use App\Models\ProcessStep;
 use App\Models\Product;
-use App\Services\Settings\StoreSettings;
 use App\Services\Settings\StorefrontConfig;
+use App\Services\Settings\StoreSettings;
 use Illuminate\Http\JsonResponse;
 
 class StorefrontController extends Controller
@@ -60,21 +61,35 @@ class StorefrontController extends Controller
             ->with('items.variant.product.images')
             ->orderBy('sort_order')->limit(4)->get();
 
+        $steps = ProcessStep::query()->told()->get(ProcessStep::withTranslations(['id', 'title', 'body', 'detail', 'image_path', 'image_credit']));
+
         return response()->json([
             'hero' => [
-                'eyebrow' => $this->settings->get('home.hero_eyebrow'),
-                'title' => $this->settings->get('home.hero_title'),
-                'subtitle' => $this->settings->get('home.hero_subtitle'),
+                'eyebrow' => $this->settings->localized('home.hero_eyebrow'),
+                'title' => $this->settings->localized('home.hero_title'),
+                'subtitle' => $this->settings->localized('home.hero_subtitle'),
             ],
             'featured' => ProductCardResource::collection($featured),
             'story' => $storyProduct ? [
-                'eyebrow' => $this->settings->get('home.story_eyebrow'),
-                'title' => $this->settings->get('home.story_title') ?: $storyProduct->name,
-                'body' => $this->settings->get('home.story_body') ?: $storyProduct->inspiration,
+                'eyebrow' => $this->settings->localized('home.story_eyebrow'),
+                'title' => $this->settings->localized('home.story_title') ?: $storyProduct->translated('name'),
+                'body' => $this->settings->localized('home.story_body') ?: $storyProduct->translated('inspiration'),
                 'product' => new ProductResource($storyProduct),
             ] : null,
             'collections' => CollectionResource::collection($collections),
             'packs' => PackResource::collection($packs),
+            'lab' => $steps->isEmpty() ? null : [
+                'title' => $this->settings->localized('lab.title'),
+                'intro' => $this->settings->localized('lab.intro'),
+                'steps' => $steps->map(fn (ProcessStep $step) => [
+                    'id' => $step->id,
+                    'title' => $step->translated('title'),
+                    'body' => $step->translated('body'),
+                    'detail' => $step->translated('detail'),
+                    'image' => $step->imageUrl(),
+                    'credit' => $step->image_credit,
+                ]),
+            ],
         ]);
     }
 }

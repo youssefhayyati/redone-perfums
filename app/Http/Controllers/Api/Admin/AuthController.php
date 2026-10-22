@@ -25,6 +25,8 @@ class AuthController extends Controller
             throw ValidationException::withMessages(['email' => 'Identifiants incorrects.']);
         }
 
+        CustomerAuth::recordLogin($user);
+
         return response()->json(['user' => self::present($user)]);
     }
 

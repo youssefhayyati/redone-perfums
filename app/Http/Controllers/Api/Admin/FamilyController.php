@@ -62,10 +62,16 @@ class FamilyController extends Controller
     {
         $request->merge(['slug' => $request->filled('slug') ? $request->input('slug') : Str::slug((string) $request->input('name'))]);
 
+        if ($request->has('sort_order') && $request->input('sort_order') === null) {
+            $request->merge(['sort_order' => 0]);
+        }
+
         return $request->validate([
             'name' => ['required', 'string', 'max:80'],
+            'name_ar' => ['nullable', 'string', 'max:80'],
             'slug' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('fragrance_families', 'slug')->ignore($family?->id)],
             'description' => ['nullable', 'string', 'max:2000'],
+            'description_ar' => ['nullable', 'string', 'max:2000'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],
         ]);
     }

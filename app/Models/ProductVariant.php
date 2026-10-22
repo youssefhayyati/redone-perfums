@@ -41,7 +41,7 @@ class ProductVariant extends Model
 
     public function label(): string
     {
-        return $this->size_ml.' ml';
+        return __(':size ml', ['size' => $this->size_ml]);
     }
 
     /** Purchasable right now: active variant of a published product. */

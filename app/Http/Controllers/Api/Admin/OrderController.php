@@ -8,18 +8,83 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\AdminOrderResource;
 use App\Models\Order;
 use App\Rules\MoroccanPhoneNumber;
+use App\Services\Orders\OrderExport;
 use App\Services\Orders\OrderWorkflow;
+use App\Services\Settings\StoreSettings;
 use App\Support\MoroccanPhone;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OrderController extends Controller
 {
     public function __construct(private readonly OrderWorkflow $workflow) {}
 
+    /** Delivery slips are printed in batches of at most this many orders. */
+    private const SLIPS_LIMIT = 100;
+
     public function index(Request $request): AnonymousResourceCollection
+    {
+        $orders = $this->filtered($request)->paginate(min(100, $request->integer('per_page', 20)));
+
+        return AdminOrderResource::collection($orders)->additional([
+            'counts' => Order::query()->selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status'),
+        ]);
+    }
+
+    /**
+     * The orders matching the list's filters as a spreadsheet (CSV for Excel: semicolons,
+     * UTF-8 with a byte order mark, amounts in dirhams with a decimal comma).
+     */
+    public function export(Request $request, OrderExport $export): StreamedResponse
+    {
+        $query = $this->filtered($request)->with('items.selections');
+
+        return response()->streamDownload(fn () => $export->write($query), 'commandes-'.now()->format('Y-m-d').'.csv', [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    /**
+     * Orders to print delivery slips for: the given references (comma-separated), or else
+     * the list's filters.
+     */
+    public function slips(Request $request, StoreSettings $settings): AnonymousResourceCollection
+    {
+        $request->validate(['references' => ['nullable', 'string', 'max:5000']]);
+        $references = array_values(array_filter(array_map('trim', explode(',', (string) $request->query('references')))));
+
+        if (count($references) > self::SLIPS_LIMIT) {
+            throw ValidationException::withMessages(['references' => 'Imprimez '.self::SLIPS_LIMIT.' bons au plus à la fois.']);
+        }
+
+        $orders = $this->filtered($request)
+            ->when($references !== [], fn ($q) => $q->whereIn('reference', $references))
+            ->with('items.selections')
+            ->limit(self::SLIPS_LIMIT)
+            ->get();
+
+        $phone = $settings->get('contact.phone');
+        $e164 = MoroccanPhone::normalize($phone);
+
+        return AdminOrderResource::collection($orders)->additional([
+            'store' => [
+                'name' => $settings->get('store.name'),
+                'phone' => $e164 !== null ? MoroccanPhone::format($e164) : $phone,
+            ],
+        ]);
+    }
+
+    /**
+     * The order list's filters, shared by the list, its export and its delivery slips.
+     *
+     * @return Builder<Order>
+     */
+    private function filtered(Request $request): Builder
     {
         $request->validate([
             'status' => ['nullable', Rule::enum(OrderStatus::class)],
@@ -28,7 +93,7 @@ class OrderController extends Controller
             'to' => ['nullable', 'date'],
         ]);
 
-        $orders = Order::query()
+        return Order::query()
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->query('status')))
             ->when($request->filled('payment_status'), fn ($q) => $q->where('payment_status', $request->query('payment_status')))
             ->when($request->filled('city'), fn ($q) => $q->where('city_id', $request->integer('city')))
@@ -43,11 +108,7 @@ class OrderController extends Controller
                     ->when($phone, fn ($w) => $w->orWhere('phone', $phone)));
             })
             ->latest('placed_at')
-            ->paginate(min(100, $request->integer('per_page', 20)));
-
-        return AdminOrderResource::collection($orders)->additional([
-            'counts' => Order::query()->selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status'),
-        ]);
+            ->orderByDesc('id');
     }
 
     public function show(Order $order): AdminOrderResource

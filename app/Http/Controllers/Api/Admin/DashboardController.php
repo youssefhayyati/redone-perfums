@@ -30,8 +30,8 @@ class DashboardController extends Controller
         $start = $end->subDays($days - 1)->startOfDay();
         $previousStart = $start->subDays($days);
 
-        $current = $this->totals($start, $end);
-        $previous = $this->totals($previousStart, $start);
+        $current = $this->totals($start, $end, includeEnd: true);
+        $previous = $this->totals($previousStart, $start, includeEnd: false);
         $canSeeRevenue = $request->user()->hasPermission(Permission::ViewRevenue);
 
         return response()->json([
@@ -83,14 +83,17 @@ class DashboardController extends Controller
     }
 
     /**
+     * Totals of the orders placed from $from up to $to; the current period includes
+     * its end ("now"), the previous one stops just before the current period starts.
+     *
      * @return array{revenue: int, orders: int}
      */
-    private function totals(CarbonImmutable $from, CarbonImmutable $to): array
+    private function totals(CarbonImmutable $from, CarbonImmutable $to, bool $includeEnd): array
     {
         $row = Order::query()
             ->where('status', '!=', OrderStatus::Cancelled)
             ->where('placed_at', '>=', $from)
-            ->where('placed_at', '<', $to)
+            ->where('placed_at', $includeEnd ? '<=' : '<', $to)
             ->selectRaw('COALESCE(SUM(total), 0) as revenue, COUNT(*) as orders')
             ->first();
 

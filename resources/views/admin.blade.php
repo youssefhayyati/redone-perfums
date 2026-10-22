@@ -7,8 +7,9 @@
     @include('partials.theme-init')
     <title>Administration — {{ $storeName }}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-    @fonts
-    @vite(['resources/js/admin/main.ts'])
+    @fonts(['instrument-sans', 'ibm-plex-sans-arabic'])
+    @viteReactRefresh
+    @vite(['resources/js/admin/main.tsx'])
 </head>
 <body>
     <div id="app"></div>

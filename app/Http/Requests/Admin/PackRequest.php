@@ -21,10 +21,13 @@ class PackRequest extends FormRequest
 
         return [
             'name' => ['required', 'string', 'max:120'],
+            'name_ar' => ['nullable', 'string', 'max:120'],
             'slug' => ['required', 'string', 'max:140', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', Rule::unique('packs', 'slug')->ignore($id)],
             'type' => ['required', Rule::enum(PackType::class)],
             'tagline' => ['nullable', 'string', 'max:255'],
+            'tagline_ar' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:3000'],
+            'description_ar' => ['nullable', 'string', 'max:3000'],
             'image_path' => ['nullable', 'string', 'max:255', new ManagedImagePath],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0', 'max:100000'],

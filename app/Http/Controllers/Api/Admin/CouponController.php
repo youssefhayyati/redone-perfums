@@ -18,7 +18,7 @@ class CouponController extends Controller
     {
         $coupon = Coupon::create([...$request->validated(), 'is_active' => $request->boolean('is_active')]);
 
-        return response()->json(['data' => $this->present($coupon)], 201);
+        return response()->json(['data' => $this->present($coupon->refresh())], 201);
     }
 
     public function update(CouponRequest $request, Coupon $coupon): JsonResponse

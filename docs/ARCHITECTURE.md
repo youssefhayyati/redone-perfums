@@ -6,16 +6,23 @@ One Laravel 13 application serves three things from the same origin:
 
 | Surface      | URL          | Entry point                         | Notes                                    |
 | ------------ | ------------ | ----------------------------------- | ---------------------------------------- |
-| Storefront   | `/*`         | `resources/js/storefront/main.ts`   | Vue 3 SPA, GSAP motion, night/light      |
-| Admin        | `/admin/*`   | `resources/js/admin/main.ts`        | Separate Vue SPA, no storefront code     |
+| Storefront   | `/*`         | `resources/js/storefront/main.tsx`  | React SPA, Framer Motion, night/light    |
+| Admin        | `/admin/*`   | `resources/js/admin/main.tsx`       | Separate React SPA, no storefront code   |
 | JSON API     | `/api/*`     | `routes/api.php`                    | Sanctum stateful (cookie) authentication |
 
 Serving the SPAs from Laravel keeps Sanctum's cookie + CSRF flow simple (no tokens in
 `localStorage`), lets the Blade shell set the theme before first paint, and lets the server
 inject the page title / description / Open Graph tags for product pages.
 
+Both SPAs use React 19, React Router (data router, one lazily loaded chunk per page),
+Tailwind CSS v4 and TypeScript. State shared across a SPA (cart, session, overlays) lives
+in small `useSyncExternalStore` stores; pages load their data with a cached
+`useQuery`-style hook. The storefront router (`resources/js/storefront/routes.tsx`)
+mirrors `SpaController::isKnownRoute()`.
+
 `resources/js/shared` holds what both SPAs use: the HTTP client, money and phone helpers,
-the theme controller, i18n, and TypeScript API types.
+French date/plural formatting, the theme controller, the store helper and TypeScript API
+types. `resources/css/theme.css` holds the design tokens both stylesheets import.
 
 ## Source of truth
 
@@ -44,6 +51,7 @@ Order 1─* OrderItem 1─* OrderItemSelection   (all with price/name snapshots)
 ProductVariant 1─* InventoryMovement         (sale, cancellation, manual adjustment)
 DeliveryZone 1─* City
 Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / legal)
+ProcessStep (homepage "Le laboratoire": how a perfume is made, one lab photo per step)
 ```
 
 ## Key services (`app/Services`)
@@ -51,10 +59,50 @@ Coupon, NewsletterSubscriber, StoreSetting (key → JSON), Page (policies / lega
 - `Packs\PackResolver`: eligibility, selection validation, and pricing (`quote`).
 - `Cart\CartManager` / `Cart\CartCalculator`: cart mutations and server-side pricing, with per-line issues.
 - `Checkout\OrderPlacer`: idempotent placement with locks, stock decrement and snapshots.
+  It dispatches `Events\OrderPlaced` once the transaction commits (never on a replay);
+  `Listeners\SendOrderPlacedNotifications` queues `NewOrderAlert` to the orders inbox
+  (setting `notifications.orders_email`, else `contact.email`) and `OrderConfirmation`
+  to the customer when they gave an e-mail. Production needs a queue worker.
 - `Orders\OrderWorkflow`: allowed status transitions, restocking on cancel, event log.
+  Each transition dispatches `Events\OrderStatusChanged`; `SendOrderStatusUpdate` e-mails
+  the customer (confirmed, shipped, delivered, cancelled) in the order's language.
+  `SendLowStockAlert` warns the orders inbox when an order takes a format down to its
+  threshold. `Orders\OrderExport` writes the filtered list as CSV for Excel; the admin
+  prints A5 delivery slips from the same filters (`/admin/commandes/bons`).
+- Lab steps ship with freely licensed stock photos (Wikimedia Commons, credited on each
+  step, `is_demo`) until the store uploads its own from Admin → Laboratoire; uploading a
+  photo clears the flag and the stock credit.
+- Console: `app:remove-demo-content` clears the `is_demo` catalogue before launch;
+  `app:launch-check` lists what production still needs (mail, queue worker, cron —
+  proven by a scheduler heartbeat —, https, content). `.env.production.example` holds the
+  production values.
 - `Inventory\InventoryManager`: every stock change writes an `InventoryMovement`.
 - `Settings\StoreSettings`: typed defaults, cached, admin-editable.
 - `Media\ImageProcessor`: validates uploads and writes 480/960/1600 px WebP variants.
+- Storefront measurement (`resources/js/storefront/analytics.ts`): GA4 and Meta Pixel,
+  configured in the settings, load only after the visitor accepts the cookie banner;
+  page views, product views, add to cart, checkout and purchase are sent in MAD.
+
+## Languages
+
+The storefront speaks French (`/…`) and Modern Standard Arabic (`/ar/…`, right to left);
+the admin stays French and edits both.
+
+- **Content**: translatable columns have an `_ar` sibling (`name_ar`, `tagline_ar`…),
+  listed in each model's `TRANSLATABLE`. `HasTranslations::translated()` returns the
+  Arabic text when the app locale is Arabic and it is filled, the French one otherwise.
+  Settings follow the same rule with `{key}_ar` keys and `StoreSettings::localized()`.
+- **API**: the storefront sends `X-Locale` (never `Accept-Language`, so admin calls stay
+  French); `SetLocale` applies it. Server messages are written in French and translated
+  by `lang/ar.json` (and `lang/ar/*.php` for validation).
+- **Pages**: `SpaController` reads the `/ar` prefix and sets `<html lang dir>`, the
+  translated meta and hreflang alternates; the sitemap lists both languages.
+- **Storefront copy**: written in French in the components and wrapped in `t()`,
+  `tNodes()` (placeholders filled by elements) or `tn()` (counted nouns, Arabic's six
+  plural forms); `resources/js/storefront/i18n/ar.ts` must translate every message, which
+  the types enforce. Layout uses logical utilities (`ms-`, `ps-`, `start-`) and `rtl:`.
+- **Orders**: `orders.locale` records the customer's language; their confirmation is
+  sent in it, while the store's alert is always French.
 
 ## Roles
 
@@ -64,11 +112,22 @@ every admin route; the admin SPA hides what the API would refuse anyway.
 
 ## Motion principles
 
-GSAP + ScrollTrigger only for sequences (hero entrance, editorial reveals, parallax,
-light sweep, pack composition). CSS transitions for hovers. Every GSAP context is
-created through `useMotion()`, which reverts timelines and ScrollTriggers on unmount
-and turns effects off under `prefers-reduced-motion` or on low-power devices.
-No scroll hijacking, no custom cursor.
+Framer Motion only for sequences (hero entrance, editorial reveals, image unveils,
+parallax, light sweep, page curtain, grid reshuffles, cart lines, drawers). CSS
+transitions for hovers. A single `MotionProvider` (`resources/js/storefront/motion`) sets
+`MotionConfig`: transform and layout animations follow `prefers-reduced-motion` and are
+always off on low-power devices (Save-Data, two cores or less, little memory), leaving
+only opacity fades.
+Reveals go through `Reveal` / `RevealGroup` / `RevealWords` / `Parallax`, and transformed
+wrappers are kept away from sticky and fixed elements (the page transition only fades
+the page; its curtain is a separate layer under the header).
+With full motion only, `MotionProvider` also starts:
+- smooth wheel scrolling (Lenis, `smoothScroll.ts`): the native scroll position is kept,
+  touch stays native, overlays pause it while they lock the page;
+- pointer effects (`pointerEffects.ts`), delegated from the document and drawn in CSS:
+  `.btn` is magnetic, `[data-tilt]` cards turn towards the pointer with a glint. An element
+  with `data-tilt` must not carry a Framer transform itself.
+No scroll-jacking (snapping, pinned scroll-driven scenes), no custom cursor.
 
 ## Build order
 

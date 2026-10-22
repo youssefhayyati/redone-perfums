@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'fee', 'free_shipping_threshold', 'delivery_estimate', 'is_active', 'sort_order'])]
+#[Fillable(['name', 'fee', 'free_shipping_threshold', 'delivery_estimate', 'is_active', 'sort_order', 'delivery_estimate_ar'])]
 class DeliveryZone extends Model
 {
+    use HasFactory, HasTranslations;
+
+    /** Columns with an Arabic `_ar` sibling (see HasTranslations). */
+    public const TRANSLATABLE = ['delivery_estimate'];
+
     protected function casts(): array
     {
         return [

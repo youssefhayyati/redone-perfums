@@ -35,13 +35,13 @@ class CartResource extends JsonResource
             'discount_total' => $summary->discount,
             'delivery' => $summary->city ? [
                 'city_id' => $summary->city->id,
-                'city' => $summary->city->name,
+                'city' => $summary->city->translated('name'),
                 'fee' => $summary->deliveryFee,
                 'free_shipping_threshold' => $zone?->free_shipping_threshold,
                 'remaining_for_free_shipping' => $zone?->free_shipping_threshold !== null && $summary->deliveryFee > 0
                     ? max(0, $zone->free_shipping_threshold - $summary->merchandiseTotal())
                     : null,
-                'estimate' => $zone?->delivery_estimate,
+                'estimate' => $zone?->translated('delivery_estimate'),
                 'error' => $summary->deliveryError,
             ] : null,
             'total' => $summary->total(),
@@ -71,12 +71,12 @@ class CartResource extends JsonResource
 
             return [...$base,
                 'product' => $product ? [
-                    'name' => $product->name,
+                    'name' => $product->translated('name'),
                     'slug' => $product->slug,
-                    'family' => $product->family?->name,
+                    'family' => $product->family?->translated('name'),
                     'image' => $product->images->first()?->toPublicArray(),
                 ] : null,
-                'variant' => $variant ? ['id' => $variant->id, 'size_ml' => $variant->size_ml, 'label' => $variant->label()] : null,
+                'variant' => $variant ? ['id' => $variant->id, 'size_ml' => $variant->size_ml, 'sku' => $variant->sku, 'label' => $variant->label()] : null,
             ];
         }
 
@@ -86,14 +86,14 @@ class CartResource extends JsonResource
             'pack' => $pack ? [
                 'id' => $pack->id,
                 'slug' => $pack->slug,
-                'name' => $pack->name,
+                'name' => $pack->translated('name'),
                 'type' => $pack->type->value,
                 'image' => $pack->imageUrl(),
                 'editable' => $pack->isCustom(),
             ] : null,
             'selections' => array_map(fn (ProductVariant $v) => [
                 'variant_id' => $v->id,
-                'product_name' => $v->product->name,
+                'product_name' => $v->product->translated('name'),
                 'product_slug' => $v->product->slug,
                 'size_ml' => $v->size_ml,
                 'unit_price' => $v->price,

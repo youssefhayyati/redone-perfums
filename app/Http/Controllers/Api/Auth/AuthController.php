@@ -47,9 +47,10 @@ class AuthController extends Controller
         // Staff sign in through /admin, which keeps the two areas clearly separated.
         if ($user->role->isStaff()) {
             Auth::guard('web')->logout();
-            throw ValidationException::withMessages(['email' => 'Utilisez l’espace d’administration pour ce compte.']);
+            throw ValidationException::withMessages(['email' => __('Utilisez l’espace d’administration pour ce compte.')]);
         }
 
+        self::recordLogin($user);
         $this->claimCart($request, $user);
 
         return response()->json(['user' => self::present($user)]);
@@ -61,7 +62,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Déconnecté.']);
+        return response()->json(['message' => __('Déconnecté.')]);
     }
 
     public function me(Request $request): JsonResponse
@@ -79,7 +80,7 @@ class AuthController extends Controller
         $credentials = ['email' => $request->string('email')->toString(), 'password' => $request->string('password')->toString()];
 
         if (! Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
-            throw ValidationException::withMessages(['email' => 'Identifiants incorrects.']);
+            throw ValidationException::withMessages(['email' => __('Identifiants incorrects.')]);
         }
 
         /** @var User $user */
@@ -87,13 +88,20 @@ class AuthController extends Controller
 
         if (! $user->is_active) {
             Auth::guard('web')->logout();
-            throw ValidationException::withMessages(['email' => 'Identifiants incorrects.']);
+            throw ValidationException::withMessages(['email' => __('Identifiants incorrects.')]);
         }
 
         $request->session()->regenerate();
-        $user->forceFill(['last_login_at' => now()])->save();
 
         return $user;
+    }
+
+    /**
+     * Called once a login is accepted by the area (storefront or admin) it was made on.
+     */
+    public static function recordLogin(User $user): void
+    {
+        $user->forceFill(['last_login_at' => now()])->save();
     }
 
     /**

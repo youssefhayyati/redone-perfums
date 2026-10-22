@@ -13,7 +13,7 @@ enum PaymentMethod: string
     public function label(): string
     {
         return match ($this) {
-            self::CashOnDelivery => 'Paiement à la livraison',
+            self::CashOnDelivery => __('Paiement à la livraison'),
         };
     }
 }

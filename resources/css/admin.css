@@ -1,0 +1,74 @@
+@import 'tailwindcss' source(none);
+@source '../js/admin';
+@source '../js/shared';
+
+@import './theme.css';
+
+@layer components {
+    .field-control {
+        width: 100%;
+        min-height: 2.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid var(--color-line-strong);
+        background-color: var(--color-field);
+        color: var(--color-ink);
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+
+        &:hover {
+            border-color: color-mix(in oklab, var(--color-ink) 40%, transparent);
+        }
+
+        &:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-accent) 22%, transparent);
+        }
+
+        &[aria-invalid='true'] {
+            border-color: var(--color-danger);
+        }
+
+        &:disabled {
+            opacity: 0.6;
+        }
+    }
+
+    select.field-control {
+        appearance: none;
+        padding-right: 2.25rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23a69e91' stroke-width='1.5' viewBox='0 0 12 12'%3E%3Cpath d='m2 4.5 4 4 4-4'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+    }
+
+    textarea.field-control {
+        min-height: 6rem;
+        line-height: 1.5;
+    }
+}
+
+@keyframes admin-progress {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(300%);
+    }
+}
+
+/* Delivery slips (pages/orders/DeliverySlipsPage): one A5 sheet per order, edge to edge. */
+@media print {
+    @page {
+        size: A5;
+        margin: 0;
+    }
+
+    html,
+    body {
+        background: #fff !important;
+    }
+}
